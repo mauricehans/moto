@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Bike, Settings } from 'lucide-react';
+import { Menu, X, Bike } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -70,15 +70,6 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
-            <Link
-              to="/admin"
-              className={`text-sm uppercase tracking-wide font-medium transition-colors hover:text-red-500 flex items-center ${
-                location.pathname === '/admin' ? 'text-red-500' : 'text-white'
-              }`}
-            >
-              <Settings size={16} className="mr-1" />
-              Admin
-            </Link>
           </nav>
 
           <button
@@ -107,16 +98,6 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                to="/admin"
-                className={`text-sm uppercase tracking-wide font-medium transition-colors hover:text-red-500 flex items-center ${
-                  location.pathname === '/admin' ? 'text-red-500' : 'text-white'
-                }`}
-                onClick={closeMenu}
-              >
-                <Settings size={16} className="mr-1" />
-                Admin
-              </Link>
             </div>
           </div>
         </nav>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Save, X, Settings, Clock, Mail, Phone, MapPin, Facebook, Instagram, Youtube } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Settings, Clock, Mail, Phone, MapPin, Facebook, Instagram, Youtube, Lock } from 'lucide-react';
 import SectionTitle from '../components/SectionTitle';
 import { motorcycles } from '../data/motorcycles';
 import { Motorcycle } from '../types/Motorcycle';
@@ -50,6 +50,9 @@ interface GarageInfo {
 }
 
 const AdminPage = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+  const [loginError, setLoginError] = useState('');
   const [activeTab, setActiveTab] = useState<'motorcycles' | 'parts' | 'blog' | 'settings'>('motorcycles');
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
@@ -108,6 +111,30 @@ const AdminPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Simple authentication - in production, this should be properly secured
+    if (loginForm.username === 'admin' && loginForm.password === 'gattuso2024') {
+      setIsAuthenticated(true);
+      setLoginError('');
+    } else {
+      setLoginError('Nom d\'utilisateur ou mot de passe incorrect');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setLoginForm({ username: '', password: '' });
+  };
+
+  const handleLoginInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setLoginForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   const handleEdit = (item: any) => {
     setEditingItem(item);
@@ -230,6 +257,66 @@ const AdminPage = () => {
   const saveHours = () => {
     alert('Horaires sauvegardés !');
   };
+
+  // Login form if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+          <div className="text-center mb-8">
+            <Lock size={48} className="mx-auto text-red-600 mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900">Administration</h1>
+            <p className="text-gray-600 mt-2">Connectez-vous pour accéder au panneau d'administration</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                Nom d'utilisateur
+              </label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={loginForm.username}
+                onChange={handleLoginInputChange}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                Mot de passe
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={loginForm.password}
+                onChange={handleLoginInputChange}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
+            </div>
+
+            {loginError && (
+              <div className="text-red-600 text-sm text-center">
+                {loginError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 transition-colors"
+            >
+              Se connecter
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   const renderMotorcycleForm = () => (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -793,10 +880,18 @@ const AdminPage = () => {
   return (
     <div className="min-h-screen pt-32 pb-16 bg-gray-100">
       <div className="container mx-auto px-4">
-        <SectionTitle
-          title="Administration"
-          subtitle="Gérez votre garage, vos motos, pièces détachées et articles de blog"
-        />
+        <div className="flex justify-between items-center mb-8">
+          <SectionTitle
+            title="Administration"
+            subtitle="Gérez votre garage, vos motos, pièces détachées et articles de blog"
+          />
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+          >
+            Se déconnecter
+          </button>
+        </div>
 
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow-md mb-8">
