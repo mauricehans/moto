@@ -4,14 +4,19 @@ djangorestframework==3.14.0
 django-cors-headers==4.3.1
 django-filter==23.5
 
+# API Documentation
+drf-spectacular==0.27.1
+
 # Base de données et stockage
 Pillow==10.2.0
+psycopg2-binary==2.9.9
+
+# Cache
+redis==5.0.1
+django-redis==5.4.0
 
 # Environment variables
 python-dotenv==1.0.1
-
-# API Documentation
-drf-spectacular==0.27.1
 
 # Development tools
 django-debug-toolbar==4.3.0
@@ -20,7 +25,12 @@ django-extensions==3.2.3
 # Testing
 factory-boy==3.3.0
 coverage==7.4.1
+pytest==8.0.0
+pytest-django==4.8.0
 
 # Production
 gunicorn==21.2.0
 whitenoise==6.6.0
+
+# Security
+django-ratelimit==4.1.0

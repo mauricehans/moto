@@ -4,12 +4,15 @@ import { ArrowRight, Wrench, Award, Shield, Clock } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import SectionTitle from '../components/SectionTitle';
 import MotorcycleCard from '../components/MotorcycleCard';
+import PartCard from '../components/PartCard';
 import ServiceCard from '../components/ServiceCard';
 import { getFeaturedMotorcycles, getNewMotorcycles } from '../data/motorcycles';
+import { getFeaturedParts } from '../data/parts';
 
 const HomePage = () => {
   const featuredMotorcycles = getFeaturedMotorcycles();
   const newMotorcycles = getNewMotorcycles();
+  const featuredParts = getFeaturedParts();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -18,8 +21,8 @@ const HomePage = () => {
   return (
     <div>
       <HeroSection
-        title="Moto Garage Agde"
-        subtitle="Votre spécialiste moto à Agde depuis 2005. Vente de motos d'occasion sélectionnées avec soin."
+        title="Agde Moto Gattuso"
+        subtitle="Votre spécialiste moto à Agde depuis 2005. Vente de motos d'occasion et pièces détachées sélectionnées avec soin."
         backgroundImage="https://images.pexels.com/photos/2519374/pexels-photo-2519374.jpeg"
         buttonText="Découvrir nos motos"
         buttonLink="/motorcycles"
@@ -50,12 +53,37 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Services */}
+      {/* Featured Parts */}
       <section className="py-16 bg-gray-100">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-12">
+            <SectionTitle
+              title="Pièces détachées à la une"
+              subtitle="Sélection de pièces de qualité pour l'entretien et l'amélioration de votre moto"
+            />
+            <Link
+              to="/parts"
+              className="inline-flex items-center text-red-600 font-medium hover:text-red-700 transition-colors mt-4 md:mt-0"
+            >
+              Voir toutes les pièces
+              <ArrowRight size={20} className="ml-2" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredParts.slice(0, 3).map((part) => (
+              <PartCard key={part.id} part={part} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Services */}
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <SectionTitle
             title="Nos services"
-            subtitle="Au Moto Garage Agde, nous vous proposons une gamme complète de services pour votre passion moto"
+            subtitle="Au Agde Moto Gattuso, nous vous proposons une gamme complète de services pour votre passion moto"
             center
           />
 
@@ -77,8 +105,8 @@ const HomePage = () => {
             />
             <ServiceCard
               icon={Clock}
-              title="Assistance 24/7"
-              description="Service d'assistance disponible 24h/24 et 7j/7 pour nos clients en cas de panne."
+              title="Pièces détachées"
+              description="Large catalogue de pièces détachées neuves et d'occasion pour tous types de motos."
             />
           </div>
         </div>
@@ -86,7 +114,7 @@ const HomePage = () => {
 
       {/* New Arrivals */}
       {newMotorcycles.length > 0 && (
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-gray-100">
           <div className="container mx-auto px-4">
             <SectionTitle
               title="Nouveaux arrivages"
@@ -117,10 +145,10 @@ const HomePage = () => {
       <section className="py-20 bg-gray-900 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Vous cherchez une moto spécifique ?
+            Vous cherchez une pièce spécifique ?
           </h2>
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-            Nous pouvons vous aider à trouver la moto de vos rêves. Contactez-nous avec vos critères et votre budget.
+            Nous pouvons vous aider à trouver la pièce qu'il vous faut. Contactez-nous avec vos besoins spécifiques.
           </p>
           <Link
             to="/contact"
