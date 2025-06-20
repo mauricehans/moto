@@ -12,7 +12,13 @@ class Motorcycle(models.Model):
     color = models.CharField(max_length=50)
     description = models.TextField()
     is_sold = models.BooleanField(default=False)
+    is_new = models.BooleanField(default=False)
+    is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.brand} {self.model} ({self.year})"
@@ -21,3 +27,16 @@ class MotorcycleImage(models.Model):
     motorcycle = models.ForeignKey(Motorcycle, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='motorcycles/')
     is_primary = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Image for {self.motorcycle.brand} {self.motorcycle.model}"
+class MotorcycleImage(models.Model):
+    motorcycle = models.ForeignKey(Motorcycle, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='motorcycles/')
+    is_primary = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)  # AJOUTEZ CETTE LIGNE
+    
+    def __str__(self):
+        return f"Image for {self.motorcycle.brand} {self.motorcycle.model}"
+
