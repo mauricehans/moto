@@ -2,12 +2,20 @@
 """Script pour créer un superutilisateur"""
 
 import os
+import sys
 import django
-from django.contrib.auth.models import User
 
-# Configuration Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'agde_moto.settings')
+# Ajouter le dossier backend au path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# Configuration Django (utiliser les settings de développement)
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'agde_moto.settings.development')
 django.setup()
+
+from django.contrib.auth import get_user_model
+
+# Utiliser le bon modèle User
+User = get_user_model()
 
 # Créer un superutilisateur
 if not User.objects.filter(username='admin').exists():
@@ -16,6 +24,6 @@ if not User.objects.filter(username='admin').exists():
         email='admin@agdemoto.fr',
         password='admin123'
     )
-    print("[OK] Superutilisateur cree: admin / admin123")
+    print("[OK] Superutilisateur créé: admin / admin123")
 else:
-    print("[INFO] Superutilisateur deja existant")
+    print("[INFO] Superutilisateur déjà existant")

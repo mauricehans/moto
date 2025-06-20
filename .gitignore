@@ -23,5 +23,41 @@ dist-ssr
 *.sln
 *.sw?
 .env
+# Environnements virtuels Python
+backend/venv/
+backend/env/
+backend/.venv/
+backend/.env/
+
+# Fichiers de configuration sensibles
+backend/.env
+backend/.env.local
+backend/.env.production
+
+# Base de données de développement
+backend/*.sqlite3
+backend/db.sqlite3
+backend/agde_moto_db.sqlite3
+
+# Logs
+backend/logs/
+backend/*.log
+
+# Cache Python
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+backend/.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
 
 setup_backend_moto.py
