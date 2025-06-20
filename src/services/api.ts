@@ -8,7 +8,20 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000, // 10 secondes de timeout
 });
+
+// Intercepteur pour les erreurs
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error('API Error:', error);
+    if (error.code === 'ECONNREFUSED') {
+      console.error('Backend server is not running on http://localhost:8000');
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Interface pour les réponses paginées
 interface PaginatedResponse<T> {

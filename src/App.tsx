@@ -13,32 +13,31 @@ import ContactPage from './pages/ContactPage';
 import AdminPage from './pages/AdminPage';
 import ScrollToTop from './utils/ScrollToTop';
 
-function App() {
-  useEffect(() => {
-    document.title = "Agde Moto Gattuso - Vente de motos et pièces détachées";
-  }, []);
+const queryClient = new QueryClient();
 
+function App() {
   return (
-    <Router>
-      <ScrollToTop />
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/motorcycles" element={<MotorcyclesPage />} />
-            <Route path="/motorcycles/:id" element={<MotorcycleDetailPage />} />
-            <Route path="/parts" element={<PartsPage />} />
-            <Route path="/parts/:id" element={<PartDetailPage />} />
-            <Route path="/blog" element={<BlogPage />} />
-            <Route path="/blog/:id" element={<BlogPostPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/admin" element={<AdminPage />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <main className="flex-grow">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/motorcycles" element={<MotorcyclesPage />} />
+              <Route path="/motorcycles/:id" element={<MotorcycleDetailPage />} />
+              <Route path="/parts" element={<PartsPage />} />
+              <Route path="/parts/:id" element={<PartDetailPage />} />
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/blog/:id" element={<BlogPostPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/admin" element={<AdminPage />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </Router>
+    </QueryClientProvider>
   );
 }
 

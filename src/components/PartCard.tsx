@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Package, Star } from 'lucide-react';
-import { Part } from '../types/Part';
 
 interface PartCardProps {
-  part: Part;
+  part: any;
 }
 
 const PartCard = ({ part }: PartCardProps) => {
@@ -31,6 +30,11 @@ const PartCard = ({ part }: PartCardProps) => {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  // Adapter les données de l'API Django
+  const mainImage = part.images?.[0]?.image || 'https://images.pexels.com/photos/2539322/pexels-photo-2539322.jpeg';
+  const price = parseFloat(part.price);
+  const categoryName = part.category?.name || part.category;
   
   return (
     <Link 
@@ -41,14 +45,14 @@ const PartCard = ({ part }: PartCardProps) => {
     >
       <div className="relative overflow-hidden" style={{ height: '200px' }}>
         <img 
-          src={part.images[0]} 
+          src={mainImage} 
           alt={part.name}
           className={`w-full h-full object-cover transition-transform duration-500 ${
             isHovered ? 'scale-105' : 'scale-100'
           }`}
         />
         <div className="absolute top-4 left-4 flex flex-col gap-2">
-          {part.isFeatured && (
+          {part.is_featured && (
             <div className="bg-red-600 text-white text-xs font-bold uppercase px-2 py-1 rounded flex items-center">
               <Star size={12} className="mr-1" />
               À la une
@@ -75,7 +79,7 @@ const PartCard = ({ part }: PartCardProps) => {
         
         <div className="flex justify-between items-center mb-3">
           <span className="text-red-600 font-bold text-xl">
-            {part.price} €
+            {price.toLocaleString('fr-FR')} €
           </span>
           <span className="text-gray-600 text-sm">
             {part.brand}
@@ -84,10 +88,10 @@ const PartCard = ({ part }: PartCardProps) => {
         
         <div className="mb-3">
           <span className="inline-block bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded mb-2">
-            {part.category}
+            {categoryName}
           </span>
           <p className="text-gray-600 text-sm">
-            Compatible: {part.compatibleModels}
+            Compatible: {part.compatible_models}
           </p>
         </div>
         

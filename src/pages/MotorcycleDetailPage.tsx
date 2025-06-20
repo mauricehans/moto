@@ -3,28 +3,18 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar, Gauge, Award, BarChart2, PaintBucket } from 'lucide-react';
 import ImageGallery from '../components/ImageGallery';
 import ContactForm from '../components/ContactForm';
-import { getMotorcycleById } from '../data/motorcycles';
-import { Motorcycle } from '../types/Motorcycle';
+import { useMotorcycle } from '../hooks/useMotorcycles';
 
 const MotorcycleDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const [motorcycle, setMotorcycle] = useState<Motorcycle | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: motorcycle, isLoading, error } = useMotorcycle(id!);
   const [showContactForm, setShowContactForm] = useState(false);
-
-  useEffect(() => {
-    if (id) {
-      const fetchedMotorcycle = getMotorcycleById(id);
-      setMotorcycle(fetchedMotorcycle || null);
-      setLoading(false);
-    }
-  }, [id]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
@@ -32,7 +22,7 @@ const MotorcycleDetailPage = () => {
     );
   }
 
-  if (!motorcycle) {
+  if (error || !motorcycle) {
     return (
       <div className="min-h-screen pt-32 pb-16">
         <div className="container mx-auto px-4 text-center">
@@ -66,6 +56,11 @@ const MotorcycleDetailPage = () => {
     }
   };
 
+  // Adapter les données de l'API Django
+  const images = motorcycle.images?.map((img: any) => img.image) || [
+    'https://images.pexels.com/photos/2611686/pexels-photo-2611686.jpeg'
+  ];
+
   return (
     <div className="min-h-screen pt-32 pb-16">
       <div className="container mx-auto px-4">
@@ -83,7 +78,7 @@ const MotorcycleDetailPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-8">
             <div>
               <ImageGallery 
-                images={motorcycle.images} 
+                images={images} 
                 alt={`${motorcycle.brand} ${motorcycle.model}`} 
               />
             </div>
@@ -95,9 +90,9 @@ const MotorcycleDetailPage = () => {
               
               <div className="flex items-center mb-6">
                 <span className="text-2xl font-bold text-red-600">
-                  {motorcycle.price.toLocaleString('fr-FR')} €
+                  {parseFloat(motorcycle.price).toLocaleString('fr-FR')} €
                 </span>
-                {motorcycle.isNew && (
+                {motorcycle.is_new && (
                   <span className="ml-4 bg-red-600 text-white text-xs font-bold uppercase px-3 py-1 rounded">
                     Nouveau
                   </span>
@@ -117,7 +112,7 @@ const MotorcycleDetailPage = () => {
                   <Gauge size={20} className="text-red-600" />
                   <div>
                     <p className="text-sm text-gray-600">Kilométrage</p>
-                    <p className="font-medium text-gray-900">{motorcycle.mileage.toLocaleString('fr-FR')} km</p>
+                    <p className="font-medium text-gray-900">{motorcycle.mileage?.toLocaleString('fr-FR')} km</p>
                   </div>
                 </div>
                 
@@ -160,20 +155,6 @@ const MotorcycleDetailPage = () => {
               <div className="mb-8">
                 <h2 className="text-xl font-bold text-gray-900 mb-3">Description</h2>
                 <p className="text-gray-700">{motorcycle.description}</p>
-              </div>
-              
-              <div className="mb-8">
-                <h2 className="text-xl font-bold text-gray-900 mb-3">Équipements</h2>
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {motorcycle.features.map((feature, index) => (
-                    <li key={index} className="flex items-center text-gray-700">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600 mr-2">
-                        <path d="M20 6 9 17l-5-5" />
-                      </svg>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
               </div>
               
               <button

@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Motorcycle } from '../types/Motorcycle';
 
 interface MotorcycleCardProps {
-  motorcycle: Motorcycle;
+  motorcycle: any;
 }
 
 const MotorcycleCard = ({ motorcycle }: MotorcycleCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  
+  // Adapter les données de l'API Django
+  const mainImage = motorcycle.images?.[0]?.image || 'https://images.pexels.com/photos/2611686/pexels-photo-2611686.jpeg';
+  const price = parseFloat(motorcycle.price);
   
   return (
     <Link 
@@ -18,13 +21,13 @@ const MotorcycleCard = ({ motorcycle }: MotorcycleCardProps) => {
     >
       <div className="relative overflow-hidden" style={{ height: '240px' }}>
         <img 
-          src={motorcycle.images[0]} 
+          src={mainImage} 
           alt={`${motorcycle.brand} ${motorcycle.model}`}
           className={`w-full h-full object-cover transition-transform duration-500 ${
             isHovered ? 'scale-105' : 'scale-100'
           }`}
         />
-        {motorcycle.isNew && (
+        {motorcycle.is_new && (
           <div className="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold uppercase px-3 py-1 rounded">
             Nouveau
           </div>
@@ -38,10 +41,10 @@ const MotorcycleCard = ({ motorcycle }: MotorcycleCardProps) => {
         
         <div className="flex justify-between items-center mb-3">
           <span className="text-red-600 font-bold text-xl">
-            {motorcycle.price.toLocaleString('fr-FR')} €
+            {price.toLocaleString('fr-FR')} €
           </span>
           <span className="text-gray-600 text-sm">
-            {motorcycle.year} | {motorcycle.mileage.toLocaleString('fr-FR')} km
+            {motorcycle.year} | {motorcycle.mileage?.toLocaleString('fr-FR')} km
           </span>
         </div>
         

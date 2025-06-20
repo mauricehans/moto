@@ -3,11 +3,11 @@ import { SearchIcon } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import SectionTitle from '../components/SectionTitle';
 import MotorcycleCard from '../components/MotorcycleCard';
-import { motorcycles } from '../data/motorcycles';
-import { Motorcycle } from '../types/Motorcycle';
+import { useMotorcycles } from '../hooks/useMotorcycles';
 
 const MotorcyclesPage = () => {
-  const [filteredMotorcycles, setFilteredMotorcycles] = useState<Motorcycle[]>(motorcycles);
+  const { data: motorcycles = [], isLoading, error } = useMotorcycles();
+  const [filteredMotorcycles, setFilteredMotorcycles] = useState<any[]>([]);
   const [filters, setFilters] = useState({
     search: '',
     brand: '',
@@ -18,7 +18,7 @@ const MotorcyclesPage = () => {
   });
 
   // Get unique brands for filter
-  const brands = Array.from(new Set(motorcycles.map(m => m.brand))).sort();
+  const brands = Array.from(new Set(motorcycles.map((m: any) => m.brand))).sort();
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -45,7 +45,7 @@ const MotorcyclesPage = () => {
     // Filter by search term
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
-      result = result.filter(moto => 
+      result = result.filter((moto: any) => 
         moto.brand.toLowerCase().includes(searchTerm) || 
         moto.model.toLowerCase().includes(searchTerm) ||
         moto.description.toLowerCase().includes(searchTerm)
@@ -54,31 +54,54 @@ const MotorcyclesPage = () => {
 
     // Filter by brand
     if (filters.brand) {
-      result = result.filter(moto => moto.brand === filters.brand);
+      result = result.filter((moto: any) => moto.brand === filters.brand);
     }
 
     // Filter by price range
     if (filters.priceMin) {
-      result = result.filter(moto => moto.price >= parseInt(filters.priceMin));
+      result = result.filter((moto: any) => parseFloat(moto.price) >= parseInt(filters.priceMin));
     }
     if (filters.priceMax) {
-      result = result.filter(moto => moto.price <= parseInt(filters.priceMax));
+      result = result.filter((moto: any) => parseFloat(moto.price) <= parseInt(filters.priceMax));
     }
 
     // Filter by year range
     if (filters.yearMin) {
-      result = result.filter(moto => moto.year >= parseInt(filters.yearMin));
+      result = result.filter((moto: any) => moto.year >= parseInt(filters.yearMin));
     }
     if (filters.yearMax) {
-      result = result.filter(moto => moto.year <= parseInt(filters.yearMax));
+      result = result.filter((moto: any) => moto.year <= parseInt(filters.yearMax));
     }
 
     setFilteredMotorcycles(result);
-  }, [filters]);
+  }, [filters, motorcycles]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen pt-32 pb-16">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">
+            Erreur de chargement
+          </h1>
+          <p className="text-gray-600 mb-8">
+            Impossible de charger les motos. Veuillez réessayer plus tard.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

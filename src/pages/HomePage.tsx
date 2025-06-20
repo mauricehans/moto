@@ -6,17 +6,29 @@ import SectionTitle from '../components/SectionTitle';
 import MotorcycleCard from '../components/MotorcycleCard';
 import PartCard from '../components/PartCard';
 import ServiceCard from '../components/ServiceCard';
-import { getFeaturedMotorcycles, getNewMotorcycles } from '../data/motorcycles';
-import { getFeaturedParts } from '../data/parts';
+import { useMotorcycles, useFeaturedMotorcycles } from '../hooks/useMotorcycles';
+import { useParts } from '../hooks/useParts';
 
 const HomePage = () => {
-  const featuredMotorcycles = getFeaturedMotorcycles();
-  const newMotorcycles = getNewMotorcycles();
-  const featuredParts = getFeaturedParts();
+  const { data: motorcycles = [], isLoading: motorcyclesLoading } = useMotorcycles();
+  const { data: featuredMotorcycles = [], isLoading: featuredLoading } = useFeaturedMotorcycles();
+  const { data: parts = [], isLoading: partsLoading } = useParts();
+
+  // Filtrer les motos nouvelles et les pièces à la une côté client
+  const newMotorcycles = motorcycles.filter((moto: any) => moto.is_new);
+  const featuredParts = parts.filter((part: any) => part.is_featured).slice(0, 3);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  if (motorcyclesLoading || featuredLoading || partsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -46,7 +58,7 @@ const HomePage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredMotorcycles.map((motorcycle) => (
+            {featuredMotorcycles.slice(0, 3).map((motorcycle: any) => (
               <MotorcycleCard key={motorcycle.id} motorcycle={motorcycle} />
             ))}
           </div>
@@ -71,7 +83,7 @@ const HomePage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredParts.slice(0, 3).map((part) => (
+            {featuredParts.map((part: any) => (
               <PartCard key={part.id} part={part} />
             ))}
           </div>
@@ -123,7 +135,7 @@ const HomePage = () => {
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {newMotorcycles.map((motorcycle) => (
+              {newMotorcycles.slice(0, 3).map((motorcycle: any) => (
                 <MotorcycleCard key={motorcycle.id} motorcycle={motorcycle} />
               ))}
             </div>
