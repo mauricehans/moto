@@ -7,7 +7,7 @@ import { useMotorcycles } from '../hooks/useMotorcycles';
 
 const MotorcyclesPage = () => {
   const { data: motorcycles = [], isLoading, error } = useMotorcycles();
-  const [filteredMotorcycles, setFilteredMotorcycles] = useState<any[]>([]);
+  const [filteredMotorcycles, setFilteredMotorcycles] = useState<Motorcycle[]>([]);
   const [filters, setFilters] = useState({
     search: '',
     brand: '',
@@ -18,7 +18,7 @@ const MotorcyclesPage = () => {
   });
 
   // Get unique brands for filter
-  const brands = Array.from(new Set(motorcycles.map((m: any) => m.brand))).sort();
+  const brands = Array.from(new Set(motorcycles.map((m: Motorcycle) => m.brand))).sort();
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -45,7 +45,7 @@ const MotorcyclesPage = () => {
     // Filter by search term
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
-      result = result.filter((moto: any) => 
+      result = result.filter((moto: Motorcycle) => 
         moto.brand.toLowerCase().includes(searchTerm) || 
         moto.model.toLowerCase().includes(searchTerm) ||
         moto.description.toLowerCase().includes(searchTerm)
@@ -54,23 +54,23 @@ const MotorcyclesPage = () => {
 
     // Filter by brand
     if (filters.brand) {
-      result = result.filter((moto: any) => moto.brand === filters.brand);
+      result = result.filter((moto: Motorcycle) => moto.brand === filters.brand);
     }
 
     // Filter by price range
     if (filters.priceMin) {
-      result = result.filter((moto: any) => parseFloat(moto.price) >= parseInt(filters.priceMin));
+      result = result.filter((moto: Motorcycle) => parseFloat(moto.price) >= parseInt(filters.priceMin));
     }
     if (filters.priceMax) {
-      result = result.filter((moto: any) => parseFloat(moto.price) <= parseInt(filters.priceMax));
+      result = result.filter((moto: Motorcycle) => parseFloat(moto.price) <= parseInt(filters.priceMax));
     }
 
     // Filter by year range
     if (filters.yearMin) {
-      result = result.filter((moto: any) => moto.year >= parseInt(filters.yearMin));
+      result = result.filter((moto: Motorcycle) => moto.year >= parseInt(filters.yearMin));
     }
     if (filters.yearMax) {
-      result = result.filter((moto: any) => moto.year <= parseInt(filters.yearMax));
+      result = result.filter((moto: Motorcycle) => moto.year <= parseInt(filters.yearMax));
     }
 
     setFilteredMotorcycles(result);
@@ -243,7 +243,7 @@ const MotorcyclesPage = () => {
           {/* Results */}
           {filteredMotorcycles.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredMotorcycles.map((motorcycle) => (
+              {filteredMotorcycles.map((motorcycle: Motorcycle) => (
                 <MotorcycleCard key={motorcycle.id} motorcycle={motorcycle} />
               ))}
             </div>

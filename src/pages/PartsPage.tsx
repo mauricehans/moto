@@ -8,7 +8,7 @@ import { useParts, usePartCategories } from '../hooks/useParts';
 const PartsPage = () => {
   const { data: parts = [], isLoading, error } = useParts();
   const { data: categories = [] } = usePartCategories();
-  const [filteredParts, setFilteredParts] = useState<any[]>([]);
+  const [filteredParts, setFilteredParts] = useState<Part[]>([]);
   const [filters, setFilters] = useState({
     search: '',
     category: '',
@@ -20,7 +20,7 @@ const PartsPage = () => {
   });
 
   // Get unique brands from parts
-  const brands = Array.from(new Set(parts.map((part: any) => part.brand))).sort();
+  const brands = Array.from(new Set(parts.map((part: Part) => part.brand))).sort();
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -43,12 +43,12 @@ const PartsPage = () => {
   };
 
   useEffect(() => {
-    let result = parts.filter((part: any) => part.is_available);
+    let result = parts.filter((part: Part) => part.is_available);
 
     // Filter by search term
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
-      result = result.filter((part: any) => 
+      result = result.filter((part: Part) => 
         part.name.toLowerCase().includes(searchTerm) || 
         part.brand.toLowerCase().includes(searchTerm) ||
         part.compatible_models.toLowerCase().includes(searchTerm) ||
@@ -58,30 +58,30 @@ const PartsPage = () => {
 
     // Filter by category
     if (filters.category) {
-      result = result.filter((part: any) => part.category.name === filters.category);
+      result = result.filter((part: Part) => part.category.name === filters.category);
     }
 
     // Filter by brand
     if (filters.brand) {
-      result = result.filter((part: any) => part.brand === filters.brand);
+      result = result.filter((part: Part) => part.brand === filters.brand);
     }
 
     // Filter by condition
     if (filters.condition) {
-      result = result.filter((part: any) => part.condition === filters.condition);
+      result = result.filter((part: Part) => part.condition === filters.condition);
     }
 
     // Filter by price range
     if (filters.priceMin) {
-      result = result.filter((part: any) => parseFloat(part.price) >= parseInt(filters.priceMin));
+      result = result.filter((part: Part) => parseFloat(part.price) >= parseInt(filters.priceMin));
     }
     if (filters.priceMax) {
-      result = result.filter((part: any) => parseFloat(part.price) <= parseInt(filters.priceMax));
+      result = result.filter((part: Part) => parseFloat(part.price) <= parseInt(filters.priceMax));
     }
 
     // Filter by stock availability
     if (filters.inStock) {
-      result = result.filter((part: any) => part.stock > 0);
+      result = result.filter((part: Part) => part.stock > 0);
     }
 
     setFilteredParts(result);
@@ -166,7 +166,7 @@ const PartsPage = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                 >
                   <option value="">Toutes les catégories</option>
-                  {categories.map((category: any) => (
+                  {Array.isArray(categories) && categories.map((category: PartCategory) => (
                     <option key={category.id} value={category.name}>
                       {category.name}
                     </option>
@@ -282,7 +282,7 @@ const PartsPage = () => {
 
           {filteredParts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredParts.map((part) => (
+              {filteredParts.map((part: Part) => (
                 <PartCard key={part.id} part={part} />
               ))}
             </div>
@@ -306,3 +306,16 @@ const PartsPage = () => {
 };
 
 export default PartsPage;
+
+const [categories, setCategories] = useState<PartCategory[]>([]);
+const loadCategories = async () => {
+  try {
+    const response = await axios.get('/api/parts/categories');
+    if (Array.isArray(response.data)) {
+      setCategories(response.data);
+    }
+  } catch (error) {
+    console.error('Erreur de chargement des catégories', error);
+    setCategories([]);
+  }
+};

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Motorcycle } from '../types/Motorcycle';
 
 interface MotorcycleCardProps {
-  motorcycle: any;
+  motorcycle: Motorcycle;
 }
 
 const MotorcycleCard = ({ motorcycle }: MotorcycleCardProps) => {

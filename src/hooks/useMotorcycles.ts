@@ -1,8 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motorcycleService } from '../services/api';
+import { Motorcycle } from '../types/Motorcycle';
 
 export const useMotorcycles = () => {
-  return useQuery({
+  return useQuery<Motorcycle[]>({
     queryKey: ['motorcycles'],
     queryFn: async () => {
       const response = await motorcycleService.getAll();
@@ -12,7 +13,7 @@ export const useMotorcycles = () => {
 };
 
 export const useMotorcycle = (id: string) => {
-  return useQuery({
+  return useQuery<Motorcycle>({
     queryKey: ['motorcycle', id],
     queryFn: async () => {
       const response = await motorcycleService.getById(id);
@@ -23,11 +24,16 @@ export const useMotorcycle = (id: string) => {
 };
 
 export const useFeaturedMotorcycles = () => {
-  return useQuery({
+  return useQuery<Motorcycle[]>({ // Assuming getFeatured returns an array of Motorcycles
     queryKey: ['motorcycles', 'featured'],
     queryFn: async () => {
       const response = await motorcycleService.getFeatured();
-      return response.data;
+      // Check if the response is paginated or a direct array
+      if ('results' in response.data) {
+        return response.data.results;
+      } else {
+        return response.data;
+      }
     },
   });
 };
@@ -35,7 +41,7 @@ export const useFeaturedMotorcycles = () => {
 export const useCreateMotorcycle = () => {
   const queryClient = useQueryClient();
   
-  return useMutation({
+  return useMutation<Motorcycle, Error, Motorcycle>({
     mutationFn: motorcycleService.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['motorcycles'] });

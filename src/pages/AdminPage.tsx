@@ -3,28 +3,8 @@ import { Plus, Edit, Trash2, Save, X, Settings, Clock, Mail, Phone, MapPin, Face
 import SectionTitle from '../components/SectionTitle';
 import { motorcycles } from '../data/motorcycles';
 import { Motorcycle } from '../types/Motorcycle';
-
-interface BlogPost {
-  id: string;
-  title: string;
-  content: string;
-  category: string;
-  image: string;
-  isPublished: boolean;
-  createdAt: string;
-}
-
-interface Part {
-  id: string;
-  name: string;
-  category: string;
-  brand: string;
-  compatibleModels: string;
-  price: number;
-  stock: number;
-  description: string;
-  image: string;
-}
+import { Part } from '../types/Part';
+import { Post } from '../types/Blog';
 
 interface SocialMedia {
   facebook: string;
@@ -55,7 +35,7 @@ const AdminPage = () => {
   const [loginError, setLoginError] = useState('');
   const [activeTab, setActiveTab] = useState<'motorcycles' | 'parts' | 'blog' | 'settings'>('motorcycles');
   const [showForm, setShowForm] = useState(false);
-  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editingItem, setEditingItem] = useState<Motorcycle | Part | Post | null>(null);
   
   // Sample data
   const [adminMotorcycles, setAdminMotorcycles] = useState<Motorcycle[]>(motorcycles);
@@ -106,7 +86,7 @@ const AdminPage = () => {
     }
   });
 
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<Motorcycle | Part | Post | {}>({});
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -136,7 +116,7 @@ const AdminPage = () => {
     }));
   };
 
-  const handleEdit = (item: any) => {
+  const handleEdit = (item: Motorcycle | Part | Post) => {
     setEditingItem(item);
     setFormData(item);
     setShowForm(true);

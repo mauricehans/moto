@@ -1,4 +1,7 @@
 import axios from 'axios';
+import { Motorcycle } from '../types/Motorcycle';
+import { Part, PartCategory } from '../types/Part';
+import { Post, BlogCategory } from '../types/Blog';
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
@@ -33,29 +36,29 @@ interface PaginatedResponse<T> {
 
 // Services pour les motos
 export const motorcycleService = {
-  getAll: () => api.get<PaginatedResponse<any>>('/motorcycles/motorcycles/'),
-  getById: (id: string) => api.get(`/motorcycles/motorcycles/${id}/`),
-  getFeatured: () => api.get('/motorcycles/motorcycles/featured/'),
-  create: (data: any) => api.post('/motorcycles/motorcycles/', data),
-  update: (id: string, data: any) => api.put(`/motorcycles/motorcycles/${id}/`, data),
-  delete: (id: string) => api.delete(`/motorcycles/motorcycles/${id}/`),
+  getAll: () => api.get<PaginatedResponse<Motorcycle>>('/motorcycles/motorcycles/'),
+  getById: (id: string) => api.get<Motorcycle>(`/motorcycles/motorcycles/${id}/`),
+  getFeatured: () => api.get<Motorcycle[] | PaginatedResponse<Motorcycle>>('/motorcycles/motorcycles/featured/'),
+  create: (data: Motorcycle) => api.post<Motorcycle>('/motorcycles/motorcycles/', data),
+  update: (id: string, data: Motorcycle) => api.put<Motorcycle>(`/motorcycles/motorcycles/${id}/`, data),
+  delete: (id: string) => api.delete<void>(`/motorcycles/motorcycles/${id}/`),
 };
 
 // Services pour les pièces détachées
 export const partsService = {
-  getAll: () => api.get<PaginatedResponse<any>>('/parts/parts/'),
-  getById: (id: string) => api.get(`/parts/parts/${id}/`),
-  getCategories: () => api.get('/parts/categories/'),
-  create: (data: any) => api.post('/parts/parts/', data),
-  update: (id: string, data: any) => api.put(`/parts/parts/${id}/`, data),
-  delete: (id: string) => api.delete(`/parts/parts/${id}/`),
+  getAll: () => api.get<PaginatedResponse<Part>>('/parts/parts/'),
+  getById: (id: string) => api.get<Part>(`/parts/parts/${id}/`),
+  getCategories: () => api.get<PartCategory[]>('/parts/categories/'),
+  create: (data: Part) => api.post<Part>('/parts/parts/', data),
+  update: (id: string, data: Part) => api.put<Part>(`/parts/parts/${id}/`, data),
+  delete: (id: string) => api.delete<void>(`/parts/parts/${id}/`),
 };
 
 // Services pour le blog
 export const blogService = {
-  getPosts: () => api.get<PaginatedResponse<any>>('/blog/posts/'),
-  getPostById: (id: string) => api.get(`/blog/posts/${id}/`),
-  getCategories: () => api.get('/blog/categories/'),
+  getPosts: () => api.get<PaginatedResponse<Post>>('/blog/posts/'),
+  getPostById: (id: string) => api.get<Post>(`/blog/posts/${id}/`),
+  getCategories: () => api.get<BlogCategory[]>('/blog/categories/'),
 };
 
 export default api;

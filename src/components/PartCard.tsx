@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Package, Star } from 'lucide-react';
+import { Part } from '../types/Part';
 
 interface PartCardProps {
-  part: any;
+  part: Part;
 }
 
 const PartCard = ({ part }: PartCardProps) => {

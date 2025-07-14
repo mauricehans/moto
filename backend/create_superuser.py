@@ -9,7 +9,7 @@ import django
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Configuration Django (utiliser les settings de développement)
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'agde_moto.settings.development')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'agde_moto.settings')
 django.setup()
 
 from django.contrib.auth import get_user_model

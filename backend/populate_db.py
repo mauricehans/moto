@@ -19,7 +19,7 @@ from blog.models import Category as BlogCategory, Post
 
 def create_motorcycles():
     """Créer des motos de test"""
-    print("🏍️ Création des motos...")
+    print("Creation des motos...")
     
     motorcycles_data = [
         {
@@ -136,7 +136,7 @@ def create_motorcycles():
         )
         
         if created:
-            print(f"✅ Moto créée: {motorcycle.brand} {motorcycle.model}")
+            print(f"[OK] Moto créée: {motorcycle.brand} {motorcycle.model}")
             
             # Ajouter les images
             for i, image_url in enumerate(images):
@@ -146,11 +146,11 @@ def create_motorcycles():
                     is_primary=(i == 0)
                 )
         else:
-            print(f"⚠️ Moto déjà existante: {motorcycle.brand} {motorcycle.model}")
+            print(f"[WARN] Moto deja existante: {motorcycle.brand} {motorcycle.model}")
 
 def create_part_categories():
     """Créer les catégories de pièces"""
-    print("📂 Création des catégories de pièces...")
+    print("Creation des categories de pieces...")
     
     categories = [
         {'name': 'Échappement', 'slug': 'echappement', 'description': 'Systèmes d\'échappement et silencieux'},
@@ -171,11 +171,11 @@ def create_part_categories():
             defaults=cat_data
         )
         if created:
-            print(f"✅ Catégorie créée: {category.name}")
+            print(f"[OK] Categorie creee: {category.name}")
 
 def create_parts():
     """Créer des pièces détachées de test"""
-    print("🔧 Création des pièces détachées...")
+    print("Creation des pieces detachees...")
     
     # Récupérer les catégories
     echappement = PartCategory.objects.get(slug='echappement')
@@ -345,7 +345,7 @@ def create_parts():
         )
         
         if created:
-            print(f"✅ Pièce créée: {part.name}")
+            print(f"[OK] Piece creee: {part.name}")
             
             # Ajouter les images
             for i, image_url in enumerate(images):
@@ -355,11 +355,11 @@ def create_parts():
                     is_primary=(i == 0)
                 )
         else:
-            print(f"⚠️ Pièce déjà existante: {part.name}")
+            print(f"[WARN] Piece deja existante: {part.name}")
 
 def create_blog_categories():
     """Créer les catégories de blog"""
-    print("📝 Création des catégories de blog...")
+    print("Creation des categories de blog...")
     
     categories = [
         {'name': 'Conseils', 'slug': 'conseils', 'description': 'Conseils et astuces moto'},
@@ -374,11 +374,11 @@ def create_blog_categories():
             defaults=cat_data
         )
         if created:
-            print(f"✅ Catégorie blog créée: {category.name}")
+            print(f"[OK] Categorie blog creee: {category.name}")
 
 def create_blog_posts():
     """Créer des articles de blog de test"""
-    print("📰 Création des articles de blog...")
+    print("Creation des articles de blog...")
     
     conseils = BlogCategory.objects.get(slug='conseils')
     actualites = BlogCategory.objects.get(slug='actualites')
@@ -492,17 +492,17 @@ Nous suivons de près ces évolutions pour vous proposer les meilleures occasion
         )
         
         if created:
-            print(f"✅ Article créé: {post.title}")
+            print(f"[OK] Article cree: {post.title}")
         else:
-            print(f"⚠️ Article déjà existant: {post.title}")
+            print(f" Article deja existant: {post.title}")
 
 def main():
     """Fonction principale"""
-    print("🚀 Démarrage du peuplement de la base de données...")
+    print("Demarrage du peuplement de la base de donnees...")
     
     try:
         # Supprimer les données existantes
-        print("🗑️ Suppression des données existantes...")
+        print("Suppression des donnees existantes...")
         MotorcycleImage.objects.all().delete()
         Motorcycle.objects.all().delete()
         PartImage.objects.all().delete()
@@ -518,8 +518,8 @@ def main():
         create_blog_categories()
         create_blog_posts()
         
-        print("\n✅ Base de données peuplée avec succès !")
-        print(f"📊 Statistiques :")
+        print("Base de donnees peuplee avec succes !")
+        print(f"Statistiques :")
         print(f"   - Motos: {Motorcycle.objects.count()}")
         print(f"   - Images motos: {MotorcycleImage.objects.count()}")
         print(f"   - Catégories pièces: {PartCategory.objects.count()}")
@@ -529,7 +529,7 @@ def main():
         print(f"   - Articles blog: {Post.objects.count()}")
         
     except Exception as e:
-        print(f"❌ Erreur lors du peuplement: {e}")
+        print(f"Erreur lors du peuplement: {e}")
         sys.exit(1)
 
 if __name__ == '__main__':

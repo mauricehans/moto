@@ -1,8 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { blogService } from '../services/api';
+import { Post, BlogCategory } from '../types/Blog';
 
 export const useBlogPosts = () => {
-  return useQuery({
+  return useQuery<Post[]>({
     queryKey: ['blog-posts'],
     queryFn: async () => {
       const response = await blogService.getPosts();
@@ -12,7 +13,7 @@ export const useBlogPosts = () => {
 };
 
 export const useBlogPost = (id: string) => {
-  return useQuery({
+  return useQuery<Post>({
     queryKey: ['blog-post', id],
     queryFn: async () => {
       const response = await blogService.getPostById(id);

@@ -1,8 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { partsService } from '../services/api';
+import { Part, PartCategory } from '../types/Part';
 
 export const useParts = () => {
-  return useQuery({
+  return useQuery<Part[]>({
     queryKey: ['parts'],
     queryFn: async () => {
       const response = await partsService.getAll();
@@ -12,7 +13,7 @@ export const useParts = () => {
 };
 
 export const usePart = (id: string) => {
-  return useQuery({
+  return useQuery<Part>({
     queryKey: ['part', id],
     queryFn: async () => {
       const response = await partsService.getById(id);
@@ -23,7 +24,7 @@ export const usePart = (id: string) => {
 };
 
 export const usePartCategories = () => {
-  return useQuery({
+  return useQuery<PartCategory[]>({
     queryKey: ['part-categories'],
     queryFn: async () => {
       const response = await partsService.getCategories();
@@ -35,7 +36,7 @@ export const usePartCategories = () => {
 export const useCreatePart = () => {
   const queryClient = useQueryClient();
   
-  return useMutation({
+  return useMutation<Part, Error, Part>({
     mutationFn: partsService.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['parts'] });

@@ -57,7 +57,7 @@ const MotorcycleDetailPage = () => {
   };
 
   // Adapter les données de l'API Django
-  const images = motorcycle.images?.map((img: any) => img.image) || [
+  const images = motorcycle.images?.map((img: { image: string }) => img.image) || [
     'https://images.pexels.com/photos/2611686/pexels-photo-2611686.jpeg'
   ];
 

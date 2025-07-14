@@ -15,8 +15,8 @@ const HomePage = () => {
   const { data: parts = [], isLoading: partsLoading } = useParts();
 
   // Filtrer les motos nouvelles et les pièces à la une côté client
-  const newMotorcycles = motorcycles.filter((moto: any) => moto.is_new);
-  const featuredParts = parts.filter((part: any) => part.is_featured).slice(0, 3);
+  const newMotorcycles = motorcycles.filter((moto: Motorcycle) => moto.is_new);
+  const featuredParts = parts.filter((part: Part) => part.is_featured).slice(0, 3);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -58,7 +58,7 @@ const HomePage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredMotorcycles.slice(0, 3).map((motorcycle: any) => (
+            {featuredMotorcycles.slice(0, 3).map((motorcycle: Motorcycle) => (
               <MotorcycleCard key={motorcycle.id} motorcycle={motorcycle} />
             ))}
           </div>
@@ -83,7 +83,7 @@ const HomePage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredParts.map((part: any) => (
+            {featuredParts.map((part: Part) => (
               <PartCard key={part.id} part={part} />
             ))}
           </div>
@@ -135,7 +135,7 @@ const HomePage = () => {
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {newMotorcycles.slice(0, 3).map((motorcycle: any) => (
+              {newMotorcycles.slice(0, 3).map((motorcycle: Motorcycle) => (
                 <MotorcycleCard key={motorcycle.id} motorcycle={motorcycle} />
               ))}
             </div>
