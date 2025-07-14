@@ -1,0 +1,132 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+react-router-dom.js?v=e5f50e8f:4393 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+warnOnce @ react-router-dom.js?v=e5f50e8f:4393
+logDeprecation @ react-router-dom.js?v=e5f50e8f:4396
+logV6DeprecationWarnings @ react-router-dom.js?v=e5f50e8f:4399
+(anonymous) @ react-router-dom.js?v=e5f50e8f:5271
+commitHookEffectListMount @ chunk-PNGJSGSD.js?v=e5f50e8f:16963
+commitPassiveMountOnFiber @ chunk-PNGJSGSD.js?v=e5f50e8f:18206
+commitPassiveMountEffects_complete @ chunk-PNGJSGSD.js?v=e5f50e8f:18179
+commitPassiveMountEffects_begin @ chunk-PNGJSGSD.js?v=e5f50e8f:18169
+commitPassiveMountEffects @ chunk-PNGJSGSD.js?v=e5f50e8f:18159
+flushPassiveEffectsImpl @ chunk-PNGJSGSD.js?v=e5f50e8f:19543
+flushPassiveEffects @ chunk-PNGJSGSD.js?v=e5f50e8f:19500
+(anonymous) @ chunk-PNGJSGSD.js?v=e5f50e8f:19381
+workLoop @ chunk-PNGJSGSD.js?v=e5f50e8f:197
+flushWork @ chunk-PNGJSGSD.js?v=e5f50e8f:176
+performWorkUntilDeadline @ chunk-PNGJSGSD.js?v=e5f50e8f:384Understand this warning
+react-router-dom.js?v=e5f50e8f:4393 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+warnOnce @ react-router-dom.js?v=e5f50e8f:4393
+logDeprecation @ react-router-dom.js?v=e5f50e8f:4396
+logV6DeprecationWarnings @ react-router-dom.js?v=e5f50e8f:4402
+(anonymous) @ react-router-dom.js?v=e5f50e8f:5271
+commitHookEffectListMount @ chunk-PNGJSGSD.js?v=e5f50e8f:16963
+commitPassiveMountOnFiber @ chunk-PNGJSGSD.js?v=e5f50e8f:18206
+commitPassiveMountEffects_complete @ chunk-PNGJSGSD.js?v=e5f50e8f:18179
+commitPassiveMountEffects_begin @ chunk-PNGJSGSD.js?v=e5f50e8f:18169
+commitPassiveMountEffects @ chunk-PNGJSGSD.js?v=e5f50e8f:18159
+flushPassiveEffectsImpl @ chunk-PNGJSGSD.js?v=e5f50e8f:19543
+flushPassiveEffects @ chunk-PNGJSGSD.js?v=e5f50e8f:19500
+(anonymous) @ chunk-PNGJSGSD.js?v=e5f50e8f:19381
+workLoop @ chunk-PNGJSGSD.js?v=e5f50e8f:197
+flushWork @ chunk-PNGJSGSD.js?v=e5f50e8f:176
+performWorkUntilDeadline @ chunk-PNGJSGSD.js?v=e5f50e8f:384Understand this warning
+inspector.b9415ea5.js:1 Error: Minified React error #130; visit https://reactjs.org/docs/error-decoder.html?invariant=130&args[]=object&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at lX (inspector.b9415ea5.js:1:127164)
+    at l (inspector.b9415ea5.js:1:68514)
+    at ol (inspector.b9415ea5.js:1:82233)
+    at i (inspector.b9415ea5.js:1:132348)
+    at lM (inspector.b9415ea5.js:1:110198)
+    at inspector.b9415ea5.js:1:110064
+    at lO (inspector.b9415ea5.js:1:110072)
+    at lC (inspector.b9415ea5.js:1:106823)
+    at lw (inspector.b9415ea5.js:1:105378)
+    at C (inspector.b9415ea5.js:1:141367)
+s7 @ inspector.b9415ea5.js:1
+r.callback @ inspector.b9415ea5.js:1
+nW @ inspector.b9415ea5.js:1
+oX @ inspector.b9415ea5.js:1
+e @ inspector.b9415ea5.js:1
+(anonymous) @ inspector.b9415ea5.js:1
+lR @ inspector.b9415ea5.js:1
+lw @ inspector.b9415ea5.js:1
+C @ inspector.b9415ea5.js:1
+T @ inspector.b9415ea5.js:1Understand this error
+inspector.b9415ea5.js:1 Uncaught Error: Minified React error #130; visit https://reactjs.org/docs/error-decoder.html?invariant=130&args[]=object&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at lX (inspector.b9415ea5.js:1:127164)
+    at l (inspector.b9415ea5.js:1:68514)
+    at ol (inspector.b9415ea5.js:1:82233)
+    at i (inspector.b9415ea5.js:1:132348)
+    at lM (inspector.b9415ea5.js:1:110198)
+    at inspector.b9415ea5.js:1:110064
+    at lO (inspector.b9415ea5.js:1:110072)
+    at lC (inspector.b9415ea5.js:1:106823)
+    at lw (inspector.b9415ea5.js:1:105378)
+    at C (inspector.b9415ea5.js:1:141367)
+lX @ inspector.b9415ea5.js:1
+l @ inspector.b9415ea5.js:1
+ol @ inspector.b9415ea5.js:1
+i @ inspector.b9415ea5.js:1
+lM @ inspector.b9415ea5.js:1
+(anonymous) @ inspector.b9415ea5.js:1
+lO @ inspector.b9415ea5.js:1
+lC @ inspector.b9415ea5.js:1
+lw @ inspector.b9415ea5.js:1
+C @ inspector.b9415ea5.js:1
+T @ inspector.b9415ea5.js:1Understand this error
+localhost/:1 Unchecked runtime.lastError: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was receivedUnderstand this error
+localhost/:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was receivedUnderstand this error
+:5173/src/pages/PartsPage.tsx?t=1752517216652:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this error
+client:882 [vite] Failed to reload /src/pages/PartsPage.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+error @ client:882
+warnFailedUpdate @ client:169
+fetchUpdate @ client:206Understand this error
+:5173/src/pages/PartsPage.tsx?t=1752517480401:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this error
+client:882 [vite] Failed to reload /src/pages/PartsPage.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+error @ client:882
+warnFailedUpdate @ client:169
+fetchUpdate @ client:206Understand this error
+:5173/src/hooks/usePartCategories.ts?t=1752517597473:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this error
+client:882 [vite] Failed to reload /src/pages/PartsPage.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+error @ client:882
+warnFailedUpdate @ client:169
+fetchUpdate @ client:206Understand this error
+3MotorcyclesPage.tsx:86 Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.
+    at MotorcyclesPage (http://localhost:5173/src/pages/MotorcyclesPage.tsx:26:56)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e5f50e8f:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e5f50e8f:4558:5)
+    at main
+    at div
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e5f50e8f:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e5f50e8f:5247:5)
+    at QueryClientProvider (http://localhost:5173/node_modules/.vite/deps/@tanstack_react-query.js?v=e5f50e8f:2932:3)
+    at App
+    at QueryClientProvider (http://localhost:5173/node_modules/.vite/deps/@tanstack_react-query.js?v=e5f50e8f:2932:3)
+printWarning @ chunk-PNGJSGSD.js?v=e5f50e8f:521
+error @ chunk-PNGJSGSD.js?v=e5f50e8f:505
+checkForNestedUpdates @ chunk-PNGJSGSD.js?v=e5f50e8f:19718
+scheduleUpdateOnFiber @ chunk-PNGJSGSD.js?v=e5f50e8f:18583
+dispatchSetState @ chunk-PNGJSGSD.js?v=e5f50e8f:12451
+(anonymous) @ MotorcyclesPage.tsx:86
+commitHookEffectListMount @ chunk-PNGJSGSD.js?v=e5f50e8f:16963
+commitPassiveMountOnFiber @ chunk-PNGJSGSD.js?v=e5f50e8f:18206
+commitPassiveMountEffects_complete @ chunk-PNGJSGSD.js?v=e5f50e8f:18179
+commitPassiveMountEffects_begin @ chunk-PNGJSGSD.js?v=e5f50e8f:18169
+commitPassiveMountEffects @ chunk-PNGJSGSD.js?v=e5f50e8f:18159
+flushPassiveEffectsImpl @ chunk-PNGJSGSD.js?v=e5f50e8f:19543
+flushPassiveEffects @ chunk-PNGJSGSD.js?v=e5f50e8f:19500
+(anonymous) @ chunk-PNGJSGSD.js?v=e5f50e8f:19381
+workLoop @ chunk-PNGJSGSD.js?v=e5f50e8f:197
+flushWork @ chunk-PNGJSGSD.js?v=e5f50e8f:176
+performWorkUntilDeadline @ chunk-PNGJSGSD.js?v=e5f50e8f:384Understand this error
+chunk-PNGJSGSD.js?v=e5f50e8f:521 Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.
+    at PartsPage (http://localhost:5173/src/pages/PartsPage.tsx?t=1752517674843:27:50)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e5f50e8f:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e5f50e8f:4558:5)
+    at main
+    at div
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e5f50e8f:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e5f50e8f:5247:5)
+    at QueryClientProvider (http://localhost:5173/node_modules/.vite/deps/@tanstack_react-query.js?v=e5f50e8f:2932:3)
+    at App
+    at QueryClientProvider (http://localhost:5173/node_modules/.vite/deps/@tanstack_react-query.js?v=e5f50e8f:2932:3)

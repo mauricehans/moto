@@ -46,7 +46,7 @@ export const motorcycleService = {
     api.get('/motorcycles/motorcycles/featured/'),
   
   create: (data: Omit<Motorcycle, 'id' | 'created_at' | 'updated_at'>): Promise<AxiosResponse<Motorcycle>> => 
-    api.post('/motorcycles/motorcycles/', data),
+    api.post('/motorcycles/motorcycles/', data), // Déjà correct
   
   update: (id: string, data: Partial<Motorcycle>): Promise<AxiosResponse<Motorcycle>> => 
     api.put(`/motorcycles/motorcycles/${id}/`, data),
@@ -67,7 +67,7 @@ export const partsService = {
     api.get('/parts/categories/'),
   
   create: (data: Omit<Part, 'id' | 'created_at' | 'updated_at'>): Promise<AxiosResponse<Part>> => 
-    api.post('/parts/parts/', data),
+    api.post('/parts/parts/', data), // Déjà correct
   
   update: (id: string, data: Partial<Part>): Promise<AxiosResponse<Part>> => 
     api.put(`/parts/parts/${id}/`, data),

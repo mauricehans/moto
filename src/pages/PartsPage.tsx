@@ -6,6 +6,7 @@ import SectionTitle from '../components/SectionTitle';
 import PartCard from '../components/PartCard';
 import { useParts } from '../hooks/useParts';
 import { Part, PartCategory } from '../types/Part';
+import { usePartCategories } from '../hooks/usePartCategories';
 
 const PartsPage = () => {
   const { data: parts = [], isLoading, error } = useParts();
@@ -103,10 +104,13 @@ const PartsPage = () => {
 
   if (error) {
     return (
-      <ErrorMessage 
-        title="Erreur de chargement"
-        message="Impossible de charger les pièces détachées. Veuillez réessayer plus tard."
-      />
+      <div className="min-h-screen flex items-center justify-center">
+
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-2">Erreur de chargement</h2>
+          <p className="text-gray-600">Impossible de charger les pièces détachées. Veuillez réessayer plus tard.</p>
+        </div>
+      </div>
     );
   }
 

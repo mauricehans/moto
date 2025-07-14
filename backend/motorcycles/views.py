@@ -6,7 +6,7 @@ from .models import Motorcycle, MotorcycleImage
 from .serializers import MotorcycleSerializer, MotorcycleImageSerializer
 
 class MotorcycleViewSet(viewsets.ModelViewSet):
-    """ViewSet pour les motos"""
+    """ViewSet pour les motos avec CRUD complet"""
     queryset = Motorcycle.objects.all()
     serializer_class = MotorcycleSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
