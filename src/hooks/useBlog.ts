@@ -1,34 +1,78 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { blogService } from '../services/api';
-import { Post, BlogCategory } from '../types/Blog';
 
-export const useBlogPosts = () => {
-  return useQuery<Post[]>({
+// Types simples pour éviter les conflits d'import
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  category: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  content: string;
+  image: string;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface BlogCategoryResponse {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+}
+
+export const useBlogPosts = (): UseQueryResult<BlogPost[], Error> => {
+  return useQuery({
     queryKey: ['blog-posts'],
     queryFn: async () => {
-      const response = await blogService.getPosts();
-      return response.data.results;
+      try {
+        const response = await blogService.getPosts();
+        return response.data.results;
+      } catch (error) {
+        console.error('Failed to fetch blog posts:', error);
+        throw error;
+      }
     },
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
   });
 };
 
-export const useBlogPost = (id: string) => {
-  return useQuery<Post>({
+export const useBlogPost = (id: string): UseQueryResult<BlogPost | null, Error> => {
+  return useQuery({
     queryKey: ['blog-post', id],
     queryFn: async () => {
-      const response = await blogService.getPostById(id);
-      return response.data;
+      try {
+        const response = await blogService.getPostById(id);
+        return response.data;
+      } catch (error) {
+        console.error(`Failed to fetch blog post ${id}:`, error);
+        throw error;
+      }
     },
     enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
   });
 };
 
-export const useBlogCategories = () => {
+export const useBlogCategories = (): UseQueryResult<BlogCategoryResponse[], Error> => {
   return useQuery({
     queryKey: ['blog-categories'],
     queryFn: async () => {
-      const response = await blogService.getCategories();
-      return response.data;
+      try {
+        const response = await blogService.getCategories();
+        return response.data;
+      } catch (error) {
+        console.error('Failed to fetch blog categories:', error);
+        throw error;
+      }
     },
+    staleTime: 10 * 60 * 1000,
+    retry: 2,
   });
 };

@@ -9,8 +9,7 @@ interface MotorcycleCardProps {
 const MotorcycleCard = ({ motorcycle }: MotorcycleCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   
-  // Adapter les données de l'API Django
-  const mainImage = motorcycle.images?.[0]?.image || 'https://images.pexels.com/photos/2611686/pexels-photo-2611686.jpeg';
+  const mainImage = motorcycle.images?.[0]?.image || '/images/default-motorcycle.jpg';
   const price = parseFloat(motorcycle.price);
   
   return (
@@ -27,6 +26,10 @@ const MotorcycleCard = ({ motorcycle }: MotorcycleCardProps) => {
           className={`w-full h-full object-cover transition-transform duration-500 ${
             isHovered ? 'scale-105' : 'scale-100'
           }`}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/images/default-motorcycle.jpg';
+          }}
         />
         {motorcycle.is_new && (
           <div className="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold uppercase px-3 py-1 rounded">

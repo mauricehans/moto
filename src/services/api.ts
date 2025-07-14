@@ -1,9 +1,9 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { Motorcycle } from '../types/Motorcycle';
 import { Part, PartCategory } from '../types/Part';
 import { Post, BlogCategory } from '../types/Blog';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 // Configuration d'axios
 const api = axios.create({
@@ -11,16 +11,16 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 secondes de timeout
+  timeout: 10000,
 });
 
 // Intercepteur pour les erreurs
 api.interceptors.response.use(
-  (response) => response,
+  (response: AxiosResponse) => response,
   (error) => {
     console.error('API Error:', error);
     if (error.code === 'ECONNREFUSED') {
-      console.error('Backend server is not running on http://localhost:8000');
+      console.warn('Backend server is not running. Using fallback behavior.');
     }
     return Promise.reject(error);
   }
@@ -36,29 +36,56 @@ interface PaginatedResponse<T> {
 
 // Services pour les motos
 export const motorcycleService = {
-  getAll: () => api.get<PaginatedResponse<Motorcycle>>('/motorcycles/motorcycles/'),
-  getById: (id: string) => api.get<Motorcycle>(`/motorcycles/motorcycles/${id}/`),
-  getFeatured: () => api.get<Motorcycle[] | PaginatedResponse<Motorcycle>>('/motorcycles/motorcycles/featured/'),
-  create: (data: Motorcycle) => api.post<Motorcycle>('/motorcycles/motorcycles/', data),
-  update: (id: string, data: Motorcycle) => api.put<Motorcycle>(`/motorcycles/motorcycles/${id}/`, data),
-  delete: (id: string) => api.delete<void>(`/motorcycles/motorcycles/${id}/`),
+  getAll: (): Promise<AxiosResponse<PaginatedResponse<Motorcycle>>> => 
+    api.get('/motorcycles/motorcycles/'),
+  
+  getById: (id: string): Promise<AxiosResponse<Motorcycle>> => 
+    api.get(`/motorcycles/motorcycles/${id}/`),
+  
+  getFeatured: (): Promise<AxiosResponse<Motorcycle[]>> => 
+    api.get('/motorcycles/motorcycles/featured/'),
+  
+  create: (data: Omit<Motorcycle, 'id' | 'created_at' | 'updated_at'>): Promise<AxiosResponse<Motorcycle>> => 
+    api.post('/motorcycles/motorcycles/', data),
+  
+  update: (id: string, data: Partial<Motorcycle>): Promise<AxiosResponse<Motorcycle>> => 
+    api.put(`/motorcycles/motorcycles/${id}/`, data),
+  
+  delete: (id: string): Promise<AxiosResponse<void>> => 
+    api.delete(`/motorcycles/motorcycles/${id}/`),
 };
 
 // Services pour les pièces détachées
 export const partsService = {
-  getAll: () => api.get<PaginatedResponse<Part>>('/parts/parts/'),
-  getById: (id: string) => api.get<Part>(`/parts/parts/${id}/`),
-  getCategories: () => api.get<PartCategory[]>('/parts/categories/'),
-  create: (data: Part) => api.post<Part>('/parts/parts/', data),
-  update: (id: string, data: Part) => api.put<Part>(`/parts/parts/${id}/`, data),
-  delete: (id: string) => api.delete<void>(`/parts/parts/${id}/`),
+  getAll: (): Promise<AxiosResponse<PaginatedResponse<Part>>> => 
+    api.get('/parts/parts/'),
+  
+  getById: (id: string): Promise<AxiosResponse<Part>> => 
+    api.get(`/parts/parts/${id}/`),
+  
+  getCategories: (): Promise<AxiosResponse<PartCategory[]>> => 
+    api.get('/parts/categories/'),
+  
+  create: (data: Omit<Part, 'id' | 'created_at' | 'updated_at'>): Promise<AxiosResponse<Part>> => 
+    api.post('/parts/parts/', data),
+  
+  update: (id: string, data: Partial<Part>): Promise<AxiosResponse<Part>> => 
+    api.put(`/parts/parts/${id}/`, data),
+  
+  delete: (id: string): Promise<AxiosResponse<void>> => 
+    api.delete(`/parts/parts/${id}/`),
 };
 
 // Services pour le blog
 export const blogService = {
-  getPosts: () => api.get<PaginatedResponse<Post>>('/blog/posts/'),
-  getPostById: (id: string) => api.get<Post>(`/blog/posts/${id}/`),
-  getCategories: () => api.get<BlogCategory[]>('/blog/categories/'),
+  getPosts: (): Promise<AxiosResponse<PaginatedResponse<Post>>> => 
+    api.get('/blog/posts/'),
+  
+  getPostById: (id: string): Promise<AxiosResponse<Post>> => 
+    api.get(`/blog/posts/${id}/`),
+  
+  getCategories: (): Promise<AxiosResponse<BlogCategory[]>> => 
+    api.get('/blog/categories/'),
 };
 
 export default api;

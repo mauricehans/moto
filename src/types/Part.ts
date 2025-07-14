@@ -1,23 +1,30 @@
-export interface Part {
-  id: string;
-  name: string;
-  category: string;
-  brand: string;
-  compatibleModels: string;
-  price: number;
-  stock: number;
-  condition: 'new' | 'used_excellent' | 'used_good' | 'used_fair' | 'refurbished';
-  description: string;
-  specifications: Record<string, string>;
-  images: string[];
-  isAvailable: boolean;
-  isFeatured: boolean;
-  createdAt: string;
-}
-
 export interface PartCategory {
   id: string;
   name: string;
   slug: string;
+  description?: string;
+}
+
+export interface PartImage {
+  id: number;
+  image: string;
+  is_primary: boolean;
+  created_at: string;
+}
+
+export interface Part {
+  id: number;
+  name: string;
+  category: PartCategory;
+  brand: string;
+  compatible_models: string;
+  price: string; // Django renvoie un string pour DecimalField
+  stock: number;
+  condition: 'new' | 'used_excellent' | 'used_good' | 'used_fair' | 'refurbished';
   description: string;
+  is_available: boolean;
+  is_featured: boolean;
+  created_at: string;
+  updated_at: string;
+  images: PartImage[];
 }

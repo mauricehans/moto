@@ -1,14 +1,24 @@
 import { useState, useEffect } from 'react';
-import { SearchIcon } from 'lucide-react';
+import { Search } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import SectionTitle from '../components/SectionTitle';
 import MotorcycleCard from '../components/MotorcycleCard';
 import { useMotorcycles } from '../hooks/useMotorcycles';
+import { Motorcycle } from '../types/Motorcycle';
+
+interface Filters {
+  search: string;
+  brand: string;
+  priceMin: string;
+  priceMax: string;
+  yearMin: string;
+  yearMax: string;
+}
 
 const MotorcyclesPage = () => {
   const { data: motorcycles = [], isLoading, error } = useMotorcycles();
   const [filteredMotorcycles, setFilteredMotorcycles] = useState<Motorcycle[]>([]);
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<Filters>({
     search: '',
     brand: '',
     priceMin: '',
@@ -40,7 +50,7 @@ const MotorcyclesPage = () => {
   };
 
   useEffect(() => {
-    let result = motorcycles;
+    let result = motorcycles.filter((moto: Motorcycle) => !moto.is_sold);
 
     // Filter by search term
     if (filters.search) {
@@ -137,7 +147,7 @@ const MotorcyclesPage = () => {
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                   />
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    <SearchIcon size={18} />
+                    <Search size={18} />
                   </div>
                 </div>
               </div>
@@ -241,6 +251,12 @@ const MotorcyclesPage = () => {
           </div>
 
           {/* Results */}
+          <div className="mb-6">
+            <p className="text-gray-600">
+              {filteredMotorcycles.length} moto{filteredMotorcycles.length > 1 ? 's' : ''} trouvée{filteredMotorcycles.length > 1 ? 's' : ''}
+            </p>
+          </div>
+
           {filteredMotorcycles.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredMotorcycles.map((motorcycle: Motorcycle) => (

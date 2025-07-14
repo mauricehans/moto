@@ -8,13 +8,15 @@ import PartCard from '../components/PartCard';
 import ServiceCard from '../components/ServiceCard';
 import { useMotorcycles, useFeaturedMotorcycles } from '../hooks/useMotorcycles';
 import { useParts } from '../hooks/useParts';
+import { Motorcycle } from '../types/Motorcycle';
+import { Part } from '../types/Part';
 
 const HomePage = () => {
   const { data: motorcycles = [], isLoading: motorcyclesLoading } = useMotorcycles();
   const { data: featuredMotorcycles = [], isLoading: featuredLoading } = useFeaturedMotorcycles();
   const { data: parts = [], isLoading: partsLoading } = useParts();
 
-  // Filtrer les motos nouvelles et les pièces à la une côté client
+  // Filtrer côté client car l'API ne renvoie pas ces filtres spécifiques
   const newMotorcycles = motorcycles.filter((moto: Motorcycle) => moto.is_new);
   const featuredParts = parts.filter((part: Part) => part.is_featured).slice(0, 3);
 
@@ -62,6 +64,12 @@ const HomePage = () => {
               <MotorcycleCard key={motorcycle.id} motorcycle={motorcycle} />
             ))}
           </div>
+
+          {featuredMotorcycles.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Aucune moto à la une pour le moment.</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -87,6 +95,12 @@ const HomePage = () => {
               <PartCard key={part.id} part={part} />
             ))}
           </div>
+
+          {featuredParts.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Aucune pièce à la une pour le moment.</p>
+            </div>
+          )}
         </div>
       </section>
 

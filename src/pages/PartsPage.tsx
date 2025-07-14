@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from 'react';
 import { SearchIcon } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import SectionTitle from '../components/SectionTitle';
 import PartCard from '../components/PartCard';
-import { useParts, usePartCategories } from '../hooks/useParts';
+import { useParts } from '../hooks/useParts';
+import { Part, PartCategory } from '../types/Part';
 
 const PartsPage = () => {
   const { data: parts = [], isLoading, error } = useParts();
@@ -58,7 +60,7 @@ const PartsPage = () => {
 
     // Filter by category
     if (filters.category) {
-      result = result.filter((part: Part) => part.category.name === filters.category);
+      result = result.filter((part: Part) => part.category.id === filters.category);
     }
 
     // Filter by brand
@@ -73,10 +75,10 @@ const PartsPage = () => {
 
     // Filter by price range
     if (filters.priceMin) {
-      result = result.filter((part: Part) => parseFloat(part.price) >= parseInt(filters.priceMin));
+      result = result.filter((part: Part) => parseFloat(part.price) >= parseFloat(filters.priceMin));
     }
     if (filters.priceMax) {
-      result = result.filter((part: Part) => parseFloat(part.price) <= parseInt(filters.priceMax));
+      result = result.filter((part: Part) => parseFloat(part.price) <= parseFloat(filters.priceMax));
     }
 
     // Filter by stock availability
@@ -101,16 +103,10 @@ const PartsPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen pt-32 pb-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">
-            Erreur de chargement
-          </h1>
-          <p className="text-gray-600 mb-8">
-            Impossible de charger les pièces détachées. Veuillez réessayer plus tard.
-          </p>
-        </div>
-      </div>
+      <ErrorMessage 
+        title="Erreur de chargement"
+        message="Impossible de charger les pièces détachées. Veuillez réessayer plus tard."
+      />
     );
   }
 
@@ -167,7 +163,7 @@ const PartsPage = () => {
                 >
                   <option value="">Toutes les catégories</option>
                   {Array.isArray(categories) && categories.map((category: PartCategory) => (
-                    <option key={category.id} value={category.name}>
+                    <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
                   ))}
@@ -306,16 +302,3 @@ const PartsPage = () => {
 };
 
 export default PartsPage;
-
-const [categories, setCategories] = useState<PartCategory[]>([]);
-const loadCategories = async () => {
-  try {
-    const response = await axios.get('/api/parts/categories');
-    if (Array.isArray(response.data)) {
-      setCategories(response.data);
-    }
-  } catch (error) {
-    console.error('Erreur de chargement des catégories', error);
-    setCategories([]);
-  }
-};

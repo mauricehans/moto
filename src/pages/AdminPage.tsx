@@ -1,244 +1,237 @@
-import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Save, X, Settings, Clock, Mail, Phone, MapPin, Facebook, Instagram, Youtube, Lock } from 'lucide-react';
-import SectionTitle from '../components/SectionTitle';
-import { motorcycles } from '../data/motorcycles';
-import { Motorcycle } from '../types/Motorcycle';
-import { Part } from '../types/Part';
-import { Post } from '../types/Blog';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Plus, Settings, Lock, LogOut, BarChart3, Users, 
+  Bike, Package, FileText, LayoutDashboard, Search,
+  TrendingUp, TrendingDown, Eye, Calendar
+} from 'lucide-react';
+import DataTable from '../components/DataTable';
+import StatCard from '../components/StatCard';
+import {
+  User, Motorcycle, Part, BlogPost, GarageSettings, AdminStats,
+  TabType, LoginCredentials, FormData, MotorcycleImage, PartImage
+} from '../types/Admin';
 
-interface SocialMedia {
-  facebook: string;
-  instagram: string;
-  youtube: string;
-}
+const AdminPage: React.FC = () => {
+  // États d'authentification
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [loginForm, setLoginForm] = useState<LoginCredentials>({ username: '', password: '' });
+  const [loginError, setLoginError] = useState<string>('');
 
-interface GarageInfo {
-  name: string;
-  address: string;
-  phone: string;
-  email: string;
-  socialMedia: SocialMedia;
-  hours: {
-    monday: { open: string; close: string; closed: boolean };
-    tuesday: { open: string; close: string; closed: boolean };
-    wednesday: { open: string; close: string; closed: boolean };
-    thursday: { open: string; close: string; closed: boolean };
-    friday: { open: string; close: string; closed: boolean };
-    saturday: { open: string; close: string; closed: boolean };
-    sunday: { open: string; close: string; closed: boolean };
-  };
-}
+  // États de navigation
+  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
-const AdminPage = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loginForm, setLoginForm] = useState({ username: '', password: '' });
-  const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<'motorcycles' | 'parts' | 'blog' | 'settings'>('motorcycles');
-  const [showForm, setShowForm] = useState(false);
-  const [editingItem, setEditingItem] = useState<Motorcycle | Part | Post | null>(null);
-  
-  // Sample data
-  const [adminMotorcycles, setAdminMotorcycles] = useState<Motorcycle[]>(motorcycles);
-  const [parts, setParts] = useState<Part[]>([
+  // États des données
+  const [motorcycles, setMotorcycles] = useState<Motorcycle[]>([]);
+  const [parts, setParts] = useState<Part[]>([]);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [adminStats, setAdminStats] = useState<AdminStats | null>(null);
+  const [garageSettings, setGarageSettings] = useState<GarageSettings | null>(null);
+
+  // États de formulaire
+  const [showForm, setShowForm] = useState<boolean>(false);
+  const [editingItem, setEditingItem] = useState<Motorcycle | Part | BlogPost | User | null>(null);
+  const [formData, setFormData] = useState<FormData>({});
+
+  // Données de démonstration
+  const mockMotorcycles: Motorcycle[] = [
     {
       id: '1',
-      name: 'Pot d\'échappement Akrapovic',
-      category: 'Échappement',
-      brand: 'Akrapovic',
-      compatibleModels: 'Yamaha MT-07, MT-09',
-      price: 450,
-      stock: 3,
-      description: 'Pot d\'échappement sport en titane',
-      image: 'https://images.pexels.com/photos/2539322/pexels-photo-2539322.jpeg'
-    }
-  ]);
-  
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([
-    {
-      id: '1',
-      title: 'Les meilleures motos pour débuter',
-      content: 'Contenu de l\'article...',
-      category: 'Conseils',
-      image: 'https://images.pexels.com/photos/2519374/pexels-photo-2519374.jpeg',
-      isPublished: true,
-      createdAt: '2023-06-01'
-    }
-  ]);
-
-  const [garageInfo, setGarageInfo] = useState<GarageInfo>({
-    name: 'Agde Moto Gattuso',
-    address: '123 Avenue de la Plage, 34300 Agde, France',
-    phone: '+33 4 67 12 34 56',
-    email: 'contact@agdemoto.fr',
-    socialMedia: {
-      facebook: 'https://facebook.com/agdemotogattuso',
-      instagram: 'https://instagram.com/agdemotogattuso',
-      youtube: 'https://youtube.com/@agdemotogattuso'
+      brand: 'Yamaha',
+      model: 'MT-07',
+      year: 2022,
+      price: 6999,
+      mileage: 3500,
+      engine: '689 cc',
+      power: 73,
+      license: 'A2',
+      color: 'Noir',
+      description: 'Yamaha MT-07 en excellent état',
+      is_sold: false,
+      is_new: true,
+      is_featured: true,
+      images: [],
+      created_at: '2023-01-15T10:00:00Z',
+      updated_at: '2023-01-15T10:00:00Z'
     },
-    hours: {
-      monday: { open: '09:00', close: '18:00', closed: false },
-      tuesday: { open: '09:00', close: '18:00', closed: false },
-      wednesday: { open: '09:00', close: '18:00', closed: false },
-      thursday: { open: '09:00', close: '18:00', closed: false },
-      friday: { open: '09:00', close: '18:00', closed: false },
-      saturday: { open: '09:00', close: '17:00', closed: false },
-      sunday: { open: '09:00', close: '17:00', closed: true }
+    {
+      id: '2',
+      brand: 'Honda',
+      model: 'CB650R',
+      year: 2021,
+      price: 7499,
+      mileage: 8200,
+      engine: '649 cc',
+      power: 95,
+      license: 'A',
+      color: 'Rouge',
+      description: 'Honda CB650R Neo Sports Cafe',
+      is_sold: false,
+      is_new: false,
+      is_featured: true,
+      images: [],
+      created_at: '2023-01-10T10:00:00Z',
+      updated_at: '2023-01-10T10:00:00Z'
     }
-  });
+  ];
 
-  const [formData, setFormData] = useState<Motorcycle | Part | Post | {}>({});
+  const mockStats: AdminStats = {
+    total_motorcycles: 15,
+    sold_motorcycles: 8,
+    total_parts: 120,
+    low_stock_parts: 5,
+    total_blog_posts: 25,
+    published_posts: 20,
+    total_users: 150,
+    active_users: 45,
+    monthly_revenue: 85000,
+    monthly_views: 12500
+  };
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
+  // Gestion de l'authentification
+  const handleLogin = useCallback((e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setLoginError('');
+
+    // Simulation d'authentification
+    setTimeout(() => {
+      if (loginForm.username === 'admin' && loginForm.password === 'gattuso2024') {
+        const user: User = {
+          id: '1',
+          username: 'admin',
+          email: 'admin@agdemoto.fr',
+          role: 'admin',
+          isActive: true,
+          lastLogin: new Date().toISOString(),
+          createdAt: '2023-01-01T00:00:00Z'
+        };
+        setCurrentUser(user);
+        setIsAuthenticated(true);
+        setLoginError('');
+      } else {
+        setLoginError('Nom d\'utilisateur ou mot de passe incorrect');
+      }
+      setLoading(false);
+    }, 1000);
+  }, [loginForm]);
+
+  const handleLogout = useCallback(() => {
+    setIsAuthenticated(false);
+    setCurrentUser(null);
+    setLoginForm({ username: '', password: '' });
+    setActiveTab('dashboard');
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Simple authentication - in production, this should be properly secured
-    if (loginForm.username === 'admin' && loginForm.password === 'gattuso2024') {
-      setIsAuthenticated(true);
-      setLoginError('');
-    } else {
-      setLoginError('Nom d\'utilisateur ou mot de passe incorrect');
-    }
-  };
-
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setLoginForm({ username: '', password: '' });
-  };
-
-  const handleLoginInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setLoginForm(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleEdit = (item: Motorcycle | Part | Post) => {
-    setEditingItem(item);
-    setFormData(item);
-    setShowForm(true);
-  };
-
-  const handleDelete = (id: string, type: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cet élément ?')) {
-      switch (type) {
-        case 'motorcycle':
-          setAdminMotorcycles(prev => prev.filter(m => m.id !== id));
-          break;
-        case 'part':
-          setParts(prev => prev.filter(p => p.id !== id));
-          break;
-        case 'blog':
-          setBlogPosts(prev => prev.filter(b => b.id !== id));
-          break;
-      }
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (editingItem) {
-      // Update existing item
-      switch (activeTab) {
-        case 'motorcycles':
-          setAdminMotorcycles(prev => prev.map(m => m.id === editingItem.id ? { ...formData } : m));
-          break;
-        case 'parts':
-          setParts(prev => prev.map(p => p.id === editingItem.id ? { ...formData } : p));
-          break;
-        case 'blog':
-          setBlogPosts(prev => prev.map(b => b.id === editingItem.id ? { ...formData } : b));
-          break;
-      }
-    } else {
-      // Create new item
-      const newItem = {
-        ...formData,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString().split('T')[0]
-      };
-      
-      switch (activeTab) {
-        case 'motorcycles':
-          setAdminMotorcycles(prev => [...prev, newItem]);
-          break;
-        case 'parts':
-          setParts(prev => [...prev, newItem]);
-          break;
-        case 'blog':
-          setBlogPosts(prev => [...prev, newItem]);
-          break;
-      }
-    }
-    
-    setShowForm(false);
-    setEditingItem(null);
-    setFormData({});
-  };
-
-  const resetForm = () => {
-    setShowForm(false);
-    setEditingItem(null);
-    setFormData({});
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  // Gestion des formulaires
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }));
-  };
+  }, []);
 
-  const handleGarageInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLoginInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setGarageInfo(prev => ({
+    setLoginForm(prev => ({
       ...prev,
       [name]: value
     }));
-  };
+  }, []);
 
-  const handleSocialMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setGarageInfo(prev => ({
-      ...prev,
-      socialMedia: {
-        ...prev.socialMedia,
-        [name]: value
+  // Actions CRUD
+  const handleEdit = useCallback((item: Motorcycle | Part | BlogPost | User) => {
+    setEditingItem(item);
+    setFormData({ ...item } as FormData);
+    setShowForm(true);
+  }, []);
+
+  const handleDelete = useCallback((item: Motorcycle | Part | BlogPost | User) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cet élément ?')) {
+      // Simulation de suppression
+      switch (activeTab) {
+        case 'motorcycles':
+          setMotorcycles(prev => prev.filter(m => m.id !== item.id));
+          break;
+        case 'parts':
+          setParts(prev => prev.filter(p => p.id !== item.id));
+          break;
+        case 'blog':
+          setBlogPosts(prev => prev.filter(b => b.id !== item.id));
+          break;
+        case 'users':
+          setUsers(prev => prev.filter(u => u.id !== item.id));
+          break;
       }
-    }));
-  };
+    }
+  }, [activeTab]);
 
-  const handleHoursChange = (day: string, field: string, value: string | boolean) => {
-    setGarageInfo(prev => ({
-      ...prev,
-      hours: {
-        ...prev.hours,
-        [day]: {
-          ...prev.hours[day as keyof typeof prev.hours],
-          [field]: value
-        }
-      }
-    }));
-  };
+  const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // Simulation de sauvegarde
+    console.log('Saving:', formData);
+    setShowForm(false);
+    setEditingItem(null);
+    setFormData({});
+  }, [formData]);
 
-  const saveSocialMedia = () => {
-    alert('Liens des réseaux sociaux sauvegardés !');
-  };
+  const resetForm = useCallback(() => {
+    setShowForm(false);
+    setEditingItem(null);
+    setFormData({});
+  }, []);
 
-  const saveGarageInfo = () => {
-    alert('Informations du garage sauvegardées !');
-  };
+  // Définition des colonnes pour les tables
+  const motorcycleColumns = [
+    {
+      key: 'brand' as keyof Motorcycle,
+      label: 'Marque',
+      render: (value: Motorcycle[keyof Motorcycle], item: Motorcycle) => (
+        <div className="flex items-center">
+          <div className="w-10 h-10 bg-gray-200 rounded-full mr-3"></div>
+          <div>
+            <p className="font-medium">{item.brand} {item.model}</p>
+            <p className="text-sm text-gray-500">{item.engine}</p>
+          </div>
+        </div>
+      )
+    },
+    {
+      key: 'year' as keyof Motorcycle,
+      label: 'Année'
+    },
+    {
+      key: 'price' as keyof Motorcycle,
+      label: 'Prix',
+      render: (value: Motorcycle[keyof Motorcycle]) => `${Number(value).toLocaleString('fr-FR')} €`
+    },
+    {
+      key: 'is_sold' as keyof Motorcycle,
+      label: 'Statut',
+      render: (value: Motorcycle[keyof Motorcycle], item: Motorcycle) => (
+        <div className="flex flex-col space-y-1">
+          {item.is_sold && <span className="inline-block px-2 py-1 text-xs bg-red-100 text-red-800 rounded">Vendue</span>}
+          {item.is_new && <span className="inline-block px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Nouvelle</span>}
+          {item.is_featured && <span className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">À la une</span>}
+        </div>
+      )
+    }
+  ];
 
-  const saveHours = () => {
-    alert('Horaires sauvegardés !');
-  };
+  // Initialisation des données
+  useEffect(() => {
+    if (isAuthenticated) {
+      setMotorcycles(mockMotorcycles);
+      setAdminStats(mockStats);
+    }
+  }, [isAuthenticated]);
 
-  // Login form if not authenticated
+  // Affichage du formulaire de connexion
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -261,7 +254,8 @@ const AdminPage = () => {
                 value={loginForm.username}
                 onChange={handleLoginInputChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                disabled={loading}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-100"
               />
             </div>
 
@@ -276,827 +270,393 @@ const AdminPage = () => {
                 value={loginForm.password}
                 onChange={handleLoginInputChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                disabled={loading}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-100"
               />
             </div>
 
             {loginError && (
-              <div className="text-red-600 text-sm text-center">
+              <div className="text-red-600 text-sm text-center bg-red-50 p-2 rounded">
                 {loginError}
               </div>
             )}
 
             <button
               type="submit"
-              className="w-full py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 transition-colors"
+              disabled={loading}
+              className="w-full py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Se connecter
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-white mr-2"></div>
+                  Connexion...
+                </div>
+              ) : (
+                'Se connecter'
+              )}
             </button>
           </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-xs text-gray-500">
+              Démo: admin / gattuso2024
+            </p>
+          </div>
         </div>
       </div>
     );
   }
 
-  const renderMotorcycleForm = () => (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Marque</label>
-          <input
-            type="text"
-            name="brand"
-            value={formData.brand || ''}
-            onChange={handleInputChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Modèle</label>
-          <input
-            type="text"
-            name="model"
-            value={formData.model || ''}
-            onChange={handleInputChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Année</label>
-          <input
-            type="number"
-            name="year"
-            value={formData.year || ''}
-            onChange={handleInputChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Prix (€)</label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price || ''}
-            onChange={handleInputChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Kilométrage</label>
-          <input
-            type="number"
-            name="mileage"
-            value={formData.mileage || ''}
-            onChange={handleInputChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Cylindrée</label>
-          <input
-            type="text"
-            name="engine"
-            value={formData.engine || ''}
-            onChange={handleInputChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Puissance (ch)</label>
-          <input
-            type="number"
-            name="power"
-            value={formData.power || ''}
-            onChange={handleInputChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Permis requis</label>
-          <select
-            name="license"
-            value={formData.license || ''}
-            onChange={handleInputChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
-            <option value="">Sélectionner</option>
-            <option value="A1">A1</option>
-            <option value="A2">A2</option>
-            <option value="A">A</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Couleur</label>
-          <input
-            type="text"
-            name="color"
-            value={formData.color || ''}
-            onChange={handleInputChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
-        </div>
-      </div>
-      
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-        <textarea
-          name="description"
-          value={formData.description || ''}
-          onChange={handleInputChange}
-          rows={4}
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">URL de l'image principale</label>
-        <input
-          type="url"
-          name="mainImage"
-          value={formData.mainImage || ''}
-          onChange={handleInputChange}
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-        />
-      </div>
-
-      <div className="flex items-center space-x-4">
-        <label className="flex items-center">
-          <input
-            type="checkbox"
-            name="isNew"
-            checked={formData.isNew || false}
-            onChange={handleInputChange}
-            className="mr-2"
-          />
-          Nouveau
-        </label>
-        <label className="flex items-center">
-          <input
-            type="checkbox"
-            name="isFeatured"
-            checked={formData.isFeatured || false}
-            onChange={handleInputChange}
-            className="mr-2"
-          />
-          À la une
-        </label>
-      </div>
-
-      <div className="flex space-x-4">
-        <button
-          type="submit"
-          className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-        >
-          <Save size={18} className="inline mr-2" />
-          {editingItem ? 'Modifier' : 'Créer'}
-        </button>
-        <button
-          type="button"
-          onClick={resetForm}
-          className="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
-        >
-          <X size={18} className="inline mr-2" />
-          Annuler
-        </button>
-      </div>
-    </form>
-  );
-
-  const renderPartForm = () => (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Nom de la pièce</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name || ''}
-            onChange={handleInputChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-          <select
-            name="category"
-            value={formData.category || ''}
-            onChange={handleInputChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
-            <option value="">Sélectionner</option>
-            <option value="Échappement">Échappement</option>
-            <option value="Freinage">Freinage</option>
-            <option value="Suspension">Suspension</option>
-            <option value="Carrosserie">Carrosserie</option>
-            <option value="Moteur">Moteur</option>
-            <option value="Électrique">Électrique</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Marque</label>
-          <input
-            type="text"
-            name="brand"
-            value={formData.brand || ''}
-            onChange={handleInputChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Prix (€)</label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price || ''}
-            onChange={handleInputChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
-          <input
-            type="number"
-            name="stock"
-            value={formData.stock || ''}
-            onChange={handleInputChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
-        </div>
-      </div>
-      
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Modèles compatibles</label>
-        <input
-          type="text"
-          name="compatibleModels"
-          value={formData.compatibleModels || ''}
-          onChange={handleInputChange}
-          placeholder="Ex: Yamaha MT-07, Honda CB650R"
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-        <textarea
-          name="description"
-          value={formData.description || ''}
-          onChange={handleInputChange}
-          rows={4}
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">URL de l'image</label>
-        <input
-          type="url"
-          name="image"
-          value={formData.image || ''}
-          onChange={handleInputChange}
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-        />
-      </div>
-
-      <div className="flex space-x-4">
-        <button
-          type="submit"
-          className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-        >
-          <Save size={18} className="inline mr-2" />
-          {editingItem ? 'Modifier' : 'Créer'}
-        </button>
-        <button
-          type="button"
-          onClick={resetForm}
-          className="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
-        >
-          <X size={18} className="inline mr-2" />
-          Annuler
-        </button>
-      </div>
-    </form>
-  );
-
-  const renderBlogForm = () => (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
-        <input
-          type="text"
-          name="title"
-          value={formData.title || ''}
-          onChange={handleInputChange}
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-        <select
-          name="category"
-          value={formData.category || ''}
-          onChange={handleInputChange}
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-        >
-          <option value="">Sélectionner</option>
-          <option value="Conseils">Conseils</option>
-          <option value="Actualités">Actualités</option>
-          <option value="Tests">Tests</option>
-          <option value="Entretien">Entretien</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Contenu</label>
-        <textarea
-          name="content"
-          value={formData.content || ''}
-          onChange={handleInputChange}
-          rows={10}
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">URL de l'image</label>
-        <input
-          type="url"
-          name="image"
-          value={formData.image || ''}
-          onChange={handleInputChange}
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-        />
-      </div>
-
-      <div>
-        <label className="flex items-center">
-          <input
-            type="checkbox"
-            name="isPublished"
-            checked={formData.isPublished || false}
-            onChange={handleInputChange}
-            className="mr-2"
-          />
-          Publié
-        </label>
-      </div>
-
-      <div className="flex space-x-4">
-        <button
-          type="submit"
-          className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-        >
-          <Save size={18} className="inline mr-2" />
-          {editingItem ? 'Modifier' : 'Créer'}
-        </button>
-        <button
-          type="button"
-          onClick={resetForm}
-          className="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
-        >
-          <X size={18} className="inline mr-2" />
-          Annuler
-        </button>
-      </div>
-    </form>
-  );
-
-  const renderSettingsForm = () => (
-    <div className="space-y-8">
-      {/* Informations du garage */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-lg font-semibold mb-4">Informations du garage</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              <Mail size={16} className="inline mr-1" />
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={garageInfo.email}
-              onChange={handleGarageInfoChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              <Phone size={16} className="inline mr-1" />
-              Téléphone
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              value={garageInfo.phone}
-              onChange={handleGarageInfoChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
-          </div>
-        </div>
-        <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            <MapPin size={16} className="inline mr-1" />
-            Adresse
-          </label>
-          <input
-            type="text"
-            name="address"
-            value={garageInfo.address}
-            onChange={handleGarageInfoChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
-        </div>
-        <button
-          onClick={saveGarageInfo}
-          className="mt-6 px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-        >
-          <Save size={18} className="inline mr-2" />
-          Sauvegarder les informations
-        </button>
-      </div>
-
-      {/* Réseaux sociaux */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-lg font-semibold mb-4">Réseaux sociaux</h3>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              <Facebook size={16} className="inline mr-1 text-blue-600" />
-              Facebook
-            </label>
-            <input
-              type="url"
-              name="facebook"
-              value={garageInfo.socialMedia.facebook}
-              onChange={handleSocialMediaChange}
-              placeholder="https://facebook.com/votrepage"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              <Instagram size={16} className="inline mr-1 text-pink-600" />
-              Instagram
-            </label>
-            <input
-              type="url"
-              name="instagram"
-              value={garageInfo.socialMedia.instagram}
-              onChange={handleSocialMediaChange}
-              placeholder="https://instagram.com/votrepage"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              <Youtube size={16} className="inline mr-1 text-red-600" />
-              YouTube
-            </label>
-            <input
-              type="url"
-              name="youtube"
-              value={garageInfo.socialMedia.youtube}
-              onChange={handleSocialMediaChange}
-              placeholder="https://youtube.com/@votrepage"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
-          </div>
-        </div>
-        <button
-          onClick={saveSocialMedia}
-          className="mt-6 px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-        >
-          <Save size={18} className="inline mr-2" />
-          Sauvegarder les réseaux sociaux
-        </button>
-      </div>
-
-      {/* Horaires d'ouverture */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-lg font-semibold mb-4">
-          <Clock size={20} className="inline mr-2" />
-          Horaires d'ouverture
-        </h3>
-        <div className="space-y-4">
-          {Object.entries(garageInfo.hours).map(([day, hours]) => (
-            <div key={day} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-              <div className="font-medium capitalize">
-                {day === 'monday' && 'Lundi'}
-                {day === 'tuesday' && 'Mardi'}
-                {day === 'wednesday' && 'Mercredi'}
-                {day === 'thursday' && 'Jeudi'}
-                {day === 'friday' && 'Vendredi'}
-                {day === 'saturday' && 'Samedi'}
-                {day === 'sunday' && 'Dimanche'}
+  // Interface d'administration
+  return (
+    <div className="min-h-screen bg-gray-100">
+      {/* En-tête */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Administration</h1>
+              <p className="text-gray-600">Agde Moto Gattuso</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-medium">
+                    {currentUser?.username.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{currentUser?.username}</p>
+                  <p className="text-xs text-gray-500 capitalize">{currentUser?.role}</p>
+                </div>
               </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center px-3 py-2 text-gray-600 hover:text-red-600 transition-colors"
+                title="Se déconnecter"
+              >
+                <LogOut size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex">
+        {/* Sidebar */}
+        <nav className="w-64 bg-white shadow-sm min-h-screen">
+          <div className="p-6">
+            <div className="space-y-2">
+              {[
+                { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
+                { id: 'motorcycles', label: 'Motos', icon: Bike },
+                { id: 'parts', label: 'Pièces détachées', icon: Package },
+                { id: 'blog', label: 'Blog', icon: FileText },
+                { id: 'users', label: 'Utilisateurs', icon: Users },
+                { id: 'analytics', label: 'Analytiques', icon: BarChart3 },
+                { id: 'settings', label: 'Paramètres', icon: Settings }
+              ].map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as TabType)}
+                    className={`w-full flex items-center px-4 py-3 text-left rounded-md transition-colors ${
+                      activeTab === tab.id
+                        ? 'bg-red-50 text-red-600 border-r-2 border-red-600'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    <Icon size={20} className="mr-3" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </nav>
+
+        {/* Contenu principal */}
+        <main className="flex-1 p-6">
+          {activeTab === 'dashboard' && (
+            <div className="space-y-6">
               <div>
-                <input
-                  type="time"
-                  value={hours.open}
-                  onChange={(e) => handleHoursChange(day, 'open', e.target.value)}
-                  disabled={hours.closed}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-100"
-                />
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Tableau de bord</h2>
+                <p className="text-gray-600">Vue d'ensemble de votre garage</p>
               </div>
-              <div>
-                <input
-                  type="time"
-                  value={hours.close}
-                  onChange={(e) => handleHoursChange(day, 'close', e.target.value)}
-                  disabled={hours.closed}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-100"
-                />
-              </div>
-              <div>
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={hours.closed}
-                    onChange={(e) => handleHoursChange(day, 'closed', e.target.checked)}
-                    className="mr-2"
+
+              {/* Statistiques */}
+              {adminStats && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <StatCard
+                    title="Motos en stock"
+                    value={adminStats.total_motorcycles - adminStats.sold_motorcycles}
+                    icon={Bike}
+                    trend={{ value: 12, isPositive: true }}
+                    color="blue"
                   />
-                  Fermé
-                </label>
+                  <StatCard
+                    title="Motos vendues ce mois"
+                    value={adminStats.sold_motorcycles}
+                    icon={TrendingUp}
+                    trend={{ value: 8, isPositive: true }}
+                    color="green"
+                  />
+                  <StatCard
+                    title="Articles de blog"
+                    value={adminStats.published_posts}
+                    icon={FileText}
+                    color="purple"
+                  />
+                  <StatCard
+                    title="Chiffre d'affaires"
+                    value={`${adminStats.monthly_revenue.toLocaleString('fr-FR')} €`}
+                    icon={BarChart3}
+                    trend={{ value: 15, isPositive: true }}
+                    color="green"
+                  />
+                </div>
+              )}
+
+              {/* Actions rapides */}
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-semibold mb-4">Actions rapides</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <button
+                    onClick={() => {
+                      setActiveTab('motorcycles');
+                      setShowForm(true);
+                    }}
+                    className="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                  >
+                    <Plus size={20} className="text-blue-600 mr-3" />
+                    <span className="text-blue-600 font-medium">Ajouter une moto</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('parts');
+                      setShowForm(true);
+                    }}
+                    className="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                  >
+                    <Plus size={20} className="text-green-600 mr-3" />
+                    <span className="text-green-600 font-medium">Ajouter une pièce</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('blog');
+                      setShowForm(true);
+                    }}
+                    className="flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+                  >
+                    <Plus size={20} className="text-purple-600 mr-3" />
+                    <span className="text-purple-600 font-medium">Nouvel article</span>
+                  </button>
+                </div>
               </div>
             </div>
-          ))}
-        </div>
-        <button
-          onClick={saveHours}
-          className="mt-6 px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-        >
-          <Save size={18} className="inline mr-2" />
-          Sauvegarder les horaires
-        </button>
-      </div>
-    </div>
-  );
+          )}
 
-  return (
-    <div className="min-h-screen pt-32 pb-16 bg-gray-100">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
-          <SectionTitle
-            title="Administration"
-            subtitle="Gérez votre garage, vos motos, pièces détachées et articles de blog"
-          />
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-          >
-            Se déconnecter
-          </button>
-        </div>
-
-        {/* Tabs */}
-        <div className="bg-white rounded-lg shadow-md mb-8">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8 px-6">
-              <button
-                onClick={() => setActiveTab('motorcycles')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'motorcycles'
-                    ? 'border-red-500 text-red-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Motos ({adminMotorcycles.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('parts')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'parts'
-                    ? 'border-red-500 text-red-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Pièces détachées ({parts.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('blog')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'blog'
-                    ? 'border-red-500 text-red-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Blog ({blogPosts.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('settings')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'settings'
-                    ? 'border-red-500 text-red-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Settings size={16} className="inline mr-1" />
-                Paramètres
-              </button>
-            </nav>
-          </div>
-
-          <div className="p-6">
-            {activeTab !== 'settings' && !showForm && (
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">
-                  {activeTab === 'motorcycles' && 'Gestion des motos'}
-                  {activeTab === 'parts' && 'Gestion des pièces détachées'}
-                  {activeTab === 'blog' && 'Gestion du blog'}
-                </h2>
-                <button
-                  onClick={() => setShowForm(true)}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                >
-                  <Plus size={18} className="inline mr-2" />
-                  Ajouter
-                </button>
+          {activeTab === 'motorcycles' && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Gestion des motos</h2>
+                  <p className="text-gray-600">Gérez votre stock de motos</p>
+                </div>
+                {!showForm && (
+                  <button
+                    onClick={() => setShowForm(true)}
+                    className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                  >
+                    <Plus size={20} className="mr-2" />
+                    Ajouter une moto
+                  </button>
+                )}
               </div>
-            )}
 
-            {showForm ? (
-              <div>
-                <h3 className="text-lg font-semibold mb-6">
-                  {editingItem ? 'Modifier' : 'Créer'} {
-                    activeTab === 'motorcycles' ? 'une moto' :
-                    activeTab === 'parts' ? 'une pièce détachée' :
-                    'un article'
-                  }
-                </h3>
-                {activeTab === 'motorcycles' && renderMotorcycleForm()}
-                {activeTab === 'parts' && renderPartForm()}
-                {activeTab === 'blog' && renderBlogForm()}
-              </div>
-            ) : activeTab === 'settings' ? (
-              renderSettingsForm()
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      {activeTab === 'motorcycles' && (
-                        <>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Moto</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Année</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </>
-                      )}
-                      {activeTab === 'parts' && (
-                        <>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pièce</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </>
-                      )}
-                      {activeTab === 'blog' && (
-                        <>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Article</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {activeTab === 'motorcycles' && adminMotorcycles.map((motorcycle) => (
-                      <tr key={motorcycle.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <img className="h-10 w-10 rounded-full object-cover" src={motorcycle.images[0]} alt="" />
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{motorcycle.brand} {motorcycle.model}</div>
-                              <div className="text-sm text-gray-500">{motorcycle.engine}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{motorcycle.price.toLocaleString()} €</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{motorcycle.year}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex space-x-1">
-                            {motorcycle.isNew && <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Nouveau</span>}
-                            {motorcycle.isFeatured && <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">À la une</span>}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
-                            onClick={() => handleEdit(motorcycle)}
-                            className="text-indigo-600 hover:text-indigo-900 mr-3"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(motorcycle.id, 'motorcycle')}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+              {showForm ? (
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <h3 className="text-lg font-semibold mb-6">
+                    {editingItem ? 'Modifier la moto' : 'Ajouter une nouvelle moto'}
+                  </h3>
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Marque *
+                        </label>
+                        <input
+                          type="text"
+                          name="brand"
+                          value={String(formData.brand || '')}
+                          onChange={handleInputChange}
+                          required
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Modèle *
+                        </label>
+                        <input
+                          type="text"
+                          name="model"
+                          value={String(formData.model || '')}
+                          onChange={handleInputChange}
+                          required
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Année *
+                        </label>
+                        <input
+                          type="number"
+                          name="year"
+                          value={Number(formData.year || '')}
+                          onChange={handleInputChange}
+                          required
+                          min="1900"
+                          max={new Date().getFullYear() + 1}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Prix (€) *
+                        </label>
+                        <input
+                          type="number"
+                          name="price"
+                          value={Number(formData.price || '')}
+                          onChange={handleInputChange}
+                          required
+                          min="0"
+                          step="0.01"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Kilométrage *
+                        </label>
+                        <input
+                          type="number"
+                          name="mileage"
+                          value={Number(formData.mileage || '')}
+                          onChange={handleInputChange}
+                          required
+                          min="0"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Permis requis *
+                        </label>
+                        <select
+                          name="license"
+                          value={String(formData.license || '')}
+                          onChange={handleInputChange}
+                          required
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                        >
+                          <option value="">Sélectionner</option>
+                          <option value="A1">A1</option>
+                          <option value="A2">A2</option>
+                          <option value="A">A</option>
+                        </select>
+                      </div>
+                    </div>
 
-                    {activeTab === 'parts' && parts.map((part) => (
-                      <tr key={part.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <img className="h-10 w-10 rounded-full object-cover" src={part.image} alt="" />
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{part.name}</div>
-                              <div className="text-sm text-gray-500">{part.brand}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.category}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.price} €</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.stock}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
-                            onClick={() => handleEdit(part)}
-                            className="text-indigo-600 hover:text-indigo-900 mr-3"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(part.id, 'part')}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Description *
+                      </label>
+                      <textarea
+                        name="description"
+                        value={String(formData.description || '')}
+                        onChange={handleInputChange}
+                        required
+                        rows={4}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                      />
+                    </div>
 
-                    {activeTab === 'blog' && blogPosts.map((post) => (
-                      <tr key={post.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <img className="h-10 w-10 rounded-full object-cover" src={post.image} alt="" />
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{post.title}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{post.category}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{post.createdAt}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 text-xs rounded ${
-                            post.isPublished ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {post.isPublished ? 'Publié' : 'Brouillon'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
-                            onClick={() => handleEdit(post)}
-                            className="text-indigo-600 hover:text-indigo-900 mr-3"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(post.id, 'blog')}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
+                    <div className="flex items-center space-x-6">
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="is_new"
+                          checked={Boolean(formData.is_new)}
+                          onChange={handleInputChange}
+                          className="mr-2"
+                        />
+                        Moto neuve
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="is_featured"
+                          checked={Boolean(formData.is_featured)}
+                          onChange={handleInputChange}
+                          className="mr-2"
+                        />
+                        À la une
+                      </label>
+                    </div>
+
+                    <div className="flex space-x-4">
+                      <button
+                        type="submit"
+                        className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                      >
+                        {editingItem ? 'Modifier' : 'Ajouter'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={resetForm}
+                        className="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              ) : (
+                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                  <DataTable
+                    data={motorcycles}
+                    columns={motorcycleColumns}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    loading={loading}
+                    emptyMessage="Aucune moto trouvée"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Autres onglets peuvent être ajoutés de manière similaire */}
+          
+          {activeTab !== 'dashboard' && activeTab !== 'motorcycles' && (
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                {activeTab === 'parts' && 'Gestion des pièces détachées'}
+                {activeTab === 'blog' && 'Gestion du blog'}
+                {activeTab === 'users' && 'Gestion des utilisateurs'}
+                {activeTab === 'analytics' && 'Analytiques'}
+                {activeTab === 'settings' && 'Paramètres'}
+              </h2>
+              <p className="text-gray-600">
+                Cette section sera développée prochainement avec les mêmes standards de qualité.
+              </p>
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );

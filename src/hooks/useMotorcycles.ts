@@ -1,50 +1,69 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { motorcycleService } from '../services/api';
 import { Motorcycle } from '../types/Motorcycle';
 
-export const useMotorcycles = () => {
-  return useQuery<Motorcycle[]>({
+export const useMotorcycles = (): UseQueryResult<Motorcycle[], Error> => {
+  return useQuery({
     queryKey: ['motorcycles'],
     queryFn: async () => {
-      const response = await motorcycleService.getAll();
-      return response.data.results;
-    },
-  });
-};
-
-export const useMotorcycle = (id: string) => {
-  return useQuery<Motorcycle>({
-    queryKey: ['motorcycle', id],
-    queryFn: async () => {
-      const response = await motorcycleService.getById(id);
-      return response.data;
-    },
-    enabled: !!id,
-  });
-};
-
-export const useFeaturedMotorcycles = () => {
-  return useQuery<Motorcycle[]>({ // Assuming getFeatured returns an array of Motorcycles
-    queryKey: ['motorcycles', 'featured'],
-    queryFn: async () => {
-      const response = await motorcycleService.getFeatured();
-      // Check if the response is paginated or a direct array
-      if ('results' in response.data) {
+      try {
+        const response = await motorcycleService.getAll();
         return response.data.results;
-      } else {
-        return response.data;
+      } catch (error) {
+        console.error('Failed to fetch motorcycles:', error);
+        throw error;
       }
     },
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
   });
 };
 
-export const useCreateMotorcycle = () => {
+export const useMotorcycle = (id: string): UseQueryResult<Motorcycle | null, Error> => {
+  return useQuery({
+    queryKey: ['motorcycle', id],
+    queryFn: async () => {
+      try {
+        const response = await motorcycleService.getById(id);
+        return response.data;
+      } catch (error) {
+        console.error(`Failed to fetch motorcycle ${id}:`, error);
+        throw error;
+      }
+    },
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  });
+};
+
+export const useFeaturedMotorcycles = (): UseQueryResult<Motorcycle[], Error> => {
+  return useQuery({
+    queryKey: ['motorcycles', 'featured'],
+    queryFn: async () => {
+      try {
+        const response = await motorcycleService.getFeatured();
+        return response.data;
+      } catch (error) {
+        console.error('Failed to fetch featured motorcycles:', error);
+        throw error;
+      }
+    },
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  });
+};
+
+export const useCreateMotorcycle = (): UseMutationResult<Motorcycle, Error, Partial<Motorcycle>> => {
   const queryClient = useQueryClient();
   
-  return useMutation<Motorcycle, Error, Motorcycle>({
+  return useMutation({
     mutationFn: motorcycleService.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['motorcycles'] });
+    },
+    onError: (error) => {
+      console.error('Failed to create motorcycle:', error);
     },
   });
 };

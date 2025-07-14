@@ -1,45 +1,77 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { partsService } from '../services/api';
-import { Part, PartCategory } from '../types/Part';
+import { Part } from '../types/Part';
 
-export const useParts = () => {
-  return useQuery<Part[]>({
+// Type simple pour les catégories - évite les conflits d'import
+interface CategoryResponse {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+}
+
+export const useParts = (): UseQueryResult<Part[], Error> => {
+  return useQuery({
     queryKey: ['parts'],
     queryFn: async () => {
-      const response = await partsService.getAll();
-      return response.data.results;
+      try {
+        const response = await partsService.getAll();
+        return response.data.results;
+      } catch (error) {
+        console.error('Failed to fetch parts:', error);
+        throw error;
+      }
     },
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
   });
 };
 
-export const usePart = (id: string) => {
-  return useQuery<Part>({
+export const usePart = (id: string): UseQueryResult<Part | null, Error> => {
+  return useQuery({
     queryKey: ['part', id],
     queryFn: async () => {
-      const response = await partsService.getById(id);
-      return response.data;
+      try {
+        const response = await partsService.getById(id);
+        return response.data;
+      } catch (error) {
+        console.error(`Failed to fetch part ${id}:`, error);
+        throw error;
+      }
     },
     enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
   });
 };
 
-export const usePartCategories = () => {
-  return useQuery<PartCategory[]>({
+export const usePartCategories = (): UseQueryResult<CategoryResponse[], Error> => {
+  return useQuery({
     queryKey: ['part-categories'],
     queryFn: async () => {
-      const response = await partsService.getCategories();
-      return response.data;
+      try {
+        const response = await partsService.getCategories();
+        return response.data;
+      } catch (error) {
+        console.error('Failed to fetch part categories:', error);
+        throw error;
+      }
     },
+    staleTime: 10 * 60 * 1000,
+    retry: 2,
   });
 };
 
-export const useCreatePart = () => {
+export const useCreatePart = (): UseMutationResult<Part, Error, Partial<Part>> => {
   const queryClient = useQueryClient();
   
-  return useMutation<Part, Error, Part>({
+  return useMutation({
     mutationFn: partsService.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['parts'] });
+    },
+    onError: (error) => {
+      console.error('Failed to create part:', error);
     },
   });
 };

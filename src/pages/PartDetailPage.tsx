@@ -165,7 +165,7 @@ const PartDetailPage = () => {
                   </svg>
                   <div>
                     <p className="text-sm text-gray-600">Catégorie</p>
-                    <p className="font-medium text-gray-900">{categoryName}</p>
+                    <p className="font-medium text-gray-900">{typeof categoryName === 'object' ? categoryName.name : categoryName}</p>
                   </div>
                 </div>
                 
@@ -215,7 +215,7 @@ const PartDetailPage = () => {
               Demande d'information
             </h2>
             <ContactForm 
-              motorcycleId={part.id} 
+              motorcycleId={part.id.toString()}
               motorcycleName={`${part.name} - ${part.brand}`} 
             />
           </div>

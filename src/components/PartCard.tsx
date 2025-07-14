@@ -10,32 +10,31 @@ interface PartCardProps {
 const PartCard = ({ part }: PartCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   
-  const getConditionLabel = (condition: string) => {
-    switch (condition) {
-      case 'new': return 'Neuf';
-      case 'used_excellent': return 'Occasion - Excellent';
-      case 'used_good': return 'Occasion - Bon état';
-      case 'used_fair': return 'Occasion - État correct';
-      case 'refurbished': return 'Reconditionné';
-      default: return condition;
-    }
+  const getConditionLabel = (condition: string): string => {
+    const labels: Record<string, string> = {
+      'new': 'Neuf',
+      'used_excellent': 'Occasion - Excellent',
+      'used_good': 'Occasion - Bon état',
+      'used_fair': 'Occasion - État correct',
+      'refurbished': 'Reconditionné'
+    };
+    return labels[condition] || condition;
   };
 
-  const getConditionColor = (condition: string) => {
-    switch (condition) {
-      case 'new': return 'bg-green-100 text-green-800';
-      case 'used_excellent': return 'bg-blue-100 text-blue-800';
-      case 'used_good': return 'bg-yellow-100 text-yellow-800';
-      case 'used_fair': return 'bg-orange-100 text-orange-800';
-      case 'refurbished': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  const getConditionColor = (condition: string): string => {
+    const colors: Record<string, string> = {
+      'new': 'bg-green-100 text-green-800',
+      'used_excellent': 'bg-blue-100 text-blue-800',
+      'used_good': 'bg-yellow-100 text-yellow-800',
+      'used_fair': 'bg-orange-100 text-orange-800',
+      'refurbished': 'bg-purple-100 text-purple-800'
+    };
+    return colors[condition] || 'bg-gray-100 text-gray-800';
   };
 
-  // Adapter les données de l'API Django
-  const mainImage = part.images?.[0]?.image || 'https://images.pexels.com/photos/2539322/pexels-photo-2539322.jpeg';
+  const mainImage = part.images?.[0]?.image || '/images/default-part.jpg';
   const price = parseFloat(part.price);
-  const categoryName = part.category?.name || part.category;
+  const categoryName = part.category?.name || 'Non catégorisé';
   
   return (
     <Link 
@@ -51,6 +50,10 @@ const PartCard = ({ part }: PartCardProps) => {
           className={`w-full h-full object-cover transition-transform duration-500 ${
             isHovered ? 'scale-105' : 'scale-100'
           }`}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/images/default-part.jpg';
+          }}
         />
         <div className="absolute top-4 left-4 flex flex-col gap-2">
           {part.is_featured && (

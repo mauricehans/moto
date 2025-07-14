@@ -1,17 +1,18 @@
-export interface Post {
-  id: string;
-  title: string;
-  slug: string;
-  category: string;
-  content: string;
-  image: string;
-  isPublished: boolean;
-  createdAt: string;
-}
-
 export interface BlogCategory {
-  id: string;
+  id: number;
   name: string;
   slug: string;
   description: string;
+}
+
+export interface Post {
+  id: number;
+  title: string;
+  slug: string;
+  category: BlogCategory;
+  content: string;
+  image: string;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
 }
