@@ -1,31 +1,15 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { blogService } from '../services/api';
-
-// Types simples pour éviter les conflits d'import
-interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  category: {
-    id: string;
-    name: string;
-    slug: string;
-  };
-  content: string;
-  image: string;
-  is_published: boolean;
-  created_at: string;
-  updated_at: string;
-}
+import { Post } from '../types/Blog';
 
 interface BlogCategoryResponse {
-  id: string;
+  id: number;
   name: string;
   slug: string;
-  description?: string;
+  description: string;
 }
 
-export const useBlogPosts = (): UseQueryResult<BlogPost[], Error> => {
+export const useBlogPosts = (): UseQueryResult<Post[], Error> => {
   return useQuery({
     queryKey: ['blog-posts'],
     queryFn: async () => {
@@ -42,7 +26,7 @@ export const useBlogPosts = (): UseQueryResult<BlogPost[], Error> => {
   });
 };
 
-export const useBlogPost = (id: string): UseQueryResult<BlogPost | null, Error> => {
+export const useBlogPost = (id: string): UseQueryResult<Post | null, Error> => {
   return useQuery({
     queryKey: ['blog-post', id],
     queryFn: async () => {

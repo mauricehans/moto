@@ -1,7 +1,7 @@
 import React from 'react';
 import { Edit, Trash2, Eye } from 'lucide-react';
 
-interface Column<T> {
+export interface Column<T> {
   key: keyof T;
   label: string;
   render?: (value: T[keyof T], item: T) => React.ReactNode;
@@ -18,7 +18,7 @@ interface DataTableProps<T> {
   emptyMessage?: string;
 }
 
-function DataTable<T extends { id: string }>({
+function DataTable<T extends { id: string | number }>({
   data,
   columns,
   onEdit,

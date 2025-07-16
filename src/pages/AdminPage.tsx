@@ -1,14 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 import {
   Lock, LogOut, Bike, Package, FileText, LayoutDashboard
 } from 'lucide-react';
-import DataTable from '../components/DataTable';
+import DataTable, { type Column } from '../components/DataTable';
 import { useMotorcycles } from '../hooks/useMotorcycles';
 import { useParts } from '../hooks/useParts';
 import { useBlogPosts } from '../hooks/useBlog';
 import { Motorcycle } from '../types/Motorcycle';
 import { Part } from '../types/Part';
-import type { Post as BlogPost } from '../types/Blog';
+import type { Post } from '../types/Blog';
 
 type TabType = 'dashboard' | 'motorcycles' | 'parts' | 'blog';
 
@@ -40,24 +42,29 @@ const AdminPage: React.FC = () => {
   const publishedPosts = blogPosts.filter(p => p.is_published).length;
 
   // Gestion de l'authentification
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setLoginError('');
 
-    // Authentification simple
-    setTimeout(() => {
-      if (loginForm.username === 'admin' && loginForm.password === 'gattuso2024') {
-        setIsAuthenticated(true);
-        setLoginError('');
-      } else {
-        setLoginError('Nom d\'utilisateur ou mot de passe incorrect');
-      }
+    try {
+      const response = await api.post('/token/', {
+        username: loginForm.username,
+        password: loginForm.password
+      });
+      localStorage.setItem('access_token', response.data.access);
+      localStorage.setItem('refresh_token', response.data.refresh);
+      setIsAuthenticated(true);
+    } catch (error) {
+      setLoginError('Nom d\'utilisateur ou mot de passe incorrect');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     setIsAuthenticated(false);
     setLoginForm({ username: '', password: '' });
     setActiveTab('dashboard');
@@ -117,16 +124,16 @@ const AdminPage: React.FC = () => {
   ];
 
   const blogColumns = [
-    { key: 'title' as keyof BlogPost, label: 'Titre' },
+    { key: 'title' as keyof Post, label: 'Titre' },
     { 
-      key: 'created_at' as keyof BlogPost, 
+      key: 'created_at' as keyof Post,
       label: 'Date de création', 
-      render: (value: BlogPost[keyof BlogPost]) => new Date(String(value)).toLocaleDateString()
+      render: (value: Post[keyof Post], item: Post) => new Date(String(value)).toLocaleDateString()
     },
     { 
-      key: 'is_published' as keyof BlogPost, 
+      key: 'is_published' as keyof Post, 
       label: 'Statut de publication', 
-      render: (value: BlogPost[keyof BlogPost]) => (
+      render: (value: Post[keyof Post], item: Post) => (
         <span className={`px-3 py-1 rounded-full text-sm font-medium ${
           value ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
         }`}>
