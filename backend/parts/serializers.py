@@ -26,6 +26,7 @@ class PartSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'category', 'category_id', 'brand',
             'compatible_models', 'price', 'stock', 'description',
+            'is_available',
             'created_at', 'updated_at', 'images'
         ]
         read_only_fields = ['created_at', 'updated_at']

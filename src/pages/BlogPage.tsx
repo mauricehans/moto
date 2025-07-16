@@ -4,11 +4,17 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import SectionTitle from '../components/SectionTitle';
+import { useBlogPosts } from '../hooks/useBlog';
 
 const BlogPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const { data: posts, isLoading, error } = useBlogPosts();
+
+  if (isLoading) return <div>Chargement...</div>;
+  if (error) return <div>Erreur: {error.message}</div>;
 
   return (
     <div>
@@ -25,12 +31,28 @@ const BlogPage = () => {
             subtitle="Restez informé des dernières actualités et conseils moto"
           />
 
-          {/* Content will be added in the next iteration */}
-          <div className="text-center py-12">
-            <p className="text-gray-600">
-              Les articles du blog seront bientôt disponibles.
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {posts?.map((post) => (
+              <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                <img src={post.image} alt={post.title} className="w-full h-48 object-cover" />
+                <div className="p-4">
+                  <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
+                  <p className="text-gray-600 mb-4">{post.excerpt || post.content.substring(0, 100) + '...'}</p>
+                  <Link to={`/blog/${post.slug}`} className="text-blue-500 hover:underline">
+                    Lire plus <ArrowRight className="inline-block ml-1" size={16} />
+                  </Link>
+                </div>
+              </div>
+            ))}
           </div>
+
+          {posts?.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-600">
+                Aucun article disponible pour le moment.
+              </p>
+            </div>
+          )}
         </div>
       </section>
     </div>
