@@ -25,17 +25,9 @@ class Motorcycle(models.Model):
 
 class MotorcycleImage(models.Model):
     motorcycle = models.ForeignKey(Motorcycle, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='motorcycles/')
+    image = models.URLField(max_length=500)
     is_primary = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"Image for {self.motorcycle.brand} {self.motorcycle.model}"
-class MotorcycleImage(models.Model):
-    motorcycle = models.ForeignKey(Motorcycle, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='motorcycles/')
-    is_primary = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)  # AJOUTEZ CETTE LIGNE
     
     def __str__(self):
         return f"Image for {self.motorcycle.brand} {self.motorcycle.model}"

@@ -17,7 +17,7 @@ class Post(models.Model):
     slug = models.SlugField(unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='posts')
     content = models.TextField()
-    image = models.ImageField(upload_to='blog/', blank=True)
+    image = models.URLField(max_length=500, blank=True)
     is_published = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

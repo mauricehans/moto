@@ -43,7 +43,7 @@ class Part(models.Model):
 
 class PartImage(models.Model):
     part = models.ForeignKey(Part, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='parts/')
+    image = models.URLField(max_length=500)
     is_primary = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     
