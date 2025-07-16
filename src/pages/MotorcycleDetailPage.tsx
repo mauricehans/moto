@@ -353,7 +353,7 @@ const MotorcycleDetailPage = () => {
               <div className="flex justify-between items-start">
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    {motorcycle.brand} {motorcycle.model}
+                    {motorcycle.brand || 'Marque inconnue'} {motorcycle.model || 'Modèle inconnu'}
                   </h1>
                   <div className="flex items-center space-x-2">
                     {motorcycle.is_new && (
@@ -490,7 +490,7 @@ const MotorcycleDetailPage = () => {
                   <Gauge size={24} className="text-red-600" />
                   <div>
                     <p className="text-sm text-gray-600">Kilométrage</p>
-                    <p className="font-medium text-gray-900">{motorcycle.mileage?.toLocaleString('fr-FR')} km</p>
+                    <p className="font-medium text-gray-900">{motorcycle.mileage?.toLocaleString('fr-FR') || 'N/A'} km</p>
                   </div>
                 </div>
                 
@@ -498,7 +498,7 @@ const MotorcycleDetailPage = () => {
                   <Award size={24} className="text-red-600" />
                   <div>
                     <p className="text-sm text-gray-600">Permis</p>
-                    <p className="font-medium text-gray-900">{motorcycle.license}</p>
+                    <p className="font-medium text-gray-900">{motorcycle.license || 'N/A'}</p>
                   </div>
                 </div>
                 
@@ -506,7 +506,7 @@ const MotorcycleDetailPage = () => {
                   <BarChart2 size={24} className="text-red-600" />
                   <div>
                     <p className="text-sm text-gray-600">Puissance</p>
-                    <p className="font-medium text-gray-900">{motorcycle.power} ch</p>
+                    <p className="font-medium text-gray-900">{motorcycle.power || 'N/A'} ch</p>
                   </div>
                 </div>
                 
@@ -514,7 +514,7 @@ const MotorcycleDetailPage = () => {
                   <PaintBucket size={24} className="text-red-600" />
                   <div>
                     <p className="text-sm text-gray-600">Couleur</p>
-                    <p className="font-medium text-gray-900">{motorcycle.color}</p>
+                    <p className="font-medium text-gray-900">{motorcycle.color || 'N/A'}</p>
                   </div>
                 </div>
                 
@@ -525,7 +525,7 @@ const MotorcycleDetailPage = () => {
                   </svg>
                   <div>
                     <p className="text-sm text-gray-600">Cylindrée</p>
-                    <p className="font-medium text-gray-900">{motorcycle.engine}</p>
+                    <p className="font-medium text-gray-900">{motorcycle.engine || 'N/A'}</p>
                   </div>
                 </div>
               </div>
@@ -555,7 +555,7 @@ const MotorcycleDetailPage = () => {
               {/* Description */}
               <div>
                 <h2 className="text-xl font-bold text-gray-900 mb-3">Description</h2>
-                <p className="text-gray-700 leading-relaxed">{motorcycle.description}</p>
+                <p className="text-gray-700 leading-relaxed">{motorcycle.description || 'Aucune description disponible'}</p>
               </div>
               
               {/* Boutons d'action */}

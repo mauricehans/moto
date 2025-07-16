@@ -1,5 +1,5 @@
 export interface PartCategory {
-  id: string;
+  id: number; // ✅ Harmonisé avec l'API Django (était string)
   name: string;
   slug: string;
   description?: string;

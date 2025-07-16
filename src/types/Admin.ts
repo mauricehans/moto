@@ -9,11 +9,11 @@ export interface User {
 }
 
 export interface Motorcycle {
-  id: string;
+  id: number;
   brand: string;
   model: string;
   year: number;
-  price: number;
+  price: string; // Django renvoie un string pour DecimalField
   mileage: number;
   engine: string;
   power: number;
@@ -29,19 +29,19 @@ export interface Motorcycle {
 }
 
 export interface MotorcycleImage {
-  id: string;
+  id: number;
   image: string;
   is_primary: boolean;
   created_at: string;
 }
 
 export interface Part {
-  id: string;
+  id: number;
   name: string;
   category: PartCategory;
   brand: string;
   compatible_models: string;
-  price: number;
+  price: string; // Django renvoie un string pour DecimalField
   stock: number;
   condition: 'new' | 'used_excellent' | 'used_good' | 'used_fair' | 'refurbished';
   description: string;
@@ -53,14 +53,14 @@ export interface Part {
 }
 
 export interface PartCategory {
-  id: string;
+  id: number;
   name: string;
   slug: string;
   description: string;
 }
 
 export interface PartImage {
-  id: string;
+  id: number;
   image: string;
   is_primary: boolean;
   created_at: string;

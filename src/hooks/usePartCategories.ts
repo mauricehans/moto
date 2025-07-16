@@ -1,9 +1,9 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { partsService } from '../services/api';
 
-// Type simple pour les catégories - évite les conflits d'import
+// ✅ Type harmonisé avec ID number
 interface CategoryResponse {
-  id: string;
+  id: number;
   name: string;
   slug: string;
   description?: string;
@@ -21,7 +21,8 @@ export const usePartCategories = (): UseQueryResult<CategoryResponse[], Error> =
         throw error;
       }
     },
-    staleTime: 10 * 60 * 1000,
+    staleTime: 10 * 60 * 1000, // 10 minutes
     retry: 2,
+    refetchOnWindowFocus: false, // ✅ Évite les refetch inutiles
   });
 };

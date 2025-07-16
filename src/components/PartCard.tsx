@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Package, Star } from 'lucide-react';
 import { Part } from '../types/Part';
@@ -9,8 +9,10 @@ interface PartCardProps {
 
 const PartCard = ({ part }: PartCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
   
-  const getConditionLabel = (condition: string): string => {
+  // ✅ Fonctions mémorisées
+  const getConditionLabel = useCallback((condition: string): string => {
     const labels: Record<string, string> = {
       'new': 'Neuf',
       'used_excellent': 'Occasion - Excellent',
@@ -19,9 +21,9 @@ const PartCard = ({ part }: PartCardProps) => {
       'refurbished': 'Reconditionné'
     };
     return labels[condition] || condition;
-  };
+  }, []);
 
-  const getConditionColor = (condition: string): string => {
+  const getConditionColor = useCallback((condition: string): string => {
     const colors: Record<string, string> = {
       'new': 'bg-green-100 text-green-800',
       'used_excellent': 'bg-blue-100 text-blue-800',
@@ -30,11 +32,23 @@ const PartCard = ({ part }: PartCardProps) => {
       'refurbished': 'bg-purple-100 text-purple-800'
     };
     return colors[condition] || 'bg-gray-100 text-gray-800';
-  };
+  }, []);
 
-  const mainImage = part.images?.[0]?.image || '/images/default-part.jpg';
+  // ✅ Gestion améliorée des erreurs d'image
+  const handleImageError = useCallback(() => {
+    setImageError(true);
+  }, []);
+
+  const mainImage = !imageError && part.images?.[0]?.image 
+    ? part.images[0].image 
+    : '/images/default-part.jpg';
+  
   const price = parseFloat(part.price);
-  const categoryName = part.category?.name || 'Non catégorisé';
+  
+  // ✅ Gestion sécurisée du nom de catégorie
+  const categoryName = typeof part.category === 'object' 
+    ? (part.category?.name || 'Non catégorisé')
+    : (part.category || 'Non catégorisé');
   
   return (
     <Link 
@@ -50,10 +64,7 @@ const PartCard = ({ part }: PartCardProps) => {
           className={`w-full h-full object-cover transition-transform duration-500 ${
             isHovered ? 'scale-105' : 'scale-100'
           }`}
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.src = '/images/default-part.jpg';
-          }}
+          onError={handleImageError}
         />
         <div className="absolute top-4 left-4 flex flex-col gap-2">
           {part.is_featured && (
@@ -77,7 +88,7 @@ const PartCard = ({ part }: PartCardProps) => {
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-lg font-bold text-gray-900 line-clamp-2">
-            {part.name}
+            {part.name || 'Nom non disponible'}
           </h3>
         </div>
         
@@ -86,7 +97,7 @@ const PartCard = ({ part }: PartCardProps) => {
             {price.toLocaleString('fr-FR')} €
           </span>
           <span className="text-gray-600 text-sm">
-            {part.brand}
+            {part.brand || 'Marque inconnue'}
           </span>
         </div>
         
@@ -100,7 +111,7 @@ const PartCard = ({ part }: PartCardProps) => {
         </div>
         
         <p className="text-gray-600 text-sm line-clamp-2">
-          {part.description}
+          {part.description || 'Aucune description disponible'}
         </p>
       </div>
     </Link>

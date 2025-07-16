@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Package, Star, CheckCircle, AlertCircle } from 'lucide-react';
 import ImageGallery from '../components/ImageGallery';
@@ -9,6 +9,60 @@ const PartDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { data: part, isLoading, error } = usePart(id!);
   const [showContactForm, setShowContactForm] = useState(false);
+
+  // ✅ Fonctions mémorisées pour éviter les re-renders
+  const getConditionLabel = useMemo(() => {
+    return (condition: string) => {
+      const labels: Record<string, string> = {
+        'new': 'Neuf',
+        'used_excellent': 'Occasion - Excellent état',
+        'used_good': 'Occasion - Bon état',
+        'used_fair': 'Occasion - État correct',
+        'refurbished': 'Reconditionné'
+      };
+      return labels[condition] || condition;
+    };
+  }, []);
+
+  const getConditionColor = useMemo(() => {
+    return (condition: string) => {
+      const colors: Record<string, string> = {
+        'new': 'bg-green-100 text-green-800',
+        'used_excellent': 'bg-blue-100 text-blue-800',
+        'used_good': 'bg-yellow-100 text-yellow-800',
+        'used_fair': 'bg-orange-100 text-orange-800',
+        'refurbished': 'bg-purple-100 text-purple-800'
+      };
+      return colors[condition] || 'bg-gray-100 text-gray-800';
+    };
+  }, []);
+
+  // ✅ Données calculées avec useMemo
+  const partData = useMemo(() => {
+    if (!part) return null;
+    
+    return {
+      images: part.images?.map((img: { image: string }) => img.image) || [
+        'https://images.pexels.com/photos/2539322/pexels-photo-2539322.jpeg'
+      ],
+      price: parseFloat(part.price),
+      categoryName: typeof part.category === 'object' 
+        ? part.category.name 
+        : part.category || 'Non catégorisé'
+    };
+  }, [part]);
+
+  const toggleContactForm = () => {
+    setShowContactForm(!showContactForm);
+    if (!showContactForm) {
+      setTimeout(() => {
+        const contactSection = document.getElementById('contact-form');
+        if (contactSection) {
+          contactSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -22,7 +76,7 @@ const PartDetailPage = () => {
     );
   }
 
-  if (error || !part) {
+  if (error || !part || !partData) {
     return (
       <div className="min-h-screen pt-32 pb-16">
         <div className="container mx-auto px-4 text-center">
@@ -44,47 +98,6 @@ const PartDetailPage = () => {
     );
   }
 
-  const getConditionLabel = (condition: string) => {
-    switch (condition) {
-      case 'new': return 'Neuf';
-      case 'used_excellent': return 'Occasion - Excellent état';
-      case 'used_good': return 'Occasion - Bon état';
-      case 'used_fair': return 'Occasion - État correct';
-      case 'refurbished': return 'Reconditionné';
-      default: return condition;
-    }
-  };
-
-  const getConditionColor = (condition: string) => {
-    switch (condition) {
-      case 'new': return 'bg-green-100 text-green-800';
-      case 'used_excellent': return 'bg-blue-100 text-blue-800';
-      case 'used_good': return 'bg-yellow-100 text-yellow-800';
-      case 'used_fair': return 'bg-orange-100 text-orange-800';
-      case 'refurbished': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const toggleContactForm = () => {
-    setShowContactForm(!showContactForm);
-    if (!showContactForm) {
-      setTimeout(() => {
-        const contactSection = document.getElementById('contact-form');
-        if (contactSection) {
-          contactSection.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    }
-  };
-
-  // Adapter les données de l'API Django
-  const images = part.images?.map((img: { image: string }) => img.image) || [
-    'https://images.pexels.com/photos/2539322/pexels-photo-2539322.jpeg'
-  ];
-  const price = parseFloat(part.price);
-  const categoryName = part.category?.name || part.category;
-
   return (
     <div className="min-h-screen pt-32 pb-16">
       <div className="container mx-auto px-4">
@@ -102,7 +115,7 @@ const PartDetailPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-8">
             <div>
               <ImageGallery 
-                images={images} 
+                images={partData.images} 
                 alt={part.name} 
               />
             </div>
@@ -110,7 +123,7 @@ const PartDetailPage = () => {
             <div>
               <div className="flex items-start justify-between mb-4">
                 <h1 className="text-3xl font-bold text-gray-900">
-                  {part.name}
+                  {part.name || 'Nom non disponible'}
                 </h1>
                 {part.is_featured && (
                   <div className="bg-red-600 text-white text-xs font-bold uppercase px-3 py-1 rounded flex items-center">
@@ -122,7 +135,7 @@ const PartDetailPage = () => {
               
               <div className="flex items-center mb-6">
                 <span className="text-2xl font-bold text-red-600 mr-4">
-                  {price.toLocaleString('fr-FR')} €
+                  {partData.price.toLocaleString('fr-FR')} €
                 </span>
                 <span className={`text-sm font-medium px-3 py-1 rounded ${getConditionColor(part.condition)}`}>
                   {getConditionLabel(part.condition)}
@@ -154,7 +167,7 @@ const PartDetailPage = () => {
                   </svg>
                   <div>
                     <p className="text-sm text-gray-600">Marque</p>
-                    <p className="font-medium text-gray-900">{part.brand}</p>
+                    <p className="font-medium text-gray-900">{part.brand || 'Marque inconnue'}</p>
                   </div>
                 </div>
                 
@@ -165,7 +178,7 @@ const PartDetailPage = () => {
                   </svg>
                   <div>
                     <p className="text-sm text-gray-600">Catégorie</p>
-                    <p className="font-medium text-gray-900">{typeof categoryName === 'object' ? categoryName.name : categoryName}</p>
+                    <p className="font-medium text-gray-900">{partData.categoryName}</p>
                   </div>
                 </div>
                 
@@ -191,7 +204,7 @@ const PartDetailPage = () => {
               
               <div className="mb-8">
                 <h2 className="text-xl font-bold text-gray-900 mb-3">Description</h2>
-                <p className="text-gray-700">{part.description}</p>
+                <p className="text-gray-700">{part.description || 'Aucune description disponible'}</p>
               </div>
               
               <button

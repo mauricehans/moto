@@ -39,9 +39,9 @@ const MotorcycleCard = ({ motorcycle }: MotorcycleCardProps) => {
       </div>
       
       <div className="p-4">
-        <h3 className="text-xl font-bold text-gray-900 mb-1">
-          {motorcycle.brand} {motorcycle.model}
-        </h3>
+        <h3 className="text-xl font-bold text-gray-900 mb-2">
+            {motorcycle.brand || 'Marque inconnue'} {motorcycle.model || 'Modèle inconnu'}
+          </h3>
         
         <div className="flex justify-between items-center mb-3">
           <span className="text-red-600 font-bold text-xl">
@@ -61,9 +61,9 @@ const MotorcycleCard = ({ motorcycle }: MotorcycleCardProps) => {
           </span>
         </div>
         
-        <p className="text-gray-600 text-sm line-clamp-2">
-          {motorcycle.description}
-        </p>
+        <p className="text-gray-600 text-sm line-clamp-3">
+            {motorcycle.description || 'Aucune description disponible'}
+          </p>
       </div>
     </Link>
   );

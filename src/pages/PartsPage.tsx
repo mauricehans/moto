@@ -1,17 +1,16 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState, useEffect } from 'react';
-import { SearchIcon } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Search } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import SectionTitle from '../components/SectionTitle';
 import PartCard from '../components/PartCard';
-import { useParts } from '../hooks/useParts';
+import { useParts, usePartCategories } from '../hooks/useParts';
 import { Part, PartCategory } from '../types/Part';
-import { usePartCategories } from '../hooks/usePartCategories';
 
 const PartsPage = () => {
   const { data: parts = [], isLoading, error } = useParts();
   const { data: categories = [] } = usePartCategories();
-  const [filteredParts, setFilteredParts] = useState<Part[]>([]);
+  
+  // ✅ États séparés pour éviter les conflits
   const [filters, setFilters] = useState({
     search: '',
     category: '',
@@ -22,18 +21,17 @@ const PartsPage = () => {
     inStock: false,
   });
 
-  // Get unique brands from parts
-  const brands = Array.from(new Set(parts.map((part: Part) => part.brand))).sort();
-
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  // ✅ Fonction de gestion des filtres mémorisée
+  const handleFilterChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     setFilters(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }));
-  };
+  }, []);
 
-  const resetFilters = () => {
+  // ✅ Fonction de reset mémorisée
+  const resetFilters = useCallback(() => {
     setFilters({
       search: '',
       category: '',
@@ -43,12 +41,20 @@ const PartsPage = () => {
       priceMax: '',
       inStock: false,
     });
-  };
+  }, []);
 
-  useEffect(() => {
+  // ✅ Marques calculées avec useMemo pour éviter les recalculs
+  const brands = useMemo(() => {
+    return Array.from(new Set(parts.map((part: Part) => part.brand))).sort();
+  }, [parts]);
+
+  // ✅ Filtrage avec useMemo - plus de useEffect problématique !
+  const filteredParts = useMemo(() => {
+    if (!parts.length) return [];
+    
     let result = parts.filter((part: Part) => part.is_available);
 
-    // Filter by search term
+    // Filtrage par terme de recherche
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
       result = result.filter((part: Part) => 
@@ -59,22 +65,22 @@ const PartsPage = () => {
       );
     }
 
-    // Filter by category
+    // Filtrage par catégorie
     if (filters.category) {
-      result = result.filter((part: Part) => part.category.id === filters.category);
+      result = result.filter((part: Part) => part.category.id.toString() === filters.category);
     }
 
-    // Filter by brand
+    // Filtrage par marque
     if (filters.brand) {
       result = result.filter((part: Part) => part.brand === filters.brand);
     }
 
-    // Filter by condition
+    // Filtrage par état
     if (filters.condition) {
       result = result.filter((part: Part) => part.condition === filters.condition);
     }
 
-    // Filter by price range
+    // Filtrage par prix
     if (filters.priceMin) {
       result = result.filter((part: Part) => parseFloat(part.price) >= parseFloat(filters.priceMin));
     }
@@ -82,17 +88,18 @@ const PartsPage = () => {
       result = result.filter((part: Part) => parseFloat(part.price) <= parseFloat(filters.priceMax));
     }
 
-    // Filter by stock availability
+    // Filtrage par stock
     if (filters.inStock) {
       result = result.filter((part: Part) => part.stock > 0);
     }
 
-    setFilteredParts(result);
-  }, [filters, parts]);
+    return result;
+  }, [parts, filters]); // ✅ Dépendances stables
 
+  // ✅ Scroll au montage uniquement
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+  }, []); // ✅ Tableau de dépendances vide
 
   if (isLoading) {
     return (
@@ -105,7 +112,6 @@ const PartsPage = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-
         <div className="text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-2">Erreur de chargement</h2>
           <p className="text-gray-600">Impossible de charger les pièces détachées. Veuillez réessayer plus tard.</p>
@@ -129,10 +135,10 @@ const PartsPage = () => {
             subtitle="Trouvez les pièces qu'il vous faut pour votre moto"
           />
 
-          {/* Filters */}
+          {/* Filtres */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              {/* Search */}
+              {/* Recherche */}
               <div className="relative">
                 <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
                   Recherche
@@ -148,12 +154,12 @@ const PartsPage = () => {
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                   />
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    <SearchIcon size={18} />
+                    <Search size={18} />
                   </div>
                 </div>
               </div>
 
-              {/* Category */}
+              {/* Catégorie */}
               <div>
                 <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
                   Catégorie
@@ -167,14 +173,14 @@ const PartsPage = () => {
                 >
                   <option value="">Toutes les catégories</option>
                   {Array.isArray(categories) && categories.map((category: PartCategory) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
+                    <option key={category.id} value={category.id.toString()}>
+                      {category.name || 'Catégorie sans nom'}
                     </option>
                   ))}
                 </select>
               </div>
 
-              {/* Brand */}
+              {/* Marque */}
               <div>
                 <label htmlFor="brand" className="block text-sm font-medium text-gray-700 mb-1">
                   Marque
@@ -197,7 +203,7 @@ const PartsPage = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-              {/* Condition */}
+              {/* État */}
               <div>
                 <label htmlFor="condition" className="block text-sm font-medium text-gray-700 mb-1">
                   État
@@ -218,7 +224,7 @@ const PartsPage = () => {
                 </select>
               </div>
 
-              {/* Price Range */}
+              {/* Prix */}
               <div>
                 <label htmlFor="priceMin" className="block text-sm font-medium text-gray-700 mb-1">
                   Prix min (€)
@@ -248,7 +254,7 @@ const PartsPage = () => {
                 />
               </div>
 
-              {/* Stock filter */}
+              {/* Stock */}
               <div className="flex items-end">
                 <label className="flex items-center">
                   <input
@@ -273,7 +279,7 @@ const PartsPage = () => {
             </div>
           </div>
 
-          {/* Results */}
+          {/* Résultats */}
           <div className="mb-6">
             <p className="text-gray-600">
               {filteredParts.length} pièce{filteredParts.length > 1 ? 's' : ''} trouvée{filteredParts.length > 1 ? 's' : ''}

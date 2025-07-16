@@ -4,7 +4,7 @@ import { Part } from '../types/Part';
 
 // Type simple pour les catégories - évite les conflits d'import
 interface CategoryResponse {
-  id: string;
+  id: number;
   name: string;
   slug: string;
   description?: string;
@@ -66,7 +66,10 @@ export const useCreatePart = (): UseMutationResult<Part, Error, Partial<Part>> =
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: partsService.create,
+    mutationFn: async (data: Partial<Part>) => {
+      const response = await partsService.create(data as Omit<Part, 'id' | 'created_at' | 'updated_at'>);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['parts'] });
     },
