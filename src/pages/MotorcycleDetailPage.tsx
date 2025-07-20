@@ -24,7 +24,9 @@ import {
   Download,
   Shield,
   Clock,
-  CheckCircle
+  CheckCircle,
+  Settings,
+  Images
 } from 'lucide-react';
 import ImageGallery from '../components/ImageGallery';
 import ContactForm from '../components/ContactForm';
@@ -579,6 +581,57 @@ const MotorcycleDetailPage = () => {
             </div>
           </div>
         </div>
+        
+        {/* Section Admin - Gestion des images */}
+        {localStorage.getItem('admin-token') && (
+          <div className="mb-12">
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-lg shadow-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Settings size={24} />
+                  <div>
+                    <h3 className="text-xl font-bold">Administration</h3>
+                    <p className="text-blue-100">Gestion des images de cette moto</p>
+                  </div>
+                </div>
+                <Link
+                  to={`/admin/images/motorcycle/${id}`}
+                  className="flex items-center px-4 py-2 bg-white text-blue-600 rounded-md hover:bg-blue-50 transition-colors font-medium"
+                >
+                  <Images size={16} className="mr-2" />
+                  Gérer les images
+                </Link>
+              </div>
+              
+              {motorcycle?.images && motorcycle.images.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-blue-500">
+                  <p className="text-blue-100 mb-3">Images actuelles ({motorcycle.images.length}):</p>
+                  <div className="grid grid-cols-6 gap-2">
+                    {motorcycle.images.slice(0, 6).map((image: any, index: number) => (
+                      <div key={image.id} className="relative">
+                        <img
+                          src={image.image}
+                          alt={`Image ${index + 1}`}
+                          className="w-full h-16 object-cover rounded border-2 border-white/20"
+                        />
+                        {image.is_primary && (
+                          <div className="absolute -top-1 -right-1 bg-yellow-400 text-yellow-900 text-xs px-1 rounded">
+                            Principal
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    {motorcycle.images.length > 6 && (
+                      <div className="flex items-center justify-center bg-white/20 rounded h-16 text-white text-xs">
+                        +{motorcycle.images.length - 6}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         
         {/* Motos similaires */}
         {similarMotorcycles.length > 0 && (

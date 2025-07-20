@@ -126,4 +126,58 @@ export const blogService = {
     api.delete(`/blog/posts/${id}/`),
 };
 
+// Services pour la gestion des images
+export const imageService = {
+  // Upload d'images pour les motos
+  uploadMotorcycleImages: (motorcycleId: string, files: FileList): Promise<AxiosResponse<any>> => {
+    const formData = new FormData();
+    Array.from(files).forEach(file => {
+      formData.append('images', file);
+    });
+    return api.post(`/motorcycles/motorcycles/${motorcycleId}/upload_images/`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+  
+  // Upload d'images pour les pièces
+  uploadPartImages: (partId: string, files: FileList): Promise<AxiosResponse<any>> => {
+    const formData = new FormData();
+    Array.from(files).forEach(file => {
+      formData.append('images', file);
+    });
+    return api.post(`/parts/parts/${partId}/upload_images/`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+  
+  // Upload d'image pour les articles de blog
+  uploadBlogImage: (postSlug: string, file: File): Promise<AxiosResponse<any>> => {
+    const formData = new FormData();
+    formData.append('image', file);
+    return api.post(`/blog/posts/${postSlug}/upload_image/`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+  
+  // Définir une image comme principale pour les motos
+  setMotorcyclePrimaryImage: (motorcycleId: string, imageId: number): Promise<AxiosResponse<any>> => 
+    api.post(`/motorcycles/motorcycles/${motorcycleId}/set_primary_image/`, { image_id: imageId }),
+  
+  // Définir une image comme principale pour les pièces
+  setPartPrimaryImage: (partId: string, imageId: number): Promise<AxiosResponse<any>> => 
+    api.post(`/parts/parts/${partId}/set_primary_image/`, { image_id: imageId }),
+  
+  // Supprimer une image de moto
+  deleteMotorcycleImage: (motorcycleId: string, imageId: number): Promise<AxiosResponse<void>> => 
+    api.delete(`/motorcycles/motorcycles/${motorcycleId}/delete_image/`, { data: { image_id: imageId } }),
+  
+  // Supprimer une image de pièce
+  deletePartImage: (partId: string, imageId: number): Promise<AxiosResponse<void>> => 
+    api.delete(`/parts/parts/${partId}/delete_image/`, { data: { image_id: imageId } }),
+  
+  // Supprimer l'image d'un article de blog
+  deleteBlogImage: (postSlug: string): Promise<AxiosResponse<void>> => 
+    api.delete(`/blog/posts/${postSlug}/delete_image/`),
+};
+
 export default api;

@@ -82,6 +82,32 @@ const AdminPage: React.FC = () => {
 
   // Définition des colonnes pour les tables
   const motorcycleColumns = [
+    {
+      key: 'images' as keyof Motorcycle,
+      label: 'Images',
+      render: (value: Motorcycle[keyof Motorcycle], item: Motorcycle) => (
+        <div className="flex space-x-1">
+          {item.images && item.images.length > 0 ? (
+            <>
+              <img
+                src={item.images.find(img => img.is_primary)?.image || item.images[0]?.image}
+                alt={`${item.brand} ${item.model}`}
+                className="w-12 h-12 object-cover rounded-md border"
+              />
+              {item.images.length > 1 && (
+                <span className="flex items-center justify-center w-8 h-8 bg-gray-100 text-gray-600 text-xs rounded-md border">
+                  +{item.images.length - 1}
+                </span>
+              )}
+            </>
+          ) : (
+            <div className="w-12 h-12 bg-gray-100 rounded-md border flex items-center justify-center">
+              <span className="text-gray-400 text-xs">Aucune</span>
+            </div>
+          )}
+        </div>
+      )
+    },
     { key: 'brand' as keyof Motorcycle, label: 'Marque' },
     { key: 'model' as keyof Motorcycle, label: 'Modèle' },
     { key: 'year' as keyof Motorcycle, label: 'Année' },
@@ -104,8 +130,38 @@ const AdminPage: React.FC = () => {
   ];
 
   const partColumns = [
+    {
+      key: 'images' as keyof Part,
+      label: 'Images',
+      render: (value: Part[keyof Part], item: Part) => (
+        <div className="flex space-x-1">
+          {item.images && item.images.length > 0 ? (
+            <>
+              <img
+                src={item.images.find(img => img.is_primary)?.image || item.images[0]?.image}
+                alt={item.name}
+                className="w-12 h-12 object-cover rounded-md border"
+              />
+              {item.images.length > 1 && (
+                <span className="flex items-center justify-center w-8 h-8 bg-gray-100 text-gray-600 text-xs rounded-md border">
+                  +{item.images.length - 1}
+                </span>
+              )}
+            </>
+          ) : (
+            <div className="w-12 h-12 bg-gray-100 rounded-md border flex items-center justify-center">
+              <span className="text-gray-400 text-xs">Aucune</span>
+            </div>
+          )}
+        </div>
+      )
+    },
     { key: 'name' as keyof Part, label: 'Nom' },
-    { key: 'category' as keyof Part, label: 'Catégorie' },
+    { 
+      key: 'category' as keyof Part, 
+      label: 'Catégorie',
+      render: (value: Part[keyof Part], item: Part) => item.category?.name || 'N/A'
+    },
     { 
       key: 'price' as keyof Part, 
       label: 'Prix', 
@@ -126,6 +182,25 @@ const AdminPage: React.FC = () => {
   ];
 
   const blogColumns = [
+    {
+      key: 'image' as keyof Post,
+      label: 'Image',
+      render: (value: Post[keyof Post], item: Post) => (
+        <div className="flex space-x-1">
+          {item.image ? (
+            <img
+              src={item.image}
+              alt={item.title}
+              className="w-12 h-12 object-cover rounded-md border"
+            />
+          ) : (
+            <div className="w-12 h-12 bg-gray-100 rounded-md border flex items-center justify-center">
+              <span className="text-gray-400 text-xs">Aucune</span>
+            </div>
+          )}
+        </div>
+      )
+    },
     { key: 'title' as keyof Post, label: 'Titre' },
     { 
       key: 'created_at' as keyof Post,
@@ -360,6 +435,7 @@ const AdminPage: React.FC = () => {
                   loading={motorcyclesLoading}
                   emptyMessage="Aucune moto trouvée"
                   onEdit={(item) => navigate(`/admin/edit-motorcycle/${item.id}`)}
+                  onView={(item) => navigate(`/admin/images/motorcycle/${item.id}`)}
                 />
               </div>
             </div>
@@ -384,6 +460,7 @@ const AdminPage: React.FC = () => {
                   loading={partsLoading}
                   emptyMessage="Aucune pièce trouvée"
                   onEdit={(item) => navigate(`/admin/edit-part/${item.id}`)}
+                  onView={(item) => navigate(`/admin/images/part/${item.id}`)}
                 />
               </div>
             </div>
@@ -408,6 +485,7 @@ const AdminPage: React.FC = () => {
                   loading={blogLoading}
                   emptyMessage="Aucun article trouvé"
                   onEdit={(item) => navigate(`/admin/edit-blog/${item.id}`)}
+                  onView={(item) => navigate(`/admin/images/blog/${item.id}`)}
                 />
               </div>
             </div>

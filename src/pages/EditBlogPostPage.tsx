@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Images } from 'lucide-react';
 import { blogService } from '../services/api';
 import { Post } from '../types/Blog';
 
@@ -80,8 +81,20 @@ function EditBlogPostPage() {
         <div className="bg-white shadow-xl rounded-lg overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
-            <h1 className="text-2xl font-bold text-white">Modifier l'article</h1>
-            <p className="text-blue-100 mt-1">Modifiez les informations de l'article de blog</p>
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-bold text-white">Modifier l'article</h1>
+                <p className="text-blue-100 mt-1">Modifiez les informations de l'article de blog</p>
+              </div>
+              
+              <Link
+                to={`/admin/images/blog/${id}`}
+                className="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-md hover:bg-gray-50 transition-colors"
+              >
+                <Images size={16} className="mr-2" />
+                Gérer l'image
+              </Link>
+            </div>
           </div>
 
           {/* Form */}

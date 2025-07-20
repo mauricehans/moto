@@ -18,12 +18,13 @@ import ScrollToTop from './utils/ScrollToTop';
 import EditMotorcyclePage from './pages/EditMotorcyclePage';
 import EditPartPage from './pages/EditPartPage';
 import EditBlogPostPage from './pages/EditBlogPostPage';
+import AdminImageGalleryPage from './pages/AdminImageGalleryPage';
 
 const queryClient = new QueryClient();
 
 function AppContent() {
   const location = useLocation();
-  const isAdminPage = location.pathname === '/admin';
+  const isAdminPage = location.pathname === '/admin' || location.pathname.startsWith('/admin/');
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -42,6 +43,7 @@ function AppContent() {
           <Route path="/admin/edit-motorcycle/:id" element={<EditMotorcyclePage />} />
           <Route path="/admin/edit-part/:id" element={<EditPartPage />} />
           <Route path="/admin/edit-blog/:id" element={<EditBlogPostPage />} />
+          <Route path="/admin/images/:type/:id" element={<AdminImageGalleryPage />} />
         </Routes>
       </main>
       {!isAdminPage && <Footer />}
