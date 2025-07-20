@@ -115,6 +115,15 @@ export const blogService = {
   
   getCategories: (): Promise<AxiosResponse<BlogCategory[]>> => 
     api.get('/blog/categories/'),
+  
+  create: (data: Omit<Post, 'id' | 'created_at' | 'updated_at'>): Promise<AxiosResponse<Post>> => 
+    api.post('/blog/posts/', data),
+  
+  update: (id: string, data: Partial<Post>): Promise<AxiosResponse<Post>> => 
+    api.put(`/blog/posts/${id}/`, data),
+  
+  delete: (id: string): Promise<AxiosResponse<void>> => 
+    api.delete(`/blog/posts/${id}/`),
 };
 
 export default api;

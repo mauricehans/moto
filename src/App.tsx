@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
-import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -15,6 +15,9 @@ import BlogPostPage from './pages/BlogPostPage';
 import ContactPage from './pages/ContactPage';
 import AdminPage from './pages/AdminPage';
 import ScrollToTop from './utils/ScrollToTop';
+import EditMotorcyclePage from './pages/EditMotorcyclePage';
+import EditPartPage from './pages/EditPartPage';
+import EditBlogPostPage from './pages/EditBlogPostPage';
 
 const queryClient = new QueryClient();
 
@@ -36,6 +39,9 @@ function AppContent() {
           <Route path="/blog/:id" element={<BlogPostPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/admin/edit-motorcycle/:id" element={<EditMotorcyclePage />} />
+          <Route path="/admin/edit-part/:id" element={<EditPartPage />} />
+          <Route path="/admin/edit-blog/:id" element={<EditBlogPostPage />} />
         </Routes>
       </main>
       {!isAdminPage && <Footer />}

@@ -11,6 +11,7 @@ import { useBlogPosts } from '../hooks/useBlog';
 import { Motorcycle } from '../types/Motorcycle';
 import { Part } from '../types/Part';
 import type { Post } from '../types/Blog';
+import { useNavigate } from 'react-router-dom';
 
 type TabType = 'dashboard' | 'motorcycles' | 'parts' | 'blog';
 
@@ -33,6 +34,7 @@ const AdminPage: React.FC = () => {
   const { data: motorcycles = [], isLoading: motorcyclesLoading } = useMotorcycles();
   const { data: parts = [], isLoading: partsLoading } = useParts();
   const { data: blogPosts = [], isLoading: blogLoading } = useBlogPosts();
+  const navigate = useNavigate();
 
   // Calculs des statistiques en temps réel
   const availableMotorcycles = motorcycles.filter(m => !m.is_sold).length;
@@ -357,6 +359,7 @@ const AdminPage: React.FC = () => {
                   columns={motorcycleColumns}
                   loading={motorcyclesLoading}
                   emptyMessage="Aucune moto trouvée"
+                  onEdit={(item) => navigate(`/admin/edit-motorcycle/${item.id}`)}
                 />
               </div>
             </div>
@@ -380,6 +383,7 @@ const AdminPage: React.FC = () => {
                   columns={partColumns}
                   loading={partsLoading}
                   emptyMessage="Aucune pièce trouvée"
+                  onEdit={(item) => navigate(`/admin/edit-part/${item.id}`)}
                 />
               </div>
             </div>
@@ -403,6 +407,7 @@ const AdminPage: React.FC = () => {
                   columns={blogColumns}
                   loading={blogLoading}
                   emptyMessage="Aucun article trouvé"
+                  onEdit={(item) => navigate(`/admin/edit-blog/${item.id}`)}
                 />
               </div>
             </div>
