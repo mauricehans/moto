@@ -24,7 +24,7 @@ class PostViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
     
     @action(detail=True, methods=['post'], parser_classes=[MultiPartParser, FormParser])
-    def upload_image(self, request, pk=None):
+    def upload_image(self, request, slug=None):
         """Upload d'image pour un article de blog"""
         import os
         import uuid
