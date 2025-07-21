@@ -36,6 +36,43 @@ const AdminPage: React.FC = () => {
   const { data: blogPosts = [], isLoading: blogLoading } = useBlogPosts();
   const navigate = useNavigate();
 
+  // Fonctions de suppression
+  const handleDeleteMotorcycle = async (motorcycle: Motorcycle) => {
+    if (window.confirm(`Êtes-vous sûr de vouloir supprimer la moto ${motorcycle.brand} ${motorcycle.model} ?`)) {
+      try {
+        await api.delete(`/motorcycles/motorcycles/${motorcycle.id}/`);
+        // Recharger la page pour actualiser les données
+        window.location.reload();
+      } catch (error) {
+        alert('Erreur lors de la suppression de la moto');
+      }
+    }
+  };
+
+  const handleDeletePart = async (part: Part) => {
+    if (window.confirm(`Êtes-vous sûr de vouloir supprimer la pièce ${part.name} ?`)) {
+      try {
+        await api.delete(`/parts/parts/${part.id}/`);
+        // Recharger la page pour actualiser les données
+        window.location.reload();
+      } catch (error) {
+        alert('Erreur lors de la suppression de la pièce');
+      }
+    }
+  };
+
+  const handleDeleteBlogPost = async (post: Post) => {
+    if (window.confirm(`Êtes-vous sûr de vouloir supprimer l'article "${post.title}" ?`)) {
+      try {
+        await api.delete(`/blog/posts/${post.id}/`);
+        // Recharger la page pour actualiser les données
+        window.location.reload();
+      } catch (error) {
+        alert('Erreur lors de la suppression de l\'article');
+      }
+    }
+  };
+
   // Calculs des statistiques en temps réel
   const availableMotorcycles = motorcycles.filter(m => !m.is_sold).length;
   const soldMotorcycles = motorcycles.filter(m => m.is_sold).length;
@@ -436,6 +473,7 @@ const AdminPage: React.FC = () => {
                   emptyMessage="Aucune moto trouvée"
                   onEdit={(item) => navigate(`/admin/edit-motorcycle/${item.id}`)}
                   onView={(item) => navigate(`/admin/images/motorcycle/${item.id}`)}
+                  onDelete={handleDeleteMotorcycle}
                 />
               </div>
             </div>
@@ -461,6 +499,7 @@ const AdminPage: React.FC = () => {
                   emptyMessage="Aucune pièce trouvée"
                   onEdit={(item) => navigate(`/admin/edit-part/${item.id}`)}
                   onView={(item) => navigate(`/admin/images/part/${item.id}`)}
+                  onDelete={handleDeletePart}
                 />
               </div>
             </div>
@@ -486,6 +525,7 @@ const AdminPage: React.FC = () => {
                   emptyMessage="Aucun article trouvé"
                   onEdit={(item) => navigate(`/admin/edit-blog/${item.id}`)}
                   onView={(item) => navigate(`/admin/images/blog/${item.id}`)}
+                  onDelete={handleDeleteBlogPost}
                 />
               </div>
             </div>
