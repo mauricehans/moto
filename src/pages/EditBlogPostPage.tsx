@@ -32,7 +32,16 @@ function EditBlogPostPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (name === 'category') {
+      // Handle category selection specially
+      setFormData(prev => ({
+        ...prev,
+        category: value ? { id: parseInt(value), name: '', slug: '' } : null
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,8 +53,16 @@ function EditBlogPostPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Prepare data with category_id instead of category object
+      const dataToSend = {
+        ...formData,
+        category_id: formData.category?.id || null
+      };
+      // Remove the category object to avoid conflicts
+      delete dataToSend.category;
+      
       // Update post data
-      const updatedPost = await blogService.update(id!, formData);
+      const updatedPost = await blogService.update(id!, dataToSend);
       if (image) {
         const imageFormData = new FormData();
         imageFormData.append('image', image);

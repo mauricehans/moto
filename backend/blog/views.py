@@ -21,7 +21,7 @@ class PostViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'content']
     ordering_fields = ['created_at', 'updated_at']
     ordering = ['-created_at']
-    lookup_field = 'slug'
+    # Supprimé lookup_field pour utiliser l'ID par défaut
     
     @action(detail=True, methods=['post'], parser_classes=[MultiPartParser, FormParser])
     def upload_image(self, request, slug=None):
