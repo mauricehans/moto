@@ -2,16 +2,31 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Images } from 'lucide-react';
-import { partsService } from '../services/api';
+import { partsService, imageService } from '../services/api';
 import { Part } from '../types/Part';
+import { PartCategory } from '../types/Part';
 
-function EditPartPage() {
+const EditPartPage = () => {
+  // Initialiser categories avec un tableau vide
+  const [categories, setCategories] = useState<PartCategory[]>([]);
+  
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await partsService.getCategories();
+        setCategories(response.data);
+      } catch (err) {
+        console.error('Erreur chargement catégories', err);
+      }
+    };
+    loadCategories();
+  }, []);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [part, setPart] = useState<Part | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [formData, setFormData] = useState<Partial<Part>>({});
+  const [formData, setFormData] = useState<Partial<Part & { category_id?: number }>>({});
   const [images, setImages] = useState<File[]>([]);
 
   useEffect(() => {
@@ -47,11 +62,19 @@ function EditPartPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await partsService.update(id!, formData);
+      await partsService.update(id!, {
+        ...formData,
+        category: { id: formData.category_id ?? formData.category?.id ?? 0 },
+        condition: formData.condition || 'new',
+        description: formData.description || '',
+        price: formData.price?.toString() || '0'
+      });
       if (images.length > 0) {
         const imageFormData = new FormData();
         images.forEach(img => imageFormData.append('images', img));
-        await partsService.uploadImages(id!, imageFormData);
+        const fileList = new DataTransfer();
+        images.forEach(file => fileList.files.add(file));
+        await imageService.uploadPartImages(id!, fileList.files);
       }
       navigate('/admin');
     } catch (err) {
@@ -153,18 +176,20 @@ function EditPartPage() {
               <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
                 Catégorie
               </label>
+              
+              {/* Modification du select des catégories */}
               <select
-                id="category"
-                name="category"
-                value={formData.category?.id || ''}
+                id="category_id"
+                name="category_id"
+                value={formData.category_id || formData.category?.id || ''}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               >
                 <option value="">Sélectionnez une catégorie</option>
-                {/* À remplacer par fetch dynamique */}
-                <option value="1">Moteur</option>
-                <option value="2">Freins</option>
-                <option value="3">Suspension</option>
+                {/* Ajouter une vérification de type avant le .map() */}
+                {Array.isArray(categories) && categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
               </select>
             </div>
             {/* Condition */}
@@ -195,7 +220,7 @@ function EditPartPage() {
                 type="text"
                 id="slug"
                 name="slug"
-                value={formData.slug || ''}
+                value={(formData as any).slug || ''}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 placeholder="Slug de la catégorie"
@@ -210,7 +235,7 @@ function EditPartPage() {
               <textarea
                 id="full_description"
                 name="full_description"
-                value={formData.full_description || ''}
+                value={(formData as any).full_description || ''}
                 onChange={handleInputChange}
                 rows={6}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"

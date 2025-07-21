@@ -47,7 +47,12 @@ api.interceptors.response.use(
         // Optionnel: rediriger vers la page de login
       }
     }
-    console.error('API Error:', error);
+    console.error('API Error Details:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      data: error.response?.data,
+      headers: error.config?.headers
+    });
     if (error.code === 'ECONNREFUSED') {
       console.warn('Backend server is not running. Using fallback behavior.');
     }
@@ -75,7 +80,7 @@ export const motorcycleService = {
     api.get('/motorcycles/motorcycles/featured/'),
   
   create: (data: Omit<Motorcycle, 'id' | 'created_at' | 'updated_at'>): Promise<AxiosResponse<Motorcycle>> => 
-    api.post('/motorcycles/motorcycles/', data), // Déjà correct
+    api.post('/motorcycles/motorcycles/', data),
   
   update: (id: string, data: Partial<Motorcycle>): Promise<AxiosResponse<Motorcycle>> => 
     api.put(`/motorcycles/motorcycles/${id}/`, data),
@@ -96,10 +101,18 @@ export const partsService = {
     api.get('/parts/categories/'),
   
   create: (data: Omit<Part, 'id' | 'created_at' | 'updated_at'>): Promise<AxiosResponse<Part>> => 
-    api.post('/parts/parts/', data), // Déjà correct
+    api.post('/parts/parts/', data),
   
   update: (id: string, data: Partial<Part>): Promise<AxiosResponse<Part>> => 
-    api.put(`/parts/parts/${id}/`, data),
+    api.patch(`/parts/parts/${id}/`, {
+      ...data,
+      price: Number(data.price) || 0,
+      stock: Number(data.stock) || 0,
+      category: Number(data.category) || null,
+      name: data.name?.trim(),
+      // Only process slug if it exists in data
+      ...(data.name && { slug: data.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') })
+    }),
   
   delete: (id: string): Promise<AxiosResponse<void>> => 
     api.delete(`/parts/parts/${id}/`),
@@ -129,7 +142,7 @@ export const blogService = {
 // Services pour la gestion des images
 export const imageService = {
   // Upload d'images pour les motos
-  uploadMotorcycleImages: (motorcycleId: string, files: FileList): Promise<AxiosResponse<any>> => {
+  uploadMotorcycleImages: (motorcycleId: string, files: FileList): Promise<AxiosResponse<{ id: number; url: string }[]>> => {
     const formData = new FormData();
     Array.from(files).forEach(file => {
       formData.append('images', file);
@@ -140,7 +153,7 @@ export const imageService = {
   },
   
   // Upload d'images pour les pièces
-  uploadPartImages: (partId: string, files: FileList): Promise<AxiosResponse<any>> => {
+  uploadPartImages: (partId: string, files: FileList): Promise<AxiosResponse<{ id: number; url: string }[]>> => {
     const formData = new FormData();
     Array.from(files).forEach(file => {
       formData.append('images', file);
@@ -151,7 +164,7 @@ export const imageService = {
   },
   
   // Upload d'image pour les articles de blog
-  uploadBlogImage: (postSlug: string, file: File): Promise<AxiosResponse<any>> => {
+  uploadBlogImage: (postSlug: string, file: File): Promise<AxiosResponse<{ url: string }>> => {
     const formData = new FormData();
     formData.append('image', file);
     return api.post(`/blog/posts/${postSlug}/upload_image/`, formData, {
@@ -160,11 +173,11 @@ export const imageService = {
   },
   
   // Définir une image comme principale pour les motos
-  setMotorcyclePrimaryImage: (motorcycleId: string, imageId: number): Promise<AxiosResponse<any>> => 
+  setMotorcyclePrimaryImage: (motorcycleId: string, imageId: number): Promise<AxiosResponse<{ success: boolean }>> =>
     api.post(`/motorcycles/motorcycles/${motorcycleId}/set_primary_image/`, { image_id: imageId }),
   
   // Définir une image comme principale pour les pièces
-  setPartPrimaryImage: (partId: string, imageId: number): Promise<AxiosResponse<any>> => 
+  setPartPrimaryImage: (partId: string, imageId: number): Promise<AxiosResponse<{ success: boolean }>> =>
     api.post(`/parts/parts/${partId}/set_primary_image/`, { image_id: imageId }),
   
   // Supprimer une image de moto

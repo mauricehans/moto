@@ -1,8 +1,7 @@
 export interface PartCategory {
-  id: number; // ✅ Harmonisé avec l'API Django (était string)
+  id: number;
   name: string;
   slug: string;
-  description?: string;
 }
 
 export interface PartImage {
