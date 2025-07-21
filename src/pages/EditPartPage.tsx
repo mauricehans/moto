@@ -29,9 +29,13 @@ function EditPartPage() {
     fetchPart();
   }, [id]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setFormData(prev => ({ ...prev, [name]: checked }));
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,8 +51,7 @@ function EditPartPage() {
       if (images.length > 0) {
         const imageFormData = new FormData();
         images.forEach(img => imageFormData.append('images', img));
-        // Note: L'upload d'images nécessite un endpoint spécifique qui doit être ajouté au backend
-        // await api.post(`/parts/parts/${id}/images/`, imageFormData);
+        await partsService.uploadImages(id!, imageFormData);
       }
       navigate('/admin');
     } catch (err) {
@@ -115,6 +118,105 @@ function EditPartPage() {
               />
             </div>
 
+            {/* Marque */}
+            <div>
+              <label htmlFor="brand" className="block text-sm font-medium text-gray-700 mb-2">
+                Marque
+              </label>
+              <input
+                type="text"
+                id="brand"
+                name="brand"
+                value={formData.brand || ''}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Marque de la pièce"
+              />
+            </div>
+            {/* Modèles compatibles */}
+            <div>
+              <label htmlFor="compatible_models" className="block text-sm font-medium text-gray-700 mb-2">
+                Modèles compatibles
+              </label>
+              <textarea
+                id="compatible_models"
+                name="compatible_models"
+                value={formData.compatible_models || ''}
+                onChange={handleInputChange}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Modèles compatibles séparés par des virgules"
+              />
+            </div>
+            {/* Catégorie */}
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+                Catégorie
+              </label>
+              <select
+                id="category"
+                name="category"
+                value={formData.category?.id || ''}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              >
+                <option value="">Sélectionnez une catégorie</option>
+                {/* À remplacer par fetch dynamique */}
+                <option value="1">Moteur</option>
+                <option value="2">Freins</option>
+                <option value="3">Suspension</option>
+              </select>
+            </div>
+            {/* Condition */}
+            <div>
+              <label htmlFor="condition" className="block text-sm font-medium text-gray-700 mb-2">
+                Condition
+              </label>
+              <select
+                id="condition"
+                name="condition"
+                value={formData.condition || ''}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              >
+                <option value="new">Neuf</option>
+                <option value="used_excellent">Occasion - Excellent</option>
+                <option value="used_good">Occasion - Bon état</option>
+                <option value="used_fair">Occasion - État correct</option>
+                <option value="refurbished">Reconditionné</option>
+              </select>
+            </div>
+            {/* Slug */}
+            <div>
+              <label htmlFor="slug" className="block text-sm font-medium text-gray-700 mb-2">
+                Slug
+              </label>
+              <input
+                type="text"
+                id="slug"
+                name="slug"
+                value={formData.slug || ''}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Slug de la catégorie"
+              />
+            </div>
+
+            {/* Description détaillée */}
+            <div>
+              <label htmlFor="full_description" className="block text-sm font-medium text-gray-700 mb-2">
+                Description détaillée
+              </label>
+              <textarea
+                id="full_description"
+                name="full_description"
+                value={formData.full_description || ''}
+                onChange={handleInputChange}
+                rows={6}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Description complète avec spécifications techniques"
+              />
+            </div>
             {/* Description */}
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
@@ -166,6 +268,29 @@ function EditPartPage() {
               />
             </div>
 
+            {/* Statuts */}
+            <div className="space-y-2">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="is_available"
+                  checked={formData.is_available || false}
+                  onChange={handleCheckboxChange}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <span className="ml-2 text-sm font-medium text-gray-700">Disponible</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="is_featured"
+                  checked={formData.is_featured || false}
+                  onChange={handleCheckboxChange}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <span className="ml-2 text-sm font-medium text-gray-700">En vedette</span>
+              </label>
+            </div>
             {/* Images */}
             <div>
               <label htmlFor="images" className="block text-sm font-medium text-gray-700 mb-2">

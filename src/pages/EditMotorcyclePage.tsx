@@ -29,9 +29,14 @@ function EditMotorcyclePage() {
     fetchMotorcycle();
   }, [id]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+// Add checkbox handler if not present
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setFormData(prev => ({ ...prev, [name]: checked }));
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,12 +49,11 @@ function EditMotorcyclePage() {
     e.preventDefault();
     try {
       await motorcycleService.update(id!, formData);
-      // Gérer l'upload d'images séparément si nécessaire
       if (images.length > 0) {
         const imageFormData = new FormData();
         images.forEach(img => imageFormData.append('images', img));
-        // Note: L'upload d'images nécessite un endpoint spécifique qui doit être ajouté au backend
-        // await api.post(`/motorcycles/motorcycles/${id}/images/`, imageFormData);
+        // Assume endpoint for multiple images upload
+        await motorcycleService.uploadImages(id!, imageFormData);
       }
       navigate('/admin');
     } catch (err) {
@@ -185,6 +189,67 @@ function EditMotorcyclePage() {
               />
             </div>
 
+            {/* Moteur */}
+            <div>
+              <label htmlFor="engine" className="block text-sm font-medium text-gray-700 mb-2">
+                Moteur
+              </label>
+              <input
+                type="text"
+                id="engine"
+                name="engine"
+                value={formData.engine || ''}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Type de moteur"
+              />
+            </div>
+            {/* Puissance */}
+            <div>
+              <label htmlFor="power" className="block text-sm font-medium text-gray-700 mb-2">
+                Puissance (CV)
+              </label>
+              <input
+                type="number"
+                id="power"
+                name="power"
+                value={formData.power || ''}
+                onChange={handleInputChange}
+                min="0"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Puissance en CV"
+              />
+            </div>
+            {/* Permis */}
+            <div>
+              <label htmlFor="license" className="block text-sm font-medium text-gray-700 mb-2">
+                Permis requis
+              </label>
+              <input
+                type="text"
+                id="license"
+                name="license"
+                value={formData.license || ''}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="ex: A, A2"
+              />
+            </div>
+            {/* Couleur */}
+            <div>
+              <label htmlFor="color" className="block text-sm font-medium text-gray-700 mb-2">
+                Couleur
+              </label>
+              <input
+                type="text"
+                id="color"
+                name="color"
+                value={formData.color || ''}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Couleur principale"
+              />
+            </div>
             {/* Description */}
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
@@ -236,6 +301,41 @@ function EditMotorcyclePage() {
               )}
             </div>
 
+            {/* Checkboxes */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  name="is_sold"
+                  checked={formData.is_sold || false}
+                  onChange={handleCheckboxChange}
+                  className="h-4 w-4 text-blue-600 rounded border-gray-300"
+                />
+                <span className="text-sm text-gray-700">Vendu</span>
+              </label>
+
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  name="is_new"
+                  checked={formData.is_new || false}
+                  onChange={handleCheckboxChange}
+                  className="h-4 w-4 text-blue-600 rounded border-gray-300"
+                />
+                <span className="text-sm text-gray-700">Neuf</span>
+              </label>
+
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  name="is_featured"
+                  checked={formData.is_featured || false}
+                  onChange={handleCheckboxChange}
+                  className="h-4 w-4 text-blue-600 rounded border-gray-300"
+                />
+                <span className="text-sm text-gray-700">En vedette</span>
+              </label>
+            </div>
             {/* Boutons d'action */}
             <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
               <button

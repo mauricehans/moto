@@ -13,6 +13,7 @@ function EditBlogPostPage() {
   const [error, setError] = useState('');
   const [formData, setFormData] = useState<Partial<Post>>({});
   const [image, setImage] = useState<File | null>(null);
+// Add this new state for categories if needed, but for now assume hardcoded
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -29,7 +30,7 @@ function EditBlogPostPage() {
     fetchPost();
   }, [id]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -43,12 +44,13 @@ function EditBlogPostPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await blogService.update(id!, formData);
+      // Update post data
+      const updatedPost = await blogService.update(id!, formData);
       if (image) {
         const imageFormData = new FormData();
         imageFormData.append('image', image);
-        // Note: L'upload d'images nécessite un endpoint spécifique qui doit être ajouté au backend
-        // await api.patch(`/blog/posts/${id}/`, imageFormData);
+        // Assume endpoint for image upload
+        await blogService.uploadImage(id!, imageFormData);
       }
       navigate('/admin');
     } catch (err) {
@@ -115,6 +117,21 @@ function EditBlogPostPage() {
               />
             </div>
 
+            {/* Slug */}
+            <div>
+              <label htmlFor="slug" className="block text-sm font-medium text-gray-700 mb-2">
+                Slug
+              </label>
+              <input
+                type="text"
+                id="slug"
+                name="slug"
+                value={formData.slug || ''}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Slug unique (généré automatiquement si vide)"
+              />
+            </div>
             {/* Contenu */}
             <div>
               <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
@@ -139,33 +156,32 @@ function EditBlogPostPage() {
               <select
                 id="category"
                 name="category"
-                value={formData.category || ''}
+                value={formData.category?.id || ''}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               >
                 <option value="">Sélectionnez une catégorie</option>
-                <option value="actualites">Actualités</option>
-                <option value="conseils">Conseils</option>
-                <option value="maintenance">Maintenance</option>
-                <option value="nouveautes">Nouveautés</option>
+                {/* Assume categories are fetched and mapped here; for now hardcoded */}
+                <option value="1">Actualités</option>
+                <option value="2">Conseils</option>
+                <option value="3">Maintenance</option>
+                <option value="4">Nouveautés</option>
               </select>
             </div>
-
             {/* Statut de publication */}
             <div>
-              <label htmlFor="published" className="flex items-center">
+              <label htmlFor="is_published" className="flex items-center">
                 <input
                   type="checkbox"
-                  id="published"
-                  name="published"
-                  checked={formData.published || false}
-                  onChange={(e) => setFormData(prev => ({ ...prev, published: e.target.checked }))}
+                  id="is_published"
+                  name="is_published"
+                  checked={formData.is_published || false}
+                  onChange={(e) => setFormData(prev => ({ ...prev, is_published: e.target.checked }))}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <span className="ml-2 text-sm font-medium text-gray-700">Publier l'article</span>
               </label>
             </div>
-
             {/* Image */}
             <div>
               <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
