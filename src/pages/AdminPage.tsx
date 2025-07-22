@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import {
-  Lock, LogOut, Bike, Package, FileText, LayoutDashboard
+  Lock, LogOut, Bike, Package, FileText, LayoutDashboard, Plus
 } from 'lucide-react';
 import DataTable, { type Column } from '../components/DataTable';
 import { useMotorcycles } from '../hooks/useMotorcycles';
@@ -460,9 +460,18 @@ const AdminPage: React.FC = () => {
                   <h2 className="text-2xl font-bold text-gray-900">Liste des motos</h2>
                   <p className="text-gray-600">Consultez votre stock de motos</p>
                 </div>
-                {motorcyclesLoading && (
-                  <div className="text-gray-500">Chargement...</div>
-                )}
+                <div className="flex items-center space-x-4">
+                  {motorcyclesLoading && (
+                    <div className="text-gray-500">Chargement...</div>
+                  )}
+                  <button
+                    onClick={() => navigate('/admin/create-motorcycle')}
+                    className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                  >
+                    <Plus size={16} className="mr-2" />
+                    Créer une moto
+                  </button>
+                </div>
               </div>
 
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -486,9 +495,18 @@ const AdminPage: React.FC = () => {
                   <h2 className="text-2xl font-bold text-gray-900">Liste des pièces détachées</h2>
                   <p className="text-gray-600">Consultez votre stock de pièces</p>
                 </div>
-                {partsLoading && (
-                  <div className="text-gray-500">Chargement...</div>
-                )}
+                <div className="flex items-center space-x-4">
+                  {partsLoading && (
+                    <div className="text-gray-500">Chargement...</div>
+                  )}
+                  <button
+                    onClick={() => navigate('/admin/create-part')}
+                    className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                  >
+                    <Plus size={16} className="mr-2" />
+                    Créer une pièce
+                  </button>
+                </div>
               </div>
 
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -512,9 +530,18 @@ const AdminPage: React.FC = () => {
                   <h2 className="text-2xl font-bold text-gray-900">Liste des articles de blog</h2>
                   <p className="text-gray-600">Consultez vos articles de blog</p>
                 </div>
-                {blogLoading && (
-                  <div className="text-gray-500">Chargement...</div>
-                )}
+                <div className="flex items-center space-x-4">
+                  {blogLoading && (
+                    <div className="text-gray-500">Chargement...</div>
+                  )}
+                  <button
+                    onClick={() => navigate('/admin/create-blog')}
+                    className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                  >
+                    <Plus size={16} className="mr-2" />
+                    Créer un article
+                  </button>
+                </div>
               </div>
 
               <div className="bg-white rounded-lg shadow-md overflow-hidden">

@@ -19,6 +19,10 @@ import EditMotorcyclePage from './pages/EditMotorcyclePage';
 import EditPartPage from './pages/EditPartPage';
 import EditBlogPostPage from './pages/EditBlogPostPage';
 import AdminImageGalleryPage from './pages/AdminImageGalleryPage';
+import CreateMotorcyclePage from './pages/CreateMotorcyclePage';
+import CreatePartPage from './pages/CreatePartPage';
+import CreateBlogPostPage from './pages/CreateBlogPostPage';
+
 
 const queryClient = new QueryClient();
 
@@ -44,6 +48,10 @@ function AppContent() {
           <Route path="/admin/edit-part/:id" element={<EditPartPage />} />
           <Route path="/admin/edit-blog/:id" element={<EditBlogPostPage />} />
           <Route path="/admin/images/:type/:id" element={<AdminImageGalleryPage />} />
+          <Route path="/admin/create-motorcycle" element={<CreateMotorcyclePage />} />
+          <Route path="/admin/create-part" element={<CreatePartPage />} />
+          <Route path="/admin/create-blog" element={<CreateBlogPostPage />} />
+          
         </Routes>
       </main>
       {!isAdminPage && <Footer />}
