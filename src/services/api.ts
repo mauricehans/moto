@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { Motorcycle } from '../types/Motorcycle';
 import { Part, PartCategory } from '../types/Part';
 import { Post, BlogCategory } from '../types/Blog';
+import { GarageSettings } from '../types/Admin';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
@@ -194,6 +195,15 @@ export const imageService = {
   // Supprimer l'image d'un article de blog
   deleteBlogImage: (postSlug: string): Promise<AxiosResponse<void>> => 
     api.delete(`/blog/posts/${postSlug}/delete_image/`),
+};
+
+// Services pour les paramètres du garage
+export const garageService = {
+  getSettings: (): Promise<AxiosResponse<GarageSettings>> => 
+    api.get('/garage/settings/'),
+  
+  updateSettings: (data: Partial<GarageSettings>): Promise<AxiosResponse<GarageSettings>> => 
+    api.put('/garage/settings/', data),
 };
 
 export default api;

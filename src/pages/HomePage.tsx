@@ -10,11 +10,13 @@ import { useMotorcycles, useFeaturedMotorcycles } from '../hooks/useMotorcycles'
 import { useParts } from '../hooks/useParts';
 import { Motorcycle } from '../types/Motorcycle';
 import { Part } from '../types/Part';
+import useGarageSettings from '../hooks/useGarageSettings';
 
 const HomePage = () => {
   const { data: motorcycles = [], isLoading: motorcyclesLoading } = useMotorcycles();
   const { data: featuredMotorcycles = [], isLoading: featuredLoading } = useFeaturedMotorcycles();
   const { data: parts = [], isLoading: partsLoading } = useParts();
+  const { settings, loading: settingsLoading } = useGarageSettings();
 
   // Filtrer côté client car l'API ne renvoie pas ces filtres spécifiques
   const newMotorcycles = motorcycles.filter((moto: Motorcycle) => moto.is_new);
@@ -24,7 +26,7 @@ const HomePage = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  if (motorcyclesLoading || featuredLoading || partsLoading) {
+  if (motorcyclesLoading || featuredLoading || partsLoading || settingsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
@@ -35,8 +37,8 @@ const HomePage = () => {
   return (
     <div>
       <HeroSection
-        title="Agde Moto Gattuso"
-        subtitle="Votre spécialiste moto à Agde depuis 2005. Vente de motos d'occasion et pièces détachées sélectionnées avec soin."
+        title={settings?.name || "Agde Moto Gattuso"}
+        subtitle={settings?.description || "Votre spécialiste moto à Agde depuis 2005. Vente de motos d'occasion et pièces détachées sélectionnées avec soin."}
         backgroundImage="https://images.pexels.com/photos/2519374/pexels-photo-2519374.jpeg"
         buttonText="Découvrir nos motos"
         buttonLink="/motorcycles"
@@ -109,7 +111,7 @@ const HomePage = () => {
         <div className="container mx-auto px-4">
           <SectionTitle
             title="Nos services"
-            subtitle="Au Agde Moto Gattuso, nous vous proposons une gamme complète de services pour votre passion moto"
+            subtitle={`Au ${settings?.name || 'Agde Moto Gattuso'}, nous vous proposons une gamme complète de services pour votre passion moto`}
             center
           />
 

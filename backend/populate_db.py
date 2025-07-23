@@ -16,6 +16,7 @@ django.setup()
 from motorcycles.models import Motorcycle, MotorcycleImage
 from parts.models import Category as PartCategory, Part, PartImage
 from blog.models import Category as BlogCategory, Post
+from garage.models import GarageSettings
 
 def create_motorcycles():
     """Créer des motos de test"""
@@ -496,6 +497,27 @@ Nous suivons de près ces évolutions pour vous proposer les meilleures occasion
         else:
             print(f" Article deja existant: {post.title}")
 
+def create_garage_settings():
+    """Créer les paramètres du garage avec des liens sociaux fictifs"""
+    print("Creation des parametres du garage...")
+    
+    # Supprimer les paramètres existants
+    GarageSettings.objects.all().delete()
+    
+    settings = GarageSettings.objects.create(
+        name='Agde Moto Gattuso',
+        address='123 Avenue de la Plage, 34300 Agde, France',
+        phone='+33 4 67 12 34 56',
+        email='contact@agdemoto.fr',
+        website='https://agdemoto.fr',
+        description='Votre spécialiste moto à Agde depuis 2005. Vente de motos d\'occasion et pièces détachées sélectionnées avec soin.',
+        social_media_json='{"facebook": "https://facebook.com/agdemoto34", "instagram": "https://instagram.com/agde_moto_officiel", "youtube": "https://youtube.com/@AgdeMotoPro", "twitter": "https://twitter.com/agdemoto", "linkedin": "https://linkedin.com/company/agde-moto"}',
+        business_hours_json='{"monday": {"open": "09:00", "close": "18:00", "is_closed": false}, "tuesday": {"open": "09:00", "close": "18:00", "is_closed": false}, "wednesday": {"open": "09:00", "close": "18:00", "is_closed": false}, "thursday": {"open": "09:00", "close": "18:00", "is_closed": false}, "friday": {"open": "09:00", "close": "18:00", "is_closed": false}, "saturday": {"open": "09:00", "close": "17:00", "is_closed": false}, "sunday": {"open": "10:00", "close": "16:00", "is_closed": true}}',
+        seo_settings_json='{"meta_title": "AGDE MOTO - Spécialiste moto à Agde", "meta_description": "Votre spécialiste moto à Agde depuis 2005. Vente de motos d\'occasion et pièces détachées.", "keywords": "moto, agde, occasion, pièces détachées"}'
+    )
+    
+    print(f"[OK] Parametres du garage crees: {settings.name}")
+
 def main():
     """Fonction principale"""
     print("Demarrage du peuplement de la base de donnees...")
@@ -510,6 +532,7 @@ def main():
         PartCategory.objects.all().delete()
         Post.objects.all().delete()
         BlogCategory.objects.all().delete()
+        GarageSettings.objects.all().delete()
         
         # Créer les nouvelles données
         create_motorcycles()
@@ -517,6 +540,7 @@ def main():
         create_parts()
         create_blog_categories()
         create_blog_posts()
+        create_garage_settings()
         
         print("Base de donnees peuplee avec succes !")
         print(f"Statistiques :")
@@ -527,6 +551,7 @@ def main():
         print(f"   - Images pièces: {PartImage.objects.count()}")
         print(f"   - Catégories blog: {BlogCategory.objects.count()}")
         print(f"   - Articles blog: {Post.objects.count()}")
+        print(f"   - Paramètres garage: {GarageSettings.objects.count()}")
         
     except Exception as e:
         print(f"Erreur lors du peuplement: {e}")

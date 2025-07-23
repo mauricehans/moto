@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'blog',
     'motorcycles',
     'parts',
+    'garage',
 ]
 
 MIDDLEWARE = [
