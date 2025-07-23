@@ -84,13 +84,13 @@ const AdminPage: React.FC = () => {
           linkedin: ''
         },
         business_hours: {
-          monday: { open: '09:00', close: '18:00', is_closed: false },
-          tuesday: { open: '09:00', close: '18:00', is_closed: false },
-          wednesday: { open: '09:00', close: '18:00', is_closed: false },
-          thursday: { open: '09:00', close: '18:00', is_closed: false },
-          friday: { open: '09:00', close: '18:00', is_closed: false },
-          saturday: { open: '09:00', close: '17:00', is_closed: false },
-          sunday: { open: '10:00', close: '16:00', is_closed: true }
+          monday: { is_closed: false, intervals: [{ open: '09:00', close: '18:00' }] },
+          tuesday: { is_closed: false, intervals: [{ open: '09:00', close: '18:00' }] },
+          wednesday: { is_closed: false, intervals: [{ open: '09:00', close: '18:00' }] },
+          thursday: { is_closed: false, intervals: [{ open: '09:00', close: '18:00' }] },
+          friday: { is_closed: false, intervals: [{ open: '09:00', close: '18:00' }] },
+          saturday: { is_closed: false, intervals: [{ open: '09:00', close: '17:00' }] },
+          sunday: { is_closed: true, intervals: [] }
         },
         seo_settings: {
           meta_title: '',
@@ -148,6 +148,76 @@ const AdminPage: React.FC = () => {
       };
     });
   };
+
+  const handleIntervalChange = (day: string, intervalIndex: number, field: 'open' | 'close', value: string) => {
+    if (!garageSettings) return;
+    
+    setGarageSettings(prev => {
+      if (!prev) return prev;
+      
+      const dayHours = prev.business_hours[day as keyof typeof prev.business_hours];
+      const updatedIntervals = [...dayHours.intervals];
+      updatedIntervals[intervalIndex] = {
+        ...updatedIntervals[intervalIndex],
+        [field]: value
+      };
+      
+      return {
+        ...prev,
+        business_hours: {
+          ...prev.business_hours,
+          [day]: {
+            ...dayHours,
+            intervals: updatedIntervals
+          }
+        }
+      };
+    });
+  };
+
+  const addInterval = (day: string) => {
+    if (!garageSettings) return;
+    
+    setGarageSettings(prev => {
+      if (!prev) return prev;
+      
+      const dayHours = prev.business_hours[day as keyof typeof prev.business_hours];
+      const newInterval = { open: '09:00', close: '18:00' };
+      
+      return {
+        ...prev,
+        business_hours: {
+          ...prev.business_hours,
+          [day]: {
+            ...dayHours,
+            intervals: [...dayHours.intervals, newInterval]
+          }
+        }
+      };
+    });
+  };
+
+  const removeInterval = (day: string, intervalIndex: number) => {
+    if (!garageSettings) return;
+    
+    setGarageSettings(prev => {
+      if (!prev) return prev;
+      
+      const dayHours = prev.business_hours[day as keyof typeof prev.business_hours];
+      const updatedIntervals = dayHours.intervals.filter((_, index) => index !== intervalIndex);
+      
+      return {
+        ...prev,
+        business_hours: {
+          ...prev.business_hours,
+          [day]: {
+            ...dayHours,
+            intervals: updatedIntervals
+          }
+        }
+      };
+    });
+   };
 
   const handleSaveSettings = async () => {
     if (!garageSettings) return;
@@ -787,7 +857,7 @@ const AdminPage: React.FC = () => {
                   {/* Horaires d'ouverture */}
                   <div className="bg-white rounded-lg shadow-md p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Horaires d'ouverture</h3>
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                       {Object.entries(garageSettings.business_hours).map(([day, hours]) => {
                         const dayLabels: { [key: string]: string } = {
                           monday: 'Lundi',
@@ -800,43 +870,73 @@ const AdminPage: React.FC = () => {
                         };
                         
                         return (
-                          <div key={day} className="flex items-center space-x-4">
-                            <div className="w-24">
-                              <span className="text-sm font-medium text-gray-700">
-                                {dayLabels[day]}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <input
-                                type="checkbox"
-                                checked={!hours.is_closed}
-                                onChange={(e) => handleBusinessHoursChange(day, 'is_closed', !e.target.checked)}
-                                className="rounded border-gray-300 text-red-600 focus:ring-red-500"
-                              />
-                              <span className="text-sm text-gray-600">Ouvert</span>
-                            </div>
-                            {!hours.is_closed && (
-                              <>
+                          <div key={day} className="border border-gray-200 rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center space-x-3">
+                                <span className="text-sm font-medium text-gray-700 w-20">
+                                  {dayLabels[day]}
+                                </span>
                                 <div className="flex items-center space-x-2">
-                                  <span className="text-sm text-gray-600">de</span>
                                   <input
-                                    type="time"
-                                    value={hours.open}
-                                    onChange={(e) => handleBusinessHoursChange(day, 'open', e.target.value)}
-                                    className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                                    type="checkbox"
+                                    checked={!hours.is_closed}
+                                    onChange={(e) => handleBusinessHoursChange(day, 'is_closed', !e.target.checked)}
+                                    className="rounded border-gray-300 text-red-600 focus:ring-red-500"
                                   />
-                                  <span className="text-sm text-gray-600">à</span>
-                                  <input
-                                    type="time"
-                                    value={hours.close}
-                                    onChange={(e) => handleBusinessHoursChange(day, 'close', e.target.value)}
-                                    className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                                  />
+                                  <span className="text-sm text-gray-600">Ouvert</span>
                                 </div>
-                              </>
-                            )}
-                            {hours.is_closed && (
+                              </div>
+                              {!hours.is_closed && (
+                                <button
+                                  type="button"
+                                  onClick={() => addInterval(day)}
+                                  className="px-3 py-1 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                                >
+                                  + Ajouter un créneau
+                                </button>
+                              )}
+                            </div>
+                            
+                            {hours.is_closed ? (
                               <span className="text-sm text-gray-500 italic">Fermé</span>
+                            ) : (
+                              <div className="space-y-2">
+                                {hours.intervals.map((interval, index) => (
+                                  <div key={index} className="flex items-center space-x-3">
+                                    <span className="text-sm text-gray-600 w-8">#{index + 1}</span>
+                                    <div className="flex items-center space-x-2">
+                                      <span className="text-sm text-gray-600">de</span>
+                                      <input
+                                        type="time"
+                                        value={interval.open}
+                                        onChange={(e) => handleIntervalChange(day, index, 'open', e.target.value)}
+                                        step="60"
+                                        className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                                      />
+                                      <span className="text-sm text-gray-600">à</span>
+                                      <input
+                                        type="time"
+                                        value={interval.close}
+                                        onChange={(e) => handleIntervalChange(day, index, 'close', e.target.value)}
+                                        step="60"
+                                        className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                                      />
+                                    </div>
+                                    {hours.intervals.length > 1 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => removeInterval(day, index)}
+                                        className="px-2 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                                      >
+                                        Supprimer
+                                      </button>
+                                    )}
+                                  </div>
+                                ))}
+                                {hours.intervals.length === 0 && (
+                                  <p className="text-sm text-gray-500 italic">Aucun créneau défini</p>
+                                )}
+                              </div>
                             )}
                           </div>
                         );

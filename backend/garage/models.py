@@ -13,8 +13,8 @@ class GarageSettings(models.Model):
     # Réseaux sociaux stockés en JSON
     social_media_json = models.TextField(default='{"facebook": "", "instagram": "", "youtube": "", "twitter": "", "linkedin": ""}')
     
-    # Horaires d'ouverture stockés en JSON
-    business_hours_json = models.TextField(default='{"monday": {"open": "09:00", "close": "18:00", "is_closed": false}, "tuesday": {"open": "09:00", "close": "18:00", "is_closed": false}, "wednesday": {"open": "09:00", "close": "18:00", "is_closed": false}, "thursday": {"open": "09:00", "close": "18:00", "is_closed": false}, "friday": {"open": "09:00", "close": "18:00", "is_closed": false}, "saturday": {"open": "09:00", "close": "17:00", "is_closed": false}, "sunday": {"open": "10:00", "close": "16:00", "is_closed": true}}')
+    # Horaires d'ouverture stockés en JSON avec support des intervalles multiples
+    business_hours_json = models.TextField(default='{"monday": {"is_closed": false, "intervals": [{"open": "09:00", "close": "18:00"}]}, "tuesday": {"is_closed": false, "intervals": [{"open": "09:00", "close": "18:00"}]}, "wednesday": {"is_closed": false, "intervals": [{"open": "09:00", "close": "18:00"}]}, "thursday": {"is_closed": false, "intervals": [{"open": "09:00", "close": "18:00"}]}, "friday": {"is_closed": false, "intervals": [{"open": "09:00", "close": "18:00"}]}, "saturday": {"is_closed": false, "intervals": [{"open": "09:00", "close": "17:00"}]}, "sunday": {"is_closed": true, "intervals": []}}')
     
     # Paramètres SEO stockés en JSON
     seo_settings_json = models.TextField(default='{"meta_title": "", "meta_description": "", "meta_keywords": "", "og_title": "", "og_description": "", "og_image": ""}')
@@ -46,13 +46,13 @@ class GarageSettings(models.Model):
             return json.loads(self.business_hours_json)
         except json.JSONDecodeError:
             return {
-                "monday": {"open": "09:00", "close": "18:00", "is_closed": False},
-                "tuesday": {"open": "09:00", "close": "18:00", "is_closed": False},
-                "wednesday": {"open": "09:00", "close": "18:00", "is_closed": False},
-                "thursday": {"open": "09:00", "close": "18:00", "is_closed": False},
-                "friday": {"open": "09:00", "close": "18:00", "is_closed": False},
-                "saturday": {"open": "09:00", "close": "17:00", "is_closed": False},
-                "sunday": {"open": "10:00", "close": "16:00", "is_closed": True}
+                "monday": {"is_closed": False, "intervals": [{"open": "09:00", "close": "18:00"}]},
+                "tuesday": {"is_closed": False, "intervals": [{"open": "09:00", "close": "18:00"}]},
+                "wednesday": {"is_closed": False, "intervals": [{"open": "09:00", "close": "18:00"}]},
+                "thursday": {"is_closed": False, "intervals": [{"open": "09:00", "close": "18:00"}]},
+                "friday": {"is_closed": False, "intervals": [{"open": "09:00", "close": "18:00"}]},
+                "saturday": {"is_closed": False, "intervals": [{"open": "09:00", "close": "17:00"}]},
+                "sunday": {"is_closed": True, "intervals": []}
             }
     
     @business_hours.setter

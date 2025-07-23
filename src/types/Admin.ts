@@ -119,10 +119,14 @@ export interface BusinessHours {
   sunday: DayHours;
 }
 
-export interface DayHours {
+export interface TimeInterval {
   open: string;
   close: string;
+}
+
+export interface DayHours {
   is_closed: boolean;
+  intervals: TimeInterval[];
 }
 
 export interface SEOSettings {

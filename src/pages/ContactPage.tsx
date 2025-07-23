@@ -70,13 +70,32 @@ const ContactPage = () => {
                     <div className="text-gray-700">
                       {settings.business_hours && (
                         <>
-                          <p>Lundi : {settings.business_hours.monday?.is_closed ? 'Fermé' : `${settings.business_hours.monday?.open} - ${settings.business_hours.monday?.close}`}</p>
-                          <p>Mardi : {settings.business_hours.tuesday?.is_closed ? 'Fermé' : `${settings.business_hours.tuesday?.open} - ${settings.business_hours.tuesday?.close}`}</p>
-                          <p>Mercredi : {settings.business_hours.wednesday?.is_closed ? 'Fermé' : `${settings.business_hours.wednesday?.open} - ${settings.business_hours.wednesday?.close}`}</p>
-                          <p>Jeudi : {settings.business_hours.thursday?.is_closed ? 'Fermé' : `${settings.business_hours.thursday?.open} - ${settings.business_hours.thursday?.close}`}</p>
-                          <p>Vendredi : {settings.business_hours.friday?.is_closed ? 'Fermé' : `${settings.business_hours.friday?.open} - ${settings.business_hours.friday?.close}`}</p>
-                          <p>Samedi : {settings.business_hours.saturday?.is_closed ? 'Fermé' : `${settings.business_hours.saturday?.open} - ${settings.business_hours.saturday?.close}`}</p>
-                          <p>Dimanche : {settings.business_hours.sunday?.is_closed ? 'Fermé' : `${settings.business_hours.sunday?.open} - ${settings.business_hours.sunday?.close}`}</p>
+                          {Object.entries(settings.business_hours).map(([day, hours]) => {
+                            const dayLabels: { [key: string]: string } = {
+                              monday: 'Lundi',
+                              tuesday: 'Mardi',
+                              wednesday: 'Mercredi',
+                              thursday: 'Jeudi',
+                              friday: 'Vendredi',
+                              saturday: 'Samedi',
+                              sunday: 'Dimanche'
+                            };
+                            
+                            const formatIntervals = (intervals: { open: string; close: string }[]) => {
+                              return intervals.map(interval => {
+                                // S'assurer que l'affichage est en format 24h
+                                const openTime = interval.open.length === 5 ? interval.open : interval.open + ':00';
+                                const closeTime = interval.close.length === 5 ? interval.close : interval.close + ':00';
+                                return `${openTime} - ${closeTime}`;
+                              }).join(', ');
+                            };
+                            
+                            return (
+                              <p key={day}>
+                                {dayLabels[day]} : {hours.is_closed ? 'Fermé' : formatIntervals(hours.intervals)}
+                              </p>
+                            );
+                          })}
                         </>
                       )}
                     </div>

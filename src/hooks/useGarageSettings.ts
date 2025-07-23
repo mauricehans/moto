@@ -32,13 +32,13 @@ const useGarageSettings = () => {
             youtube: 'https://youtube.com/@AgdeMotoPro'
           },
           business_hours: {
-            monday: { open: '09:00', close: '18:00', closed: false },
-            tuesday: { open: '09:00', close: '18:00', closed: false },
-            wednesday: { open: '09:00', close: '18:00', closed: false },
-            thursday: { open: '09:00', close: '18:00', closed: false },
-            friday: { open: '09:00', close: '18:00', closed: false },
-            saturday: { open: '09:00', close: '17:00', closed: false },
-            sunday: { open: '09:00', close: '17:00', closed: true }
+            monday: { is_closed: false, intervals: [{ open: '09:00', close: '18:00' }] },
+            tuesday: { is_closed: false, intervals: [{ open: '09:00', close: '18:00' }] },
+            wednesday: { is_closed: false, intervals: [{ open: '09:00', close: '18:00' }] },
+            thursday: { is_closed: false, intervals: [{ open: '09:00', close: '18:00' }] },
+            friday: { is_closed: false, intervals: [{ open: '09:00', close: '18:00' }] },
+            saturday: { is_closed: false, intervals: [{ open: '09:00', close: '17:00' }] },
+            sunday: { is_closed: true, intervals: [] }
           },
           seo_settings: {
             meta_title: 'AGDE MOTO - Spécialiste moto à Agde',
