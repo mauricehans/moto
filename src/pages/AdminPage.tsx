@@ -287,7 +287,7 @@ const AdminPage: React.FC = () => {
     setLoginError('');
 
     try {
-      const response = await api.post('/token/', {
+      const response = await api.post('/login/', {
         username: loginForm.username,
         password: loginForm.password
       });
@@ -295,7 +295,7 @@ const AdminPage: React.FC = () => {
       localStorage.setItem('refresh_token', response.data.refresh);
       setIsAuthenticated(true);
     } catch (error) {
-      setLoginError('Nom d\'utilisateur ou mot de passe incorrect');
+      setLoginError('Email/nom d\'utilisateur ou mot de passe incorrect');
     } finally {
       setLoading(false);
     }
@@ -473,7 +473,7 @@ const AdminPage: React.FC = () => {
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                Nom d'utilisateur
+                Email ou nom d'utilisateur
               </label>
               <input
                 type="text"
@@ -481,6 +481,7 @@ const AdminPage: React.FC = () => {
                 name="username"
                 value={loginForm.username}
                 onChange={handleLoginInputChange}
+                placeholder="Entrez votre email ou nom d'utilisateur"
                 required
                 disabled={loading}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-100"
