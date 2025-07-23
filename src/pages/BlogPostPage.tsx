@@ -76,7 +76,7 @@ const BlogPostPage = () => {
               </div>
               {post.category && (
                 <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                  {post.category}
+                  {post.category.name}
                 </span>
               )}
             </div>

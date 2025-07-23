@@ -21,10 +21,10 @@ class PostViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'content']
     ordering_fields = ['created_at', 'updated_at']
     ordering = ['-created_at']
-    # Supprimé lookup_field pour utiliser l'ID par défaut
+    lookup_field = 'slug'  # Restauré pour utiliser le slug
     
     @action(detail=True, methods=['post'], parser_classes=[MultiPartParser, FormParser])
-    def upload_image(self, request, slug=None):
+    def upload_image(self, request, pk=None):
         """Upload d'image pour un article de blog"""
         import os
         import uuid
@@ -58,7 +58,7 @@ class PostViewSet(viewsets.ModelViewSet):
         return Response({'image': image_url}, status=status.HTTP_200_OK)
     
     @action(detail=True, methods=['delete'])
-    def delete_image(self, request, slug=None):
+    def delete_image(self, request, pk=None):
         """Supprimer l'image d'un article de blog"""
         post = self.get_object()
         

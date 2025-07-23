@@ -274,13 +274,10 @@ const PartDetailPage = () => {
         )}
         
         {showContactForm && (
-          <div id="contact-form" className="bg-white rounded-lg shadow-md p-6 lg:p-8 mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Demande d'information
-            </h2>
+          <div id="contact-form" className="bg-gray-50 p-6 lg:p-8 rounded-lg">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Contacter pour cette pièce</h2>
             <ContactForm 
-              motorcycleId={part.id.toString()}
-              motorcycleName={`${part.name} - ${part.brand}`} 
+              partName={part.name}
             />
           </div>
         )}
