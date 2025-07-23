@@ -44,7 +44,10 @@ api.interceptors.response.use(
         console.error('Token refresh failed:', refreshError);
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        // Optionnel: rediriger vers la page de login
+        // Rediriger vers la page d'administration pour forcer la reconnexion
+        if (window.location.pathname !== '/admin') {
+          window.location.href = '/admin';
+        }
       }
     }
     console.error('API Error Details:', {

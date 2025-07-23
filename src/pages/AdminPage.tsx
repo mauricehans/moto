@@ -36,6 +36,14 @@ const AdminPage: React.FC = () => {
   const { data: blogPosts = [], isLoading: blogLoading } = useBlogPosts();
   const navigate = useNavigate();
 
+  // Vérifier l'authentification au chargement de la page
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
   // Fonctions de suppression
   const handleDeleteMotorcycle = async (motorcycle: Motorcycle) => {
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer la moto ${motorcycle.brand} ${motorcycle.model} ?`)) {
@@ -325,11 +333,7 @@ const AdminPage: React.FC = () => {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-xs text-gray-500">
-              Démo: admin / gattuso2024
-            </p>
-          </div>
+          
         </div>
       </div>
     );
