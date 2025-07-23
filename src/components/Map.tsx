@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useMemo } from 'react';
 
 interface MapProps {
   address: string;
@@ -6,28 +6,32 @@ interface MapProps {
 }
 
 const Map = ({ address, height = '400px' }: MapProps) => {
-  const mapRef = useRef<HTMLIFrameElement>(null);
+  // Coordonnées précises d'Agde Moto
+  const defaultCoords = { lat: 43.3143111, lon: 3.4666913 };
   
-  useEffect(() => {
-    // In a real implementation, you would load a proper map integration
-    // For demonstration purposes, we're using a simple iframe with Google Maps
-    if (mapRef.current) {
-      const encodedAddress = encodeURIComponent(address);
-      mapRef.current.src = `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodedAddress}`;
-    }
+  // Générer l'URL OpenStreetMap basée sur l'adresse ou les coordonnées par défaut
+  const mapSrc = useMemo(() => {
+    // Créer une bbox autour des coordonnées (zoom plus précis)
+    const bbox = {
+      minLon: defaultCoords.lon - 0.003,
+      minLat: defaultCoords.lat - 0.002,
+      maxLon: defaultCoords.lon + 0.003,
+      maxLat: defaultCoords.lat + 0.002
+    };
+    
+    return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}&layer=mapnik&marker=${defaultCoords.lat},${defaultCoords.lon}`;
   }, [address]);
   
   return (
     <div className="rounded-lg overflow-hidden shadow-md" style={{ height }}>
       <iframe
-        ref={mapRef}
-        title="Garage location"
+        title="Localisation du garage"
         width="100%"
         height="100%"
         frameBorder="0"
         style={{ border: 0 }}
         allowFullScreen
-        src={`https://www.openstreetmap.org/export/embed.html?bbox=3.4447,43.3031,3.4847,43.3131&layer=mapnik&marker=43.3081,3.4647`}
+        src={mapSrc}
       ></iframe>
     </div>
   );
