@@ -125,10 +125,27 @@ const Footer = () => {
           </div>
         </div>
         
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-          <p className="text-gray-500 text-sm">
-            &copy; {currentYear} Agde Moto Gattuso. Tous droits réservés.
-          </p>
+        {/* Legal Links */}
+        <div className="border-t border-gray-800 mt-8 pt-8">
+          <div className="flex flex-wrap justify-center gap-6 mb-4">
+            <Link to="/legal/notices" className="text-gray-400 hover:text-white transition-colors text-sm">
+              Mentions légales
+            </Link>
+            <Link to="/legal/terms" className="text-gray-400 hover:text-white transition-colors text-sm">
+              Conditions générales de vente
+            </Link>
+            <Link to="/legal/privacy" className="text-gray-400 hover:text-white transition-colors text-sm">
+              Politique de confidentialité
+            </Link>
+            <Link to="/legal/cookies" className="text-gray-400 hover:text-white transition-colors text-sm">
+              Gestion des cookies
+            </Link>
+          </div>
+          <div className="text-center">
+            <p className="text-gray-500 text-sm">
+              &copy; {currentYear} Agde Moto Gattuso. Tous droits réservés.
+            </p>
+          </div>
         </div>
       </div>
     </footer>

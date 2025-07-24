@@ -25,6 +25,10 @@ import CreatePartPage from './pages/CreatePartPage';
 import CreateBlogPostPage from './pages/CreateBlogPostPage';
 import AdminPasswordReset from './pages/AdminPasswordReset';
 import AdminPasswordResetConfirm from './pages/AdminPasswordResetConfirm';
+import LegalNoticesPage from './pages/LegalNoticesPage';
+import TermsOfSalePage from './pages/TermsOfSalePage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import CookieManagementPage from './pages/CookieManagementPage';
 
 function AppContent() {
   const location = useLocation();
@@ -52,7 +56,11 @@ function AppContent() {
           <Route path="/admin/create-part" element={<CreatePartPage />} />
           <Route path="/admin/create-blog" element={<CreateBlogPostPage />} />
           <Route path="/admin/password-reset" element={<AdminPasswordReset />} />
-          <Route path="/admin/reset-password/:uidb64/:token" element={<AdminPasswordResetConfirm />} />
+            <Route path="/admin/password-reset/confirm/:uid/:token" element={<AdminPasswordResetConfirm />} />
+            <Route path="/legal/notices" element={<LegalNoticesPage />} />
+            <Route path="/legal/terms" element={<TermsOfSalePage />} />
+            <Route path="/legal/privacy" element={<PrivacyPolicyPage />} />
+            <Route path="/legal/cookies" element={<CookieManagementPage />} />
           
         </Routes>
       </main>
