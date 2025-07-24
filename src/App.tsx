@@ -23,6 +23,8 @@ import AdminImageGalleryPage from './pages/AdminImageGalleryPage';
 import CreateMotorcyclePage from './pages/CreateMotorcyclePage';
 import CreatePartPage from './pages/CreatePartPage';
 import CreateBlogPostPage from './pages/CreateBlogPostPage';
+import AdminPasswordReset from './pages/AdminPasswordReset';
+import AdminPasswordResetConfirm from './pages/AdminPasswordResetConfirm';
 
 function AppContent() {
   const location = useLocation();
@@ -49,6 +51,8 @@ function AppContent() {
           <Route path="/admin/create-motorcycle" element={<CreateMotorcyclePage />} />
           <Route path="/admin/create-part" element={<CreatePartPage />} />
           <Route path="/admin/create-blog" element={<CreateBlogPostPage />} />
+          <Route path="/admin/password-reset" element={<AdminPasswordReset />} />
+          <Route path="/admin/reset-password/:uidb64/:token" element={<AdminPasswordResetConfirm />} />
           
         </Routes>
       </main>

@@ -526,7 +526,14 @@ const AdminPage: React.FC = () => {
             </button>
           </form>
 
-          
+          <div className="mt-6 text-center">
+            <a
+              href="/admin/password-reset"
+              className="text-sm text-red-600 hover:text-red-700 transition-colors"
+            >
+              Mot de passe oublié ?
+            </a>
+          </div>
         </div>
       </div>
     );

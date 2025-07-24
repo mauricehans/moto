@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 from django.http import JsonResponse
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .custom_auth import custom_login
+from .password_reset import request_password_reset, confirm_password_reset
 
 def api_health(request):
     """Endpoint de santé de l'API"""
@@ -20,6 +21,9 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/login/', custom_login, name='custom_login'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # Password reset endpoints
+    path('api/admin/password-reset/', request_password_reset, name='request_password_reset'),
+    path('api/admin/password-reset/<str:uidb64>/<str:token>/', confirm_password_reset, name='confirm_password_reset'),
     path('api/motorcycles/', include('motorcycles.urls')),
     path('api/parts/', include('parts.urls')),
     path('api/blog/', include('blog.urls')),
