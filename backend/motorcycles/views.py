@@ -2,6 +2,7 @@ from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Motorcycle, MotorcycleImage
 from .serializers import MotorcycleSerializer, MotorcycleImageSerializer
@@ -15,6 +16,16 @@ class MotorcycleViewSet(viewsets.ModelViewSet):
     search_fields = ['brand', 'model', 'description']
     ordering_fields = ['price', 'year', 'mileage', 'created_at']
     ordering = ['-created_at']
+    
+    def get_permissions(self):
+        """Permissions personnalisées selon l'action"""
+        if self.action in ['list', 'retrieve', 'featured']:
+            # Lecture publique autorisée
+            permission_classes = [AllowAny]
+        else:
+            # Écriture nécessite une authentification
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
     
     @action(detail=False, methods=['get'])
     def featured(self, request):
@@ -104,3 +115,13 @@ class MotorcycleImageViewSet(viewsets.ModelViewSet):
     """ViewSet pour les images de motos"""
     queryset = MotorcycleImage.objects.all()
     serializer_class = MotorcycleImageSerializer
+    
+    def get_permissions(self):
+        """Permissions personnalisées selon l'action"""
+        if self.action in ['list', 'retrieve']:
+            # Lecture publique autorisée
+            permission_classes = [AllowAny]
+        else:
+            # Écriture nécessite une authentification
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]

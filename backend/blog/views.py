@@ -2,6 +2,7 @@ from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Category, Post
 from .serializers import CategorySerializer, PostSerializer
@@ -11,10 +12,11 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     lookup_field = 'slug'
+    permission_classes = [AllowAny]  # Lecture publique pour les catégories
 
 class PostViewSet(viewsets.ModelViewSet):
     """ViewSet pour les articles de blog"""
-    queryset = Post.objects.all()  # Changé pour permettre l'accès admin
+    queryset = Post.objects.filter(is_published=True)  # Seuls les articles publiés en lecture publique
     serializer_class = PostSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category']
@@ -22,6 +24,25 @@ class PostViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at', 'updated_at']
     ordering = ['-created_at']
     lookup_field = 'slug'  # Restauré pour utiliser le slug
+    
+    def get_permissions(self):
+        """Permissions personnalisées selon l'action"""
+        if self.action in ['list', 'retrieve']:
+            # Lecture publique autorisée
+            permission_classes = [AllowAny]
+        else:
+            # Écriture nécessite une authentification
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+    
+    def get_queryset(self):
+        """Queryset personnalisé selon l'action"""
+        if self.action in ['list', 'retrieve'] and not self.request.user.is_authenticated:
+            # Utilisateurs non authentifiés : seulement les articles publiés
+            return Post.objects.filter(is_published=True)
+        else:
+            # Utilisateurs authentifiés : tous les articles
+            return Post.objects.all()
     
     @action(detail=True, methods=['post'], parser_classes=[MultiPartParser, FormParser])
     def upload_image(self, request, pk=None):

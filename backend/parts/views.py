@@ -2,6 +2,7 @@ from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Category, Part, PartImage
 from .serializers import CategorySerializer, PartSerializer, PartImageSerializer
@@ -11,6 +12,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     lookup_field = 'slug'
+    permission_classes = [AllowAny]  # Lecture publique pour les catégories
 
 class PartViewSet(viewsets.ModelViewSet):
     """ViewSet pour les pièces détachées"""
@@ -21,6 +23,16 @@ class PartViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'brand', 'compatible_models', 'description']
     ordering_fields = ['price', 'stock', 'created_at']
     ordering = ['-created_at']
+    
+    def get_permissions(self):
+        """Permissions personnalisées selon l'action"""
+        if self.action in ['list', 'retrieve']:
+            # Lecture publique autorisée
+            permission_classes = [AllowAny]
+        else:
+            # Écriture nécessite une authentification
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
     
     @action(detail=True, methods=['post'], parser_classes=[MultiPartParser, FormParser])
     def upload_images(self, request, pk=None):
@@ -103,3 +115,13 @@ class PartImageViewSet(viewsets.ModelViewSet):
     """ViewSet pour les images de pièces"""
     queryset = PartImage.objects.all()
     serializer_class = PartImageSerializer
+    
+    def get_permissions(self):
+        """Permissions personnalisées selon l'action"""
+        if self.action in ['list', 'retrieve']:
+            # Lecture publique autorisée
+            permission_classes = [AllowAny]
+        else:
+            # Écriture nécessite une authentification
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]

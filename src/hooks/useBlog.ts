@@ -22,7 +22,16 @@ export const useBlogPosts = (): UseQueryResult<Post[], Error> => {
       }
     },
     staleTime: 5 * 60 * 1000,
-    retry: 2,
+    retry: (failureCount, error: any) => {
+      // Ne pas réessayer si c'est une erreur réseau
+      if (error?.message?.includes('Serveur indisponible')) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: true,
   });
 };
 
@@ -57,6 +66,15 @@ export const useBlogCategories = (): UseQueryResult<BlogCategoryResponse[], Erro
       }
     },
     staleTime: 10 * 60 * 1000,
-    retry: 2,
+    retry: (failureCount, error: any) => {
+      // Ne pas réessayer si c'est une erreur réseau
+      if (error?.message?.includes('Serveur indisponible')) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: true,
   });
 };

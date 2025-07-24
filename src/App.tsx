@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ErrorBoundary from './components/ErrorBoundary';
+import DataProvider from './contexts/DataContext';
 import HomePage from './pages/HomePage';
 import MotorcyclesPage from './pages/MotorcyclesPage';
 import MotorcycleDetailPage from './pages/MotorcycleDetailPage';
@@ -22,9 +23,6 @@ import AdminImageGalleryPage from './pages/AdminImageGalleryPage';
 import CreateMotorcyclePage from './pages/CreateMotorcyclePage';
 import CreatePartPage from './pages/CreatePartPage';
 import CreateBlogPostPage from './pages/CreateBlogPostPage';
-
-
-const queryClient = new QueryClient();
 
 function AppContent() {
   const location = useLocation();
@@ -61,11 +59,13 @@ function AppContent() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <AppContent />
-      </Router>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <DataProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </DataProvider>
+    </ErrorBoundary>
   );
 }
 

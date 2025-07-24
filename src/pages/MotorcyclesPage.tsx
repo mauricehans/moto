@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Search } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import SectionTitle from '../components/SectionTitle';
 import MotorcycleCard from '../components/MotorcycleCard';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { useMotorcycles } from '../hooks/useMotorcycles';
 import { Motorcycle } from '../types/Motorcycle';
 
@@ -17,7 +18,6 @@ interface Filters {
 
 const MotorcyclesPage = () => {
   const { data: motorcycles = [], isLoading, error } = useMotorcycles();
-  const [filteredMotorcycles, setFilteredMotorcycles] = useState<Motorcycle[]>([]);
   const [filters, setFilters] = useState<Filters>({
     search: '',
     brand: '',
@@ -27,36 +27,24 @@ const MotorcyclesPage = () => {
     yearMax: '',
   });
 
-  // Get unique brands for filter
-  const brands = Array.from(new Set(motorcycles.map((m: Motorcycle) => m.brand))).sort();
+  // Get unique brands for filter - memoized
+  const brands = useMemo(() => {
+    if (!motorcycles?.length) return [];
+    return Array.from(new Set(motorcycles.map((m: Motorcycle) => m.brand))).sort();
+  }, [motorcycles]);
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFilters(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  // Filter motorcycles - memoized to prevent unnecessary recalculations
+  const filteredMotorcycles = useMemo(() => {
+    if (!motorcycles?.length) return [];
 
-  const resetFilters = () => {
-    setFilters({
-      search: '',
-      brand: '',
-      priceMin: '',
-      priceMax: '',
-      yearMin: '',
-      yearMax: '',
-    });
-  };
-
-  useEffect(() => {
+    // Start with non-sold motorcycles
     let result = motorcycles.filter((moto: Motorcycle) => !moto.is_sold);
 
     // Filter by search term
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
-      result = result.filter((moto: Motorcycle) => 
-        moto.brand.toLowerCase().includes(searchTerm) || 
+      result = result.filter((moto: Motorcycle) =>
+        moto.brand.toLowerCase().includes(searchTerm) ||
         moto.model.toLowerCase().includes(searchTerm) ||
         moto.description.toLowerCase().includes(searchTerm)
       );
@@ -83,8 +71,29 @@ const MotorcyclesPage = () => {
       result = result.filter((moto: Motorcycle) => moto.year <= parseInt(filters.yearMax));
     }
 
-    setFilteredMotorcycles(result);
-  }, [filters, motorcycles]);
+    return result;
+  }, [motorcycles, filters]);
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      search: '',
+      brand: '',
+      priceMin: '',
+      priceMax: '',
+      yearMin: '',
+      yearMax: '',
+    });
+  };
+
+
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -93,7 +102,7 @@ const MotorcyclesPage = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
