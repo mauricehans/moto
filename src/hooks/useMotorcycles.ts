@@ -8,10 +8,10 @@ export const useMotorcycles = (): UseQueryResult<Motorcycle[], Error> => {
     queryFn: async () => {
       try {
         const response = await motorcycleService.getAll();
-        return response.data.results;
+        return response.data?.results || [];
       } catch (error) {
         console.error('Failed to fetch motorcycles:', error);
-        throw error;
+        return [];
       }
     },
     staleTime: 5 * 60 * 1000,
@@ -52,10 +52,10 @@ export const useFeaturedMotorcycles = (): UseQueryResult<Motorcycle[], Error> =>
     queryFn: async () => {
       try {
         const response = await motorcycleService.getFeatured();
-        return response.data;
+        return response.data || [];
       } catch (error) {
         console.error('Failed to fetch featured motorcycles:', error);
-        throw error;
+        return [];
       }
     },
     staleTime: 5 * 60 * 1000,

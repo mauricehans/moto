@@ -23,7 +23,7 @@ class PostViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'content']
     ordering_fields = ['created_at', 'updated_at']
     ordering = ['-created_at']
-    lookup_field = 'slug'  # Restauré pour utiliser le slug
+    # lookup_field = 'slug'  # Commenté pour utiliser l'ID par défaut
     
     def get_permissions(self):
         """Permissions personnalisées selon l'action"""
@@ -68,7 +68,7 @@ class PostViewSet(viewsets.ModelViewSet):
         # Créer l'URL complète
         if settings.DEBUG:
             # En développement, utiliser l'URL locale
-            image_url = f"http://127.0.0.1:8000/media/{file_path}"
+            image_url = f"http://localhost:8000/media/{file_path}"
         else:
             # En production, utiliser l'URL du domaine
             image_url = f"{settings.MEDIA_URL}{file_path}"

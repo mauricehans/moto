@@ -4,7 +4,7 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'categories', views.CategoryViewSet)
-router.register(r'parts', views.PartViewSet)
+router.register(r'', views.PartViewSet)  # Pas de préfixe supplémentaire
 router.register(r'images', views.PartImageViewSet)
 
 app_name = 'parts'

@@ -33,7 +33,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-    # 'django_ratelimit',  # Temporairement désactivé
     'blog',
     'motorcycles',
     'parts',
@@ -61,16 +60,6 @@ DATABASES = {
     }
 }
 
-# Configuration du cache
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'cache_table',
-    }
-}
-
-# RATELIMIT_USE_CACHE = 'default'  # Temporairement désactivé
-
 # Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -83,10 +72,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://localhost:5174",
-    "http://127.0.0.1:5174",
-    "http://localhost:5175",
-    "http://127.0.0.1:5175",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
@@ -114,7 +99,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',  # Accès public par défaut, sécurisé au niveau des vues
+        'rest_framework.permissions.IsAuthenticated',  # Sécurisé par défaut
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20
@@ -219,6 +204,6 @@ CSRF_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = 'Lax'
 
-# Limitation du taux de requêtes - temporairement désactivé
-# if 'django_ratelimit' not in INSTALLED_APPS:
-#     INSTALLED_APPS.append('django_ratelimit')
+# Limitation du taux de requêtes
+if 'django_ratelimit' not in INSTALLED_APPS:
+    INSTALLED_APPS.append('django_ratelimit')

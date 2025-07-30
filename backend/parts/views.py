@@ -60,7 +60,7 @@ class PartViewSet(viewsets.ModelViewSet):
             # Créer l'URL complète
             if settings.DEBUG:
                 # En développement, utiliser l'URL locale
-                image_url = f"http://127.0.0.1:8000/media/{file_path}"
+                image_url = f"http://localhost:8000/media/{file_path}"
             else:
                 # En production, utiliser l'URL du domaine
                 image_url = f"{settings.MEDIA_URL}{file_path}"

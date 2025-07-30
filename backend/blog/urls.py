@@ -4,7 +4,7 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'categories', views.CategoryViewSet)
-router.register(r'posts', views.PostViewSet)
+router.register(r'', views.PostViewSet)  # Pas de préfixe supplémentaire
 
 app_name = 'blog'
 

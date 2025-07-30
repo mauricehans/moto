@@ -10,13 +10,13 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from django_ratelimit.decorators import ratelimit
+# from django_ratelimit.decorators import ratelimit  # Temporairement désactivé
 import logging
 
 User = get_user_model()
 logger = logging.getLogger('agde_moto')
 
-@ratelimit(key='ip', rate='3/h', method='POST', block=True)
+# @ratelimit(key='ip', rate='3/h', method='POST', block=True)  # Temporairement désactivé
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def request_password_reset(request):
@@ -115,7 +115,7 @@ Token de sécurité : {token[:8]}...'''
         }, status=status.HTTP_200_OK)
 
 
-@ratelimit(key='ip', rate='5/h', method='POST', block=True)
+# @ratelimit(key='ip', rate='5/h', method='POST', block=True)  # Temporairement désactivé
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def confirm_password_reset(request, uidb64, token):

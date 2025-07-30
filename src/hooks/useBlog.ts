@@ -15,10 +15,10 @@ export const useBlogPosts = (): UseQueryResult<Post[], Error> => {
     queryFn: async () => {
       try {
         const response = await blogService.getPosts();
-        return response.data.results;
+        return response.data?.results || [];
       } catch (error) {
         console.error('Failed to fetch blog posts:', error);
-        throw error;
+        return [];
       }
     },
     staleTime: 5 * 60 * 1000,
@@ -59,10 +59,10 @@ export const useBlogCategories = (): UseQueryResult<BlogCategoryResponse[], Erro
     queryFn: async () => {
       try {
         const response = await blogService.getCategories();
-        return response.data;
+        return response.data || [];
       } catch (error) {
         console.error('Failed to fetch blog categories:', error);
-        throw error;
+        return [];
       }
     },
     staleTime: 10 * 60 * 1000,

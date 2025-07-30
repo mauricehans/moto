@@ -16,10 +16,10 @@ export const useParts = (): UseQueryResult<Part[], Error> => {
     queryFn: async () => {
       try {
         const response = await partsService.getAll();
-        return response.data.results;
+        return response.data?.results || [];
       } catch (error) {
         console.error('Failed to fetch parts:', error);
-        throw error;
+        return [];
       }
     },
     staleTime: 5 * 60 * 1000,
@@ -60,10 +60,10 @@ export const usePartCategories = (): UseQueryResult<CategoryResponse[], Error> =
     queryFn: async () => {
       try {
         const response = await partsService.getCategories();
-        return response.data;
+        return response.data || [];
       } catch (error) {
         console.error('Failed to fetch part categories:', error);
-        throw error;
+        return [];
       }
     },
     staleTime: 10 * 60 * 1000,

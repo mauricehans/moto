@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from django_ratelimit.decorators import ratelimit
+# from django_ratelimit.decorators import ratelimit  # Temporairement désactivé
 from django.utils.html import escape
 from .models import GarageSettings
 from .serializers import GarageSettingsSerializer
@@ -11,7 +11,7 @@ import logging
 logger = logging.getLogger('agde_moto')
 
 
-@ratelimit(key='ip', rate='30/m', method=['GET', 'PUT'], block=True)
+# @ratelimit(key='ip', rate='30/m', method=['GET', 'PUT'], block=True)  # Temporairement désactivé
 @api_view(['GET', 'PUT'])
 @permission_classes([AllowAny])  # GET public, PUT vérifié manuellement
 def garage_settings_view(request):
