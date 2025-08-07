@@ -9,7 +9,8 @@ drf-spectacular==0.27.1
 
 # Base de données et stockage
 Pillow==10.2.0
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.7
+python-dotenv==1.0.1
 
 # Cache
 redis==5.0.1
@@ -31,6 +32,7 @@ pytest-django==4.8.0
 # Production
 gunicorn==21.2.0
 whitenoise==6.6.0
+djangorestframework-simplejwt==5.3.1
 
 # Security
 # django-ratelimit==4.1.0  # Temporairement désactivé

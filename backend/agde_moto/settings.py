@@ -3,15 +3,15 @@ import os
 from dotenv import load_dotenv
 from datetime import timedelta
 
-# Charger les variables d'environnement
+# Load environment variables
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Configuration de sécurité
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-agde-moto-secret-key-change-in-production')
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-agde-moto-secret-key-change-in-production')
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # Configuration de sécurité HTTPS
 SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False').lower() == 'true'
@@ -54,10 +54,15 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'agde_moto.urls'
 
 # Database simple
+# Database configuration
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'agde_moto_db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME', 'agde_moto'),
+        'USER': os.environ.get('DB_USER', 'agde_user'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'agde_password123'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
 
@@ -163,7 +168,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 APPEND_SLASH = False  # Solution temporaire
 
 # Configuration JWT sécurisée
-from rest_framework_simplejwt.settings import api_settings
+# from rest_framework_simplejwt.settings import api_settings  # ← Supprimez cette ligne
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(os.getenv('JWT_ACCESS_TOKEN_LIFETIME', '15'))),
@@ -222,3 +227,16 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 # Limitation du taux de requêtes - temporairement désactivé
 # if 'django_ratelimit' not in INSTALLED_APPS:
 #     INSTALLED_APPS.append('django_ratelimit')
+
+# Remplacez la configuration DATABASES par :
+# Supprimez ces lignes (238-244) :
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'agde_moto_db',
+#         'USER': 'agde_moto_user',
+#         'PASSWORD': 'secure_password_123',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
