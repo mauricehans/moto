@@ -82,6 +82,7 @@ L'application se compose de trois parties principales :
 | **PostgreSQL** | Système de gestion de base de données relationnelle open-source. |
 | **Pillow** | Bibliothèque de traitement d'images pour Python. |
 | **CORS** | Mécanisme de sécurité pour les requêtes HTTP entre différents domaines. |
+| **Docker** | Conteneurisation pour un déploiement simplifié et cohérent. |
 
 ---
 
@@ -94,8 +95,10 @@ Le projet est structuré en deux parties principales :
   - **`blog/`** : Application Django pour la gestion du blog.
   - **`motorcycles/`** : Application Django pour la gestion des motos.
   - **`parts/`** : Application Django pour la gestion des pièces détachées.
+  - **`garage/`** : Application Django pour la gestion des paramètres du garage.
   - **`manage.py`** : Utilitaire de ligne de commande de Django.
   - **`requirements.txt`** : Liste des dépendances Python.
+  - **`Dockerfile`** : Configuration Docker pour le backend.
 
 - **`src/`** : Contient le code source du frontend React.
   - **`components/`** : Composants React réutilisables.
@@ -103,6 +106,8 @@ Le projet est structuré en deux parties principales :
   - **`data/`** : Données statiques (motos, pièces, etc.).
   - **`types/`** : Définitions de types TypeScript.
   - **`utils/`** : Fonctions utilitaires.
+  - **`hooks/`** : Hooks React personnalisés.
+  - **`services/`** : Services pour les appels API.
 
 ---
 
@@ -110,18 +115,73 @@ Le projet est structuré en deux parties principales :
 
 ### Prérequis
 
-- **Node.js** (version 18 ou supérieure)
-- **Python** (version 3.10 ou supérieure)
+- **Docker** et **Docker Compose** (recommandé)
+- **Node.js** (version 18 ou supérieure) - pour le développement frontend uniquement
 - **Git**
 
-### 1. Cloner le repository
+### Option 1 : Lancement avec Docker (Recommandé)
+
+#### 1. Cloner le repository
 
 ```bash
 git clone https://github.com/votre-username/agde-moto-gattuso.git
 cd agde-moto-gattuso
 ```
 
-### 2. Installation du Backend
+#### 2. Lancement complet du projet
+
+```bash
+# Démarrer tous les services (base de données + backend)
+docker-compose up -d
+
+# Attendre que les services soient prêts, puis appliquer les migrations
+docker-compose exec backend python manage.py migrate
+
+# Créer un superutilisateur pour l'administration
+docker-compose exec backend python manage.py createsuperuser
+
+# (Optionnel) Peupler la base avec des données de test
+docker-compose exec backend python populate_db.py
+```
+
+#### 3. Lancement du frontend (développement)
+
+```bash
+# Installer les dépendances
+npm install
+
+# Lancer le serveur de développement
+npm run dev
+```
+
+#### 4. Script de démarrage automatisé
+
+Vous pouvez utiliser le script fourni :
+
+```bash
+# Démarrer uniquement la base de données
+start-db.bat
+
+# Ou créer un script complet start-project.bat :
+```
+
+```batch
+@echo off
+echo Démarrage du projet AGDE Moto...
+docker-compose up -d
+echo Attente du démarrage des services...
+timeout /t 15
+echo Exécution des migrations...
+docker-compose exec backend python manage.py migrate
+echo Projet prêt !
+echo Frontend: http://localhost:5173
+echo Backend: http://localhost:8000
+echo Admin: http://localhost:8000/admin
+```
+
+### Option 2 : Installation manuelle (Développement)
+
+#### 1. Installation du Backend
 
 ```bash
 # Accéder au dossier backend
@@ -139,14 +199,18 @@ source venv/bin/activate
 # Installer les dépendances
 pip install -r requirements.txt
 
+# Configurer les variables d'environnement
+cp .env.example .env
+# Éditer le fichier .env selon vos besoins
+
 # Appliquer les migrations
 python manage.py migrate
 
-# Créer un superutilisateur (pour l'administration)
+# Créer un superutilisateur
 python manage.py createsuperuser
 ```
 
-### 3. Installation du Frontend
+#### 2. Installation du Frontend
 
 ```bash
 # Accéder au dossier racine du projet
@@ -156,26 +220,54 @@ cd ..
 npm install
 ```
 
-### 4. Lancement du projet
+#### 3. Lancement manuel
 
-**Terminal 1 : Lancement du backend**
+**Terminal 1 : Backend**
 
 ```bash
 cd backend
 python manage.py runserver
 ```
 
-**Terminal 2 : Lancement du frontend**
+**Terminal 2 : Frontend**
 
 ```bash
 npm run dev
 ```
 
-**URLs disponibles**
+### URLs disponibles
 
 - **Site web** : `http://localhost:5173`
 - **API Backend** : `http://localhost:8000/api/`
 - **Admin Django** : `http://localhost:8000/admin/`
+- **Documentation API** : `http://localhost:8000/api/schema/swagger-ui/`
+
+### Commandes Docker utiles
+
+```bash
+# Voir les logs des services
+docker-compose logs -f
+
+# Redémarrer un service spécifique
+docker-compose restart backend
+
+# Arrêter tous les services
+docker-compose down
+
+# Reconstruire les images
+docker-compose up -d --build
+
+# Exécuter des commandes Django
+docker-compose exec backend python manage.py makemigrations
+docker-compose exec backend python manage.py migrate
+docker-compose exec backend python manage.py collectstatic
+
+# Accéder au shell Django
+docker-compose exec backend python manage.py shell
+
+# Accéder à la base de données PostgreSQL
+docker exec -it agde_moto_db psql -U agde_user -d agde_moto
+```
 
 ---
 
@@ -186,34 +278,29 @@ npm run dev
 Copiez le fichier `.env.example` vers `.env` dans le dossier `backend/` et configurez les variables suivantes :
 
 ```bash
-# Sécurité critique
+# Configuration de base de données (Docker)
+DB_NAME=agde_moto
+DB_USER=agde_user
+DB_PASSWORD=agde_password123
+DB_HOST=localhost  # ou 'db' si vous utilisez Docker Compose
+DB_PORT=5432
+
+# Django Configuration
+DEBUG=True
 SECRET_KEY=votre-cle-secrete-unique-et-complexe
-DEBUG=False
-ALLOWED_HOSTS=localhost,127.0.0.1,votre-domaine.com
+ALLOWED_HOSTS=localhost,127.0.0.1
 
-# Base de données (optionnel - SQLite par défaut)
-DATABASE_URL=postgresql://user:password@localhost:5432/agde_moto
+# Configuration Email pour la réinitialisation de mot de passe
+EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+EMAIL_HOST_USER=noreply@agdemoto.com
+EMAIL_HOST_PASSWORD=testpassword
 
-# Cache Redis (optionnel)
-REDIS_URL=redis://localhost:6379/0
-
-# Email (optionnel)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_HOST_USER=votre-email@gmail.com
-EMAIL_HOST_PASSWORD=votre-mot-de-passe-app
-
-# CORS (production)
-CORS_ALLOWED_ORIGINS=https://votre-domaine.com
-CORS_ALLOW_ALL_ORIGINS=False
-
-# JWT Configuration
+# Configuration JWT
 JWT_ACCESS_TOKEN_LIFETIME=15
 JWT_REFRESH_TOKEN_LIFETIME=1440
 
-# HTTPS (production uniquement)
-SECURE_SSL_REDIRECT=True
-SECURE_HSTS_SECONDS=31536000
+# Configuration CORS
+CORS_ALLOW_ALL_ORIGINS=True  # Développement uniquement
 ```
 
 ### Configuration de développement
@@ -223,6 +310,7 @@ Pour le développement local, les valeurs par défaut sont suffisantes. Assurez-
 - `DEBUG=True` (par défaut)
 - `ALLOWED_HOSTS` inclut `localhost` et `127.0.0.1`
 - `CORS_ALLOW_ALL_ORIGINS=True` (par défaut en développement)
+- Les paramètres de base de données correspondent à ceux du `docker-compose.yml`
 
 ---
 
@@ -268,6 +356,9 @@ docker-compose exec backend python manage.py createsuperuser
 
 # Collecter les fichiers statiques
 docker-compose exec backend python manage.py collectstatic --noinput
+
+# Peupler la base avec des données initiales (optionnel)
+docker-compose exec backend python populate_db.py
 ```
 
 ### Déploiement manuel
@@ -349,6 +440,7 @@ server {
 - ✅ **Lazy loading** : Chargement différé des images
 - ✅ **Bundle optimization** : Vite pour un build optimisé
 - ✅ **Database optimization** : Index sur les champs fréquemment utilisés
+- ✅ **Conteneurisation** : Docker pour des performances cohérentes
 
 ### Métriques de performance
 

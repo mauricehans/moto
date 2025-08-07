@@ -240,7 +240,7 @@ const AdminPage: React.FC = () => {
   const handleDeleteMotorcycle = async (motorcycle: Motorcycle) => {
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer la moto ${motorcycle.brand} ${motorcycle.model} ?`)) {
       try {
-        await api.delete(`/motorcycles/motorcycles/${motorcycle.id}/`);
+        await api.delete(`/motorcycles/${motorcycle.id}/`);
         // Recharger la page pour actualiser les données
         window.location.reload();
       } catch (error) {
@@ -250,9 +250,10 @@ const AdminPage: React.FC = () => {
   };
 
   const handleDeletePart = async (part: Part) => {
+    console.log('Tentative de suppression de la pièce:', part);
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer la pièce ${part.name} ?`)) {
       try {
-        await api.delete(`/parts/parts/${part.id}/`);
+        await api.delete(`/parts/${part.id}/`);
         // Recharger la page pour actualiser les données
         window.location.reload();
       } catch (error) {
@@ -264,7 +265,7 @@ const AdminPage: React.FC = () => {
   const handleDeleteBlogPost = async (post: Post) => {
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer l'article "${post.title}" ?`)) {
       try {
-        await api.delete(`/blog/posts/${post.id}/`);
+        await api.delete(`/blog/${post.id}/`);
         // Recharger la page pour actualiser les données
         window.location.reload();
       } catch (error) {

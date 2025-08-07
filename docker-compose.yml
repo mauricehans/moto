@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: agde_moto_db
+    environment:
+      POSTGRES_DB: agde_moto
+      POSTGRES_USER: agde_user
+      POSTGRES_PASSWORD: agde_password123
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agde_user -d agde_moto"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  backend:
+    build:
+      context: ./backend
+    container_name: agde_moto_backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=agde_moto
+      - DB_USER=agde_user
+      - DB_PASSWORD=agde_password123
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
