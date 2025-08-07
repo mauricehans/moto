@@ -111,6 +111,81 @@ Le projet est structuré en deux parties principales :
 
 ---
 
+## 🔒 Sécurité
+
+### ⚠️ CRITIQUE - Avant la mise en production
+
+**Les valeurs par défaut ne sont PAS sécurisées pour la production !**
+
+#### 🔑 Génération des secrets sécurisés
+
+1. **Utilisez le script de génération automatique :**
+   ```bash
+   cd scripts
+   python generate_secrets.py
+   ```
+
+2. **Configurez les variables d'environnement :**
+   ```bash
+   cp backend/.env.example backend/.env
+   # Éditez backend/.env avec les valeurs générées
+   ```
+
+#### 📋 Checklist de sécurité
+
+Avant le déploiement, suivez impérativement :
+
+- 📋 **[Checklist complète](scripts/PRODUCTION_SECURITY_CHECKLIST.md)** - Liste détaillée de toutes les vérifications
+- 📖 **[Guide de sécurité](scripts/SECURITY_GUIDE.md)** - Documentation complète des bonnes pratiques
+- ⚙️ **[Configuration production](backend/agde_moto/settings_production.py)** - Exemple de configuration sécurisée
+
+#### 🛡️ Fonctionnalités de sécurité intégrées
+
+- ✅ **HTTPS obligatoire** avec HSTS
+- ✅ **Authentification JWT** sécurisée
+- ✅ **Protection CSRF** et XSS
+- ✅ **Rate limiting** contre les attaques par force brute
+- ✅ **Validation stricte** des données d'entrée
+- ✅ **Logs de sécurité** détaillés
+- ✅ **Chiffrement des mots de passe** avec bcrypt
+- ✅ **Headers de sécurité** configurés
+- ✅ **CORS restrictif** pour les domaines autorisés
+- ✅ **Sessions sécurisées** avec cookies HttpOnly
+
+#### 🔐 Variables critiques à sécuriser
+
+| Variable | Description | Longueur min. |
+|----------|-------------|---------------|
+| `SECRET_KEY` | Clé secrète Django | 50 caractères |
+| `DB_PASSWORD` | Mot de passe PostgreSQL | 32 caractères |
+| `JWT_SECRET_KEY` | Clé de signature JWT | 64 caractères |
+| `REDIS_PASSWORD` | Mot de passe Redis | 32 caractères |
+
+#### 🚨 Tests de sécurité
+
+```bash
+# Vérifications Django
+python manage.py check --deploy
+python manage.py check --tag security
+
+# Tests SSL/TLS
+curl -I https://votre-domaine.com
+
+# Scan des headers de sécurité
+# Utilisez : https://securityheaders.com/
+# Utilisez : https://www.ssllabs.com/ssltest/
+```
+
+#### 📊 Score de sécurité
+
+Ce projet vise un score de sécurité de **9/10** avec :
+- Grade A+ sur SSL Labs
+- Grade A sur Security Headers
+- Grade A+ sur Mozilla Observatory
+- Conformité OWASP Top 10
+
+---
+
 ## 🚀 Installation et lancement
 
 ### Prérequis

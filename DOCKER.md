@@ -102,6 +102,110 @@ docker-compose down --rmi all
 - `DB_USER`: Utilisateur de la base de données
 - `DB_PASSWORD`: Mot de passe de la base de données
 
+## 🔐 Sécurité et Production
+
+### ⚠️ IMPORTANT - Avant la mise en production
+
+**CRITIQUE :** Les valeurs par défaut ne sont PAS sécurisées pour la production !
+
+#### 1. Génération des secrets sécurisés
+```bash
+# Générer tous les secrets nécessaires
+cd scripts
+python generate_secrets.py
+```
+
+#### 2. Configuration des variables d'environnement
+Copiez `.env.example` vers `.env` et remplacez TOUTES les valeurs `CHANGEZ-*` :
+
+```bash
+cp backend/.env.example backend/.env
+# Éditez backend/.env avec les valeurs générées
+```
+
+**Variables critiques à changer :**
+- `SECRET_KEY` : Clé secrète Django (50+ caractères)
+- `DB_PASSWORD` : Mot de passe PostgreSQL (32+ caractères)
+- `JWT_SECRET_KEY` : Clé JWT (64+ caractères)
+- `REDIS_PASSWORD` : Mot de passe Redis (32+ caractères)
+
+#### 3. Configuration Docker sécurisée
+
+**docker-compose.yml pour la production :**
+```yaml
+version: '3.8'
+services:
+  db:
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}  # Depuis .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+    # Ne pas exposer le port en production
+    # ports:
+    #   - "5432:5432"
+  
+  backend:
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+    networks:
+      - backend
+      - frontend
+  
+  frontend:
+    # Utiliser un serveur web en production (nginx)
+    networks:
+      - frontend
+
+networks:
+  backend:
+    driver: bridge
+    internal: true  # Réseau interne seulement
+  frontend:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+```
+
+#### 4. Checklist de sécurité
+
+Avant le déploiement, consultez :
+- 📋 `scripts/PRODUCTION_SECURITY_CHECKLIST.md` - Checklist complète
+- 📖 `scripts/SECURITY_GUIDE.md` - Guide détaillé
+- ⚙️ `backend/agde_moto/settings_production.py` - Configuration sécurisée
+
+#### 5. Tests de sécurité
+
+```bash
+# Vérifications Django
+docker-compose exec backend python manage.py check --deploy
+docker-compose exec backend python manage.py check --tag security
+
+# Test des connexions sécurisées
+curl -I https://votre-domaine.com
+```
+
+### 🚨 Alertes de sécurité
+
+**JAMAIS en production :**
+- `DEBUG=True`
+- Mots de passe par défaut
+- Ports de base de données exposés publiquement
+- `CORS_ALLOW_ALL_ORIGINS=True`
+- Certificats SSL auto-signés
+
+**TOUJOURS en production :**
+- HTTPS avec certificats valides
+- Mots de passe complexes et uniques
+- Logs de sécurité activés
+- Sauvegardes automatisées
+- Monitoring des accès
+
 ## Automatisation des sauvegardes
 
 ### Vue d'ensemble
