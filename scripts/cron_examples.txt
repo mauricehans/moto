@@ -1,0 +1,148 @@
+# Exemples de configuration Cron pour l'automatisation des sauvegardes
+# AGDE Moto - Système de sauvegarde automatisée
+
+# Format cron: minute heure jour mois jour_semaine commande
+# * * * * * commande_à_exécuter
+# │ │ │ │ │
+# │ │ │ │ └─── Jour de la semaine (0-7, dimanche = 0 ou 7)
+# │ │ │ └───── Mois (1-12)
+# │ │ └─────── Jour du mois (1-31)
+# │ └───────── Heure (0-23)
+# └─────────── Minute (0-59)
+
+# ============================================================================
+# CONFIGURATION RECOMMANDÉE POUR AGDE MOTO
+# ============================================================================
+
+# Sauvegarde quotidienne à 2h00 du matin
+0 2 * * * /path/to/agde_moto/scripts/backup_db.sh >> /var/log/agde_moto_cron.log 2>&1
+
+# Nettoyage des anciennes sauvegardes tous les dimanches à 3h00
+0 3 * * 0 /path/to/agde_moto/scripts/cleanup_backups.sh >> /var/log/agde_moto_cron.log 2>&1
+
+# ============================================================================
+# AUTRES EXEMPLES DE FRÉQUENCES
+# ============================================================================
+
+# Sauvegarde toutes les 6 heures
+# 0 */6 * * * /path/to/agde_moto/scripts/backup_db.sh
+
+# Sauvegarde toutes les heures (pour environnement de développement)
+# 0 * * * * /path/to/agde_moto/scripts/backup_db.sh
+
+# Sauvegarde deux fois par jour (6h00 et 18h00)
+# 0 6,18 * * * /path/to/agde_moto/scripts/backup_db.sh
+
+# Sauvegarde uniquement les jours ouvrables à 1h00
+# 0 1 * * 1-5 /path/to/agde_moto/scripts/backup_db.sh
+
+# Nettoyage quotidien à 4h00
+# 0 4 * * * /path/to/agde_moto/scripts/cleanup_backups.sh
+
+# ============================================================================
+# INSTALLATION DES TÂCHES CRON
+# ============================================================================
+
+# 1. Ouvrir l'éditeur crontab :
+#    crontab -e
+
+# 2. Ajouter les lignes de configuration souhaitées
+
+# 3. Sauvegarder et quitter l'éditeur
+
+# 4. Vérifier que les tâches sont installées :
+#    crontab -l
+
+# ============================================================================
+# VARIABLES D'ENVIRONNEMENT POUR CRON
+# ============================================================================
+
+# Définir le PATH pour que cron trouve les commandes
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Définir l'adresse email pour les notifications d'erreur
+MAILTO=admin@agde-moto.com
+
+# Définir le shell à utiliser
+SHELL=/bin/bash
+
+# ============================================================================
+# CONFIGURATION COMPLÈTE RECOMMANDÉE
+# ============================================================================
+
+# Variables d'environnement
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+SHELL=/bin/bash
+MAILTO=admin@agde-moto.com
+
+# Sauvegarde quotidienne à 2h00
+0 2 * * * /home/agde_moto/scripts/backup_db.sh >> /var/log/agde_moto_cron.log 2>&1
+
+# Nettoyage hebdomadaire le dimanche à 3h00
+0 3 * * 0 /home/agde_moto/scripts/cleanup_backups.sh >> /var/log/agde_moto_cron.log 2>&1
+
+# Vérification de l'espace disque tous les jours à 1h00
+0 1 * * * df -h /var/backups/agde_moto | tail -1 | awk '{if($5+0 > 80) print "Attention: Espace disque faible pour les sauvegardes: " $5}' | mail -s "Alerte espace disque sauvegardes" admin@agde-moto.com
+
+# ============================================================================
+# COMMANDES UTILES POUR LA GESTION CRON
+# ============================================================================
+
+# Lister les tâches cron de l'utilisateur actuel :
+# crontab -l
+
+# Éditer les tâches cron :
+# crontab -e
+
+# Supprimer toutes les tâches cron :
+# crontab -r
+
+# Voir les logs cron (Ubuntu/Debian) :
+# grep CRON /var/log/syslog
+
+# Voir les logs cron (CentOS/RHEL) :
+# tail -f /var/log/cron
+
+# Tester une tâche cron manuellement :
+# /path/to/script.sh
+
+# ============================================================================
+# SURVEILLANCE ET MONITORING
+# ============================================================================
+
+# Script de vérification que les sauvegardes sont récentes (à exécuter quotidiennement)
+# 0 8 * * * /home/agde_moto/scripts/check_backup_health.sh
+
+# Exemple de script de vérification (à créer séparément) :
+# #!/bin/bash
+# BACKUP_DIR="/var/backups/agde_moto"
+# LATEST_BACKUP=$(ls -t $BACKUP_DIR/*.sql.gz | head -1)
+# if [ -z "$LATEST_BACKUP" ]; then
+#     echo "ALERTE: Aucune sauvegarde trouvée" | mail -s "Alerte sauvegarde" admin@agde-moto.com
+# else
+#     BACKUP_AGE=$(find "$LATEST_BACKUP" -mtime +1)
+#     if [ -n "$BACKUP_AGE" ]; then
+#         echo "ALERTE: La dernière sauvegarde date de plus de 24h" | mail -s "Alerte sauvegarde" admin@agde-moto.com
+#     fi
+# fi
+
+# ============================================================================
+# NOTES IMPORTANTES
+# ============================================================================
+
+# 1. Assurez-vous que les scripts ont les permissions d'exécution :
+#    chmod +x /path/to/scripts/*.sh
+
+# 2. Testez les scripts manuellement avant de les programmer :
+#    /path/to/script.sh
+
+# 3. Vérifiez les logs régulièrement :
+#    tail -f /var/log/agde_moto_cron.log
+
+# 4. Configurez la rotation des logs pour éviter qu'ils deviennent trop volumineux
+
+# 5. Assurez-vous que le répertoire de sauvegarde a suffisamment d'espace disque
+
+# 6. Testez la procédure de restauration régulièrement
+
+# 7. Documentez toute modification de la configuration cron
