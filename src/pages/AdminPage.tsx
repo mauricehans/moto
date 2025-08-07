@@ -114,13 +114,21 @@ const AdminPage: React.FC = () => {
       
       if (field.includes('.')) {
         const [section, subField] = field.split('.');
-        return {
-          ...prev,
-          [section]: {
-            ...prev[section as keyof GarageSettings],
-            [subField]: value
-          }
-        };
+        const sectionValue = prev[section as keyof GarageSettings];
+        
+        // Vérifier que la section est bien un objet avant d'utiliser le spread
+        if (typeof sectionValue === 'object' && sectionValue !== null) {
+          return {
+            ...prev,
+            [section]: {
+              ...sectionValue,
+              [subField]: value
+            }
+          };
+        }
+        
+        // Si ce n'est pas un objet, on ne peut pas faire de spread
+        return prev;
       }
       
       return {
@@ -910,7 +918,7 @@ const AdminPage: React.FC = () => {
                               <span className="text-sm text-gray-500 italic">Fermé</span>
                             ) : (
                               <div className="space-y-2">
-                                {hours.intervals.map((interval, index) => (
+                                {hours.intervals.map((interval: { open: string; close: string }, index: number) => (
                                   <div key={index} className="flex items-center space-x-3">
                                     <span className="text-sm text-gray-600 w-8">#{index + 1}</span>
                                     <div className="flex items-center space-x-2">
