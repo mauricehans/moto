@@ -13,14 +13,14 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-agde-moto-secret-key-
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
-# Configuration de sécurité HTTPS
-SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False').lower() == 'true'
-SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '31536000'))
-SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'True').lower() == 'true'
-SECURE_HSTS_PRELOAD = os.getenv('SECURE_HSTS_PRELOAD', 'True').lower() == 'true'
+# Configuration de sécurité - HTTP UNIQUEMENT
+# Tous les paramètres HTTPS/HSTS sont supprimés pour éviter le cache HTTPS
 SECURE_CONTENT_TYPE_NOSNIFF = os.getenv('SECURE_CONTENT_TYPE_NOSNIFF', 'True').lower() == 'true'
 SECURE_BROWSER_XSS_FILTER = os.getenv('SECURE_BROWSER_XSS_FILTER', 'True').lower() == 'true'
 X_FRAME_OPTIONS = os.getenv('X_FRAME_OPTIONS', 'DENY')
+
+# Force HTTP uniquement - Aucune redirection HTTPS possible
+FORCE_HTTP_ONLY = os.getenv('FORCE_HTTP_ONLY', 'True').lower() == 'true'
 
 # Apps simples
 INSTALLED_APPS = [

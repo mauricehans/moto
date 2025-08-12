@@ -1,6 +1,8 @@
 import axios, { AxiosResponse } from 'axios';
 
-const API_BASE_URL = (import.meta as any).env.VITE_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : 'http://localhost:8000/api';
 
 // Configuration d'axios pour l'administration
 const adminApi = axios.create({
@@ -16,8 +18,8 @@ export const adminService = {
   requestPasswordReset: (email: string): Promise<AxiosResponse<{ message: string }>> => 
     adminApi.post('/admin/password-reset/', { email }),
   
-  confirmPasswordReset: (data: { token: string; new_password: string }): Promise<AxiosResponse<{ message: string }>> => 
-    adminApi.post('/admin/password-reset/confirm/', data),
+  confirmPasswordReset: (uidb64: string, token: string, data: { new_password: string; confirm_password: string }): Promise<AxiosResponse<{ message: string }>> => 
+    adminApi.post(`/admin/password-reset/${uidb64}/${token}/`, data),
 };
 
 export default adminService;

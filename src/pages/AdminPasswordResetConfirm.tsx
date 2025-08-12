@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Lock, Eye, EyeOff, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
+import { adminService } from '../services/adminService';
 
 interface FormData {
   new_password: string;
@@ -81,25 +82,22 @@ const AdminPasswordResetConfirm: React.FC = () => {
     setResponse(null);
 
     try {
-      const res = await fetch(`/api/admin/password-reset/${uidb64}/${token}/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      const response = await adminService.confirmPasswordReset(uidb64!, token!, {
+        new_password: formData.new_password,
+        confirm_password: formData.confirm_password
       });
-
-      const data: ApiResponse = await res.json();
-      setResponse(data);
       
-      if (res.ok) {
-        setIsSuccess(true);
-        setTimeout(() => {
-          navigate('/admin');
-        }, 3000);
+      setResponse(response.data);
+      setIsSuccess(true);
+      setTimeout(() => {
+        navigate('/admin');
+      }, 3000);
+    } catch (error: any) {
+      if (error.response?.data) {
+        setResponse(error.response.data);
+      } else {
+        setResponse({ error: 'Erreur de connexion. Veuillez réessayer.' });
       }
-    } catch (error) {
-      setResponse({ error: 'Erreur de connexion. Veuillez réessayer.' });
     } finally {
       setIsLoading(false);
     }

@@ -1,5 +1,6 @@
 # TODO:
 
-- [x] generate_secrets: Exécuter le script generate_secrets.py pour générer des clés secrètes et mots de passe sécurisés (priority: High)
-- [x] copy_env_file: Copier le fichier .env.production.20250807_213731 vers backend/.env (priority: High)
-- [x] verify_env_config: Vérifier que toutes les variables d'environnement critiques sont présentes et sécurisées (priority: Medium)
+- [x] 12: Ajouter ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,backend dans la section environment du service backend dans docker-compose.yml (priority: High)
+- [x] 13: Arrêter complètement les conteneurs avec docker-compose down (priority: High)
+- [x] 14: Redémarrer les conteneurs avec docker-compose up --build pour appliquer la correction (priority: High)
+- [x] 15: Vérifier que les 96 erreurs de logs sont résolues (priority: Medium)

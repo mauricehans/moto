@@ -4,9 +4,10 @@ import { Part, PartCategory } from '../types/Part';
 import { Post, BlogCategory } from '../types/Blog';
 import { GarageSettings } from '../types/Admin';
 
-// Configuration de l'URL de l'API - toujours utiliser l'API Django
-const API_BASE_URL = 'http://localhost:8000/api';
-console.log('API_BASE_URL configured:', API_BASE_URL);
+// Configuration simplifiée de l'URL de l'API
+// Utilise des URLs relatives qui passent par le proxy Vite configuré
+const API_BASE_URL = '/api';
+console.log('API_BASE_URL configured:', API_BASE_URL, 'Using Vite proxy configuration');
 
 // Configuration d'axios
 const api = axios.create({
@@ -60,7 +61,7 @@ const isApiAvailable = async () => {
   }
   
   try {
-    console.log('Testing API endpoint:', `${API_BASE_URL}/health/`);
+    console.log('Testing API endpoint via proxy:', `${API_BASE_URL}/health/`);
     const response = await axios.get(`${API_BASE_URL}/health/`, {
       timeout: 5000,
       headers: {
@@ -76,7 +77,7 @@ const isApiAvailable = async () => {
     
     return isAvailable;
   } catch (error: any) {
-    console.error('Erreur de connexion à l\'API Django:', {
+    console.error('Erreur de connexion à l\'API Django via proxy:', {
       message: error.message,
       code: error.code,
       status: error.response?.status
