@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Mail } from 'lucide-react';
 import useGarageSettings from '../hooks/useGarageSettings';
 

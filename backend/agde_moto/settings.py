@@ -66,25 +66,13 @@ DATABASES = {
     }
 }
 
-# Configuration du cache
-REDIS_URL = os.environ.get('REDIS_URL')
-if REDIS_URL:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django_redis.cache.RedisCache',
-            'LOCATION': REDIS_URL,
-            'OPTIONS': {
-                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            }
-        }
+# Configuration du cache - Utilisation du cache de base de données
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'cache_table',
     }
-else:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-            'LOCATION': 'cache_table',
-        }
-    }
+}
 
 # RATELIMIT_USE_CACHE = 'default'  # Temporairement désactivé
 
