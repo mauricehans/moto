@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic Email - Agde Moto Admin</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            background: #f8f9fa;
+        }
+        .section h2 {
+            margin: 0 0 15px 0;
+            color: #495057;
+            font-size: 1.3em;
+        }
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .config-item {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .config-item strong {
+            color: #495057;
+        }
+        .test-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        .email-input {
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 250px;
+        }
+        .results {
+            margin-top: 20px;
+        }
+        .result-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #6c757d;
+        }
+        .result-success {
+            background: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+        .result-failure {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+        .result-error {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+        .result-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .result-details {
+            margin: 5px 0;
+        }
+        .result-details li {
+            margin: 3px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .timestamp {
+            color: #6c757d;
+            font-size: 0.9em;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Diagnostic Email</h1>
+            <p>Outil de diagnostic pour la configuration email d'Agde Moto</p>
+        </div>
+        
+        <div class="content">
+            <!-- Configuration actuelle -->
+            <div class="section">
+                <h2>📋 Configuration Actuelle</h2>
+                <button class="btn btn-primary" onclick="loadConfiguration()">🔄 Actualiser la configuration</button>
+                <div id="configuration-content">
+                    <p>Cliquez sur "Actualiser" pour charger la configuration...</p>
+                </div>
+            </div>
+            
+            <!-- Tests de connectivité -->
+            <div class="section">
+                <h2>🧪 Tests de Connectivité</h2>
+                <div class="test-controls">
+                    <button class="btn btn-success" onclick="runTest('connection')">🔗 Test Connexion SMTP</button>
+                    <input type="email" id="test-email" class="email-input" placeholder="email@example.com" value="">
+                    <button class="btn btn-warning" onclick="runTest('full')">📧 Test Complet (avec envoi)</button>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Test en cours...</p>
+                </div>
+                
+                <div id="test-results" class="results"></div>
+            </div>
+            
+            <!-- Logs récents -->
+            <div class="section">
+                <h2>📝 Aide au Débogage</h2>
+                <div class="config-grid">
+                    <div class="config-item">
+                        <strong>Logs Django:</strong><br>
+                        Vérifiez les logs du conteneur backend avec:<br>
+                        <code>docker-compose logs backend</code>
+                    </div>
+                    <div class="config-item">
+                        <strong>Test manuel:</strong><br>
+                        Exécutez le script de test:<br>
+                        <code>python test_email_config.py</code>
+                    </div>
+                    <div class="config-item">
+                        <strong>Variables d'environnement:</strong><br>
+                        Vérifiez le fichier .env et redémarrez:<br>
+                        <code>docker-compose restart backend</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Charger la configuration au démarrage
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfiguration();
+            
+            // Pré-remplir l'email de test si possible
+            const testEmailInput = document.getElementById('test-email');
+            const userEmail = '{{ user.email|default:"" }}';
+            if (userEmail) {
+                testEmailInput.value = userEmail;
+            }
+        });
+        
+        async function loadConfiguration() {
+            try {
+                const response = await fetch('/admin/email-diagnostic/', {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                
+                const data = await response.json();
+                displayConfiguration(data);
+            } catch (error) {
+                document.getElementById('configuration-content').innerHTML = 
+                    `<div class="result-error">Erreur lors du chargement: ${error.message}</div>`;
+            }
+        }
+        
+        function displayConfiguration(data) {
+            const container = document.getElementById('configuration-content');
+            
+            if (data.status === 'error') {
+                container.innerHTML = `<div class="result-error">${data.message}</div>`;
+                return;
+            }
+            
+            let html = `<div class="timestamp">Dernière mise à jour: ${new Date(data.timestamp).toLocaleString('fr-FR')}</div>`;
+            
+            // Afficher les warnings
+            if (data.warnings && data.warnings.length > 0) {
+                html += '<div class="warning"><strong>⚠️ Avertissements:</strong><ul>';
+                data.warnings.forEach(warning => {
+                    html += `<li>${warning}</li>`;
+                });
+                html += '</ul></div>';
+            }
+            
+            // Afficher la configuration
+            html += '<div class="config-grid">';
+            Object.entries(data.configuration).forEach(([key, value]) => {
+                html += `
+                    <div class="config-item">
+                        <strong>${key}:</strong><br>
+                        ${value}
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            container.innerHTML = html;
+        }
+        
+        async function runTest(testType) {
+            const loadingDiv = document.getElementById('loading');
+            const resultsDiv = document.getElementById('test-results');
+            const testEmail = document.getElementById('test-email').value;
+            
+            // Validation de l'email pour le test complet
+            if (testType === 'full' && !testEmail) {
+                alert('Veuillez saisir une adresse email pour le test complet.');
+                return;
+            }
+            
+            loadingDiv.style.display = 'block';
+            resultsDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch('/admin/email-diagnostic/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        test_type: testType,
+                        email: testEmail
+                    })
+                });
+                
+                const data = await response.json();
+                displayTestResults(data);
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="result-error">Erreur lors du test: ${error.message}</div>`;
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
+        
+        function displayTestResults(data) {
+            const container = document.getElementById('test-results');
+            
+            if (data.status === 'error') {
+                container.innerHTML = `<div class="result-error">${data.message}</div>`;
+                return;
+            }
+            
+            let html = `<div class="timestamp">Test effectué le: ${new Date(data.timestamp).toLocaleString('fr-FR')}</div>`;
+            
+            // Statut global
+            const statusClass = data.overall_status === 'success' ? 'result-success' : 
+                               data.overall_status === 'partial' ? 'result-error' : 'result-failure';
+            const statusIcon = data.overall_status === 'success' ? '✅' : 
+                              data.overall_status === 'partial' ? '⚠️' : '❌';
+            
+            html += `<div class="result-item ${statusClass}">`;
+            html += `<div class="result-title">${statusIcon} Résultat Global: ${data.overall_status.toUpperCase()}</div>`;
+            html += `</div>`;
+            
+            // Résultats détaillés
+            data.results.forEach(result => {
+                const resultClass = result.status === 'success' ? 'result-success' : 
+                                   result.status === 'error' ? 'result-error' : 'result-failure';
+                const resultIcon = result.status === 'success' ? '✅' : 
+                                  result.status === 'error' ? '⚠️' : '❌';
+                
+                html += `<div class="result-item ${resultClass}">`;
+                html += `<div class="result-title">${resultIcon} ${result.test_name}</div>`;
+                
+                if (result.details && result.details.length > 0) {
+                    html += '<div class="result-details"><strong>Détails:</strong><ul>';
+                    result.details.forEach(detail => {
+                        html += `<li>${detail}</li>`;
+                    });
+                    html += '</ul></div>';
+                }
+                
+                if (result.errors && result.errors.length > 0) {
+                    html += '<div class="result-details"><strong>Erreurs:</strong><ul>';
+                    result.errors.forEach(error => {
+                        html += `<li>${error}</li>`;
+                    });
+                    html += '</ul></div>';
+                }
+                
+                html += '</div>';
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

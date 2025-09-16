@@ -6,6 +6,8 @@ from django.http import JsonResponse
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .custom_auth import custom_login
 from .password_reset import request_password_reset, confirm_password_reset
+from .email_diagnostic import email_diagnostic_view
+from .admin_diagnostic_view import admin_diagnostic_page
 
 def api_health(request):
     """Endpoint de santé de l'API"""
@@ -14,6 +16,9 @@ def api_health(request):
         'message': 'Agde Moto API is running',
         'version': '1.0.0'
     })
+
+# Importez les vues natives
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,6 +29,14 @@ urlpatterns = [
     # Password reset endpoints
     path('api/admin/password-reset/', request_password_reset, name='request_password_reset'),
     path('api/admin/password-reset/<str:uidb64>/<str:token>/', confirm_password_reset, name='confirm_password_reset'),
+    # Email diagnostic endpoint
+    path('admin/email-diagnostic/', email_diagnostic_view, name='email_diagnostic'),
+    path('admin/diagnostic/', admin_diagnostic_page, name='admin_diagnostic_page'),
+    # Ajout des URLs natives pour la réinitialisation de mot de passe
+    path('api/password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('api/password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('api/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('api/reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('api/motorcycles/', include('motorcycles.urls')),
     path('api/parts/', include('parts.urls')),
     path('api/blog/', include('blog.urls')),

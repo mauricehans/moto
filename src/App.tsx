@@ -56,7 +56,7 @@ function AppContent() {
           <Route path="/admin/create-part" element={<CreatePartPage />} />
           <Route path="/admin/create-blog" element={<CreateBlogPostPage />} />
           <Route path="/admin/password-reset" element={<AdminPasswordReset />} />
-            <Route path="/admin/password-reset/confirm/:uid/:token" element={<AdminPasswordResetConfirm />} />
+            <Route path="/admin/password-reset/confirm/:uidb64/:token" element={<AdminPasswordResetConfirm />} />
             <Route path="/legal/notices" element={<LegalNoticesPage />} />
             <Route path="/legal/terms" element={<TermsOfSalePage />} />
             <Route path="/legal/privacy" element={<PrivacyPolicyPage />} />
