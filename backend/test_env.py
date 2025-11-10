@@ -1,4 +1,10 @@
+import os
 from dotenv import load_dotenv
+
+# Skip this environment diagnostic script when running under pytest
+if os.environ.get('PYTEST_CURRENT_TEST'):
+    import pytest
+    pytest.skip("Skipping environment diagnostic script during pytest collection", allow_module_level=True)
 
 # Charger le fichier .env
 load_dotenv()

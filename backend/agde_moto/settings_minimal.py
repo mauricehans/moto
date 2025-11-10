@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'django_ratelimit',
     'blog',
     'motorcycles',
     'parts',
@@ -58,6 +59,9 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
+
+# Utiliser le cache par défaut pour django-ratelimit
+RATELIMIT_USE_CACHE = 'default'
 
 # Static files
 STATIC_URL = '/static/'

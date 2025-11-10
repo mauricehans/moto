@@ -5,7 +5,13 @@ from django.conf.urls.static import static
 from django.http import JsonResponse
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .custom_auth import custom_login
-from .password_reset import request_password_reset, confirm_password_reset
+from .password_reset import (
+    request_password_reset,
+    confirm_password_reset,
+    request_admin_otp,
+    confirm_admin_otp,
+    password_reset_metrics,
+)
 from .email_diagnostic import email_diagnostic_view
 from .admin_diagnostic_view import admin_diagnostic_page
 
@@ -29,6 +35,10 @@ urlpatterns = [
     # Password reset endpoints
     path('api/admin/password-reset/', request_password_reset, name='request_password_reset'),
     path('api/admin/password-reset/<str:uidb64>/<str:token>/', confirm_password_reset, name='confirm_password_reset'),
+    path('api/admin/password-reset/metrics/', password_reset_metrics, name='password_reset_metrics'),
+    # Admin OTP endpoints
+    path('api/admin/otp/request/', request_admin_otp, name='request_admin_otp'),
+    path('api/admin/otp/confirm/', confirm_admin_otp, name='confirm_admin_otp'),
     # Email diagnostic endpoint
     path('admin/email-diagnostic/', email_diagnostic_view, name='email_diagnostic'),
     path('admin/diagnostic/', admin_diagnostic_page, name='admin_diagnostic_page'),

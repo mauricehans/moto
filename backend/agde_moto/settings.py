@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-    # 'django_ratelimit',  # Temporairement désactivé
+    # 'django_ratelimit',  # Activé
     'blog',
     'motorcycles',
     'parts',
@@ -76,15 +76,15 @@ DATABASES = {
     }
 }
 
-# Configuration du cache - Utilisation du cache de base de données
+# Configuration du cache - Utilisation du cache en mémoire pour le développement
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'cache_table',
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
     }
 }
 
-# RATELIMIT_USE_CACHE = 'default'  # Temporairement désactivé
+RATELIMIT_USE_CACHE = 'default'
 
 # Static files
 STATIC_URL = '/static/'

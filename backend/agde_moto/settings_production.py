@@ -96,6 +96,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'django_ratelimit',
     # Applications métier
     'blog',
     'motorcycles',
@@ -171,6 +172,9 @@ CACHES = {
 # Utiliser Redis pour les sessions (recommandé)
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
+
+# Activer django-ratelimit sur le cache par défaut
+RATELIMIT_USE_CACHE = 'default'
 
 # ========================================
 # CONFIGURATION CORS RESTRICTIVE
@@ -406,12 +410,34 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Configuration email sécurisée
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.environ.get('EMAIL_HOST')
-EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_PROVIDER = os.getenv('EMAIL_PROVIDER', 'smtp').lower()
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
+SERVER_EMAIL = os.environ.get('SERVER_EMAIL', DEFAULT_FROM_EMAIL or 'server@localhost')
+
+if EMAIL_PROVIDER == 'console':
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+elif EMAIL_PROVIDER == 'sendgrid':
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.sendgrid.net'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.environ.get('SENDGRID_USERNAME', 'apikey')
+    EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_API_KEY')
+elif EMAIL_PROVIDER == 'mailgun':
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get('MAILGUN_SMTP_SERVER', 'smtp.mailgun.org')
+    EMAIL_PORT = int(os.environ.get('MAILGUN_SMTP_PORT', '587'))
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.environ.get('MAILGUN_SMTP_LOGIN')
+    EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD')
+else:
+    # SMTP générique via variables d'environnement
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get('EMAIL_HOST')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 SERVER_EMAIL = os.environ.get('SERVER_EMAIL')
 

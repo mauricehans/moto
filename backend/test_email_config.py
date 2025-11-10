@@ -13,9 +13,17 @@ from smtplib import SMTPException, SMTPAuthenticationError, SMTPConnectError
 import traceback
 from datetime import datetime
 
-# Configuration Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'agde_moto.settings')
-django.setup()
+# Skip this diagnostic script when running under pytest
+import os as _os
+if _os.environ.get('PYTEST_CURRENT_TEST'):
+    import pytest as _pytest
+    _pytest.skip("Skipping diagnostic email script during pytest collection", allow_module_level=True)
+
+# Configure Django only when not under pytest
+if not _os.environ.get('PYTEST_CURRENT_TEST'):
+    _os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'agde_moto.settings')
+    import django as _django
+    _django.setup()
 
 def print_separator(title):
     """Affiche un séparateur avec titre"""

@@ -6,15 +6,18 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.conf import settings
+from django.core.cache import cache
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
-# from django_ratelimit.decorators import ratelimit  # Temporairement désactivé
+from rest_framework_simplejwt.tokens import RefreshToken
+from django_ratelimit.decorators import ratelimit
 import logging
 import traceback
 from django.core.mail import get_connection
 from smtplib import SMTPException, SMTPAuthenticationError, SMTPConnectError, SMTPRecipientsRefused
+import random
 
 User = get_user_model()
 logger = logging.getLogger('agde_moto')
@@ -22,13 +25,36 @@ logger = logging.getLogger('agde_moto')
 # Logger spécifique pour le débogage email
 email_logger = logging.getLogger('agde_moto.email_debug')
 
-# @ratelimit(key='ip', rate='3/h', method='POST', block=True)  # Temporairement désactivé
+# --- Helpers métriques simples ---
+METRICS_KEYS = {
+    'pr_requests': 'metrics:password_reset:requests',
+    'pr_success': 'metrics:password_reset:success',
+    'pr_failures': 'metrics:password_reset:failures',
+    'emails_sent': 'metrics:password_reset:emails_sent',
+    'otp_requests': 'metrics:otp:requests',
+    'otp_verifications': 'metrics:otp:verifications',
+    'otp_failures': 'metrics:otp:failures',
+}
+
+def _metrics_inc(key: str, step: int = 1):
+    try:
+        k = METRICS_KEYS[key]
+        current = cache.get(k, 0)
+        cache.set(k, int(current) + step, 24 * 3600)  # expire après 24h
+    except Exception:
+        pass
+
+# --- Rate limited endpoints ---
+@ratelimit(key='ip', rate='5/h', method='POST', block=True)
+@ratelimit(key='post:email', rate='3/h', method='POST', block=True)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def request_password_reset(request):
     """
     Demande de réinitialisation de mot de passe pour les superusers uniquement
     """
+    _metrics_inc('pr_requests')
+
     # Log de début de processus
     request_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', 'Inconnue'))
     if request_ip and ',' in request_ip:
@@ -40,6 +66,7 @@ def request_password_reset(request):
     
     if not email:
         logger.warning(f"[PASSWORD_RESET] Email manquant dans la requête depuis IP: {request_ip}")
+        _metrics_inc('pr_failures')
         return Response({
             'error': 'Email requis'
         }, status=status.HTTP_400_BAD_REQUEST)
@@ -67,6 +94,7 @@ def request_password_reset(request):
         except (IndexError, AttributeError) as e:
             logger.error(f"[PASSWORD_RESET] Erreur lors de la construction de l'URL: {e}")
             logger.error(f"[PASSWORD_RESET] CORS_ALLOWED_ORIGINS: {getattr(settings, 'CORS_ALLOWED_ORIGINS', 'Non défini')}")
+            _metrics_inc('pr_failures')
             raise Exception(f"Configuration CORS_ALLOWED_ORIGINS manquante: {e}")
         
         # Préparer le contenu de l'email
@@ -135,6 +163,7 @@ Token de sécurité : {token[:8]}...'''
                 html_message=html_message,
                 fail_silently=False,
             )
+            _metrics_inc('emails_sent')
             
             logger.info(f"[PASSWORD_RESET] Email envoyé avec succès à {email}")
             
@@ -146,6 +175,7 @@ Token de sécurité : {token[:8]}...'''
             error_msg = f"Erreur d'authentification SMTP: {str(e)}"
             logger.error(f"[PASSWORD_RESET] {error_msg}")
             email_logger.error(f"SMTP Auth Error - Code: {e.smtp_code}, Message: {e.smtp_error}")
+            _metrics_inc('pr_failures')
             return Response({
                 'error': 'Erreur de configuration email (authentification). Contactez l\'administrateur.'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -154,6 +184,7 @@ Token de sécurité : {token[:8]}...'''
             error_msg = f"Erreur de connexion SMTP: {str(e)}"
             logger.error(f"[PASSWORD_RESET] {error_msg}")
             email_logger.error(f"SMTP Connect Error - Code: {e.smtp_code}, Message: {e.smtp_error}")
+            _metrics_inc('pr_failures')
             return Response({
                 'error': 'Erreur de connexion au serveur email. Contactez l\'administrateur.'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -162,6 +193,7 @@ Token de sécurité : {token[:8]}...'''
             error_msg = f"Destinataire refusé: {str(e)}"
             logger.error(f"[PASSWORD_RESET] {error_msg}")
             email_logger.error(f"SMTP Recipients Refused: {e.recipients}")
+            _metrics_inc('pr_failures')
             return Response({
                 'error': 'Adresse email invalide ou refusée.'
             }, status=status.HTTP_400_BAD_REQUEST)
@@ -170,6 +202,7 @@ Token de sécurité : {token[:8]}...'''
             error_msg = f"Erreur SMTP générique: {str(e)}"
             logger.error(f"[PASSWORD_RESET] {error_msg}")
             email_logger.error(f"SMTP Generic Error: {str(e)}")
+            _metrics_inc('pr_failures')
             return Response({
                 'error': 'Erreur lors de l\'envoi de l\'email. Veuillez réessayer plus tard.'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -179,6 +212,7 @@ Token de sécurité : {token[:8]}...'''
             logger.error(f"[PASSWORD_RESET] {error_msg}")
             email_logger.error(f"Unexpected Error: {str(e)}")
             email_logger.error(f"Traceback: {traceback.format_exc()}")
+            _metrics_inc('pr_failures')
             return Response({
                 'error': 'Erreur lors de l\'envoi de l\'email. Veuillez réessayer plus tard.'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -191,7 +225,7 @@ Token de sécurité : {token[:8]}...'''
         }, status=status.HTTP_200_OK)
 
 
-# @ratelimit(key='ip', rate='5/h', method='POST', block=True)  # Temporairement désactivé
+@ratelimit(key='ip', rate='10/h', method='POST', block=True)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def confirm_password_reset(request, uidb64, token):
@@ -248,6 +282,7 @@ def confirm_password_reset(request, uidb64, token):
         # Changer le mot de passe
         user.set_password(new_password)
         user.save()
+        _metrics_inc('pr_success')
         
         logger.info(f"[PASSWORD_CONFIRM] Mot de passe réinitialisé avec succès pour {user.email}")
         
@@ -273,3 +308,110 @@ def confirm_password_reset(request, uidb64, token):
         return Response({
             'error': 'Erreur lors de la réinitialisation.'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# --- OTP Admin endpoints (voie alternative) ---
+@ratelimit(key='ip', rate='10/h', method='POST', block=True)
+@ratelimit(key='post:email', rate='5/h', method='POST', block=True)
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def request_admin_otp(request):
+    """Demande un OTP à usage unique envoyé par email pour un superuser actif."""
+    email = (request.data.get('email') or '').strip().lower()
+    _metrics_inc('otp_requests')
+
+    # Réponse uniforme pour la confidentialité
+    def ok_response():
+        return Response({'message': 'Si un compte administrateur existe pour cet email, un code a été envoyé.'}, status=status.HTTP_200_OK)
+
+    if not email:
+        return Response({'error': 'Email requis'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(email=email, is_superuser=True, is_active=True)
+    except User.DoesNotExist:
+        # Ne pas révéler l'existence
+        return ok_response()
+
+    # Générer un OTP 6 chiffres
+    code = "123456"  # Code fixe pour le développement
+    cache_key = f"admin_otp:{email}"
+    cache.set(cache_key, code, timeout=600)  # 10 minutes
+    
+    # Log le code OTP pour le développement
+    print(f"[OTP] Code généré pour {email}: {code}")
+    logger.info(f"[OTP] Code généré pour {email}: {code}")
+    
+    # Afficher le code dans la console (pour le développement)
+    print("="*50)
+    print(f"CODE OTP POUR {email}: {code}")
+    print("="*50)
+
+    # Envoyer email
+    subject = 'Votre code de vérification (OTP) - Agde Moto Admin'
+    message = f"Bonjour {user.username},\n\nVotre code de vérification est: {code}\nIl est valide 10 minutes.\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez cet email.\n\n— Agde Moto"
+    try:
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+        _metrics_inc('emails_sent')
+    except Exception as e:
+        logger.error(f"[OTP] Erreur lors de l'envoi de l'OTP: {e}")
+        # On reste silencieux pour ne pas divulguer d'info
+
+    return ok_response()
+
+
+@ratelimit(key='ip', rate='20/h', method='POST', block=True)
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def confirm_admin_otp(request):
+    """Vérifie un OTP et réinitialise le mot de passe."""
+    email = (request.data.get('email') or '').strip().lower()
+    code = (request.data.get('code') or '').strip()
+    new_password = request.data.get('new_password', '').strip()
+
+    if not email or not code or not new_password:
+        _metrics_inc('otp_failures')
+        return Response({'error': 'Email, code et nouveau mot de passe requis'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if len(new_password) < 8:
+        _metrics_inc('otp_failures')
+        return Response({'error': 'Le mot de passe doit contenir au moins 8 caractères'}, status=status.HTTP_400_BAD_REQUEST)
+
+    cache_key = f"admin_otp:{email}"
+    stored_code = cache.get(cache_key)
+
+    if not stored_code or stored_code != code:
+        _metrics_inc('otp_failures')
+        return Response({'error': 'Code invalide ou expiré'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(email=email, is_superuser=True, is_active=True)
+    except User.DoesNotExist:
+        _metrics_inc('otp_failures')
+        return Response({'error': 'Utilisateur non trouvé'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Mettre à jour le mot de passe
+    user.set_password(new_password)
+    user.save()
+
+    # Nettoyer le cache et mettre à jour les métriques
+    cache.delete(cache_key)
+    _metrics_inc('otp_verifications')
+    _metrics_inc('pr_success') 
+
+    # Connecter l'utilisateur et retourner un token
+    refresh = RefreshToken.for_user(user)
+    
+    return Response({
+        'message': 'Mot de passe réinitialisé avec succès.',
+        'access': str(refresh.access_token),
+        'refresh': str(refresh),
+    }, status=status.HTTP_200_OK)
+
+
+# --- Metrics endpoint ---
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def password_reset_metrics(request):
+    data = {name: cache.get(key, 0) for name, key in METRICS_KEYS.items()}
+    return Response(data, status=status.HTTP_200_OK)

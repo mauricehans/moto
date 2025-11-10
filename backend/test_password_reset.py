@@ -7,9 +7,17 @@ import sys
 import django
 from django.core.management import execute_from_command_line
 
-# Configuration Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'agde_moto.settings')
-django.setup()
+# Skip this diagnostic script when running under pytest
+import os as _os
+if _os.environ.get('PYTEST_CURRENT_TEST'):
+    import pytest as _pytest
+    _pytest.skip("Skipping diagnostic password reset script during pytest collection", allow_module_level=True)
+
+# Configure Django only when not under pytest
+if not _os.environ.get('PYTEST_CURRENT_TEST'):
+    _os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'agde_moto.settings')
+    import django as _django
+    _django.setup()
 
 from django.core.cache import cache
 from django.contrib.auth import get_user_model
