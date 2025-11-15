@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { adminService } from '../services/adminService';
 
 interface FormData {
@@ -16,7 +16,7 @@ const AdminPasswordReset: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({ email: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState<ApiResponse | null>(null);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,9 +24,9 @@ const AdminPasswordReset: React.FC = () => {
     setResponse(null);
 
     try {
-      const response = await adminService.requestPasswordReset(formData.email);
-      setResponse(response.data);
-      setIsSuccess(true);
+      const res = await adminService.requestAdminOTP(formData.email);
+      setResponse(res.data);
+      navigate(`/admin/otp?email=${encodeURIComponent(formData.email)}`);
     } catch (error: any) {
       if (error.response?.data) {
         setResponse(error.response.data);
@@ -42,35 +42,7 @@ const AdminPasswordReset: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  if (isSuccess) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
-          <div className="text-center">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
-              <CheckCircle className="w-8 h-8 text-green-600" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              Email envoyé !
-            </h1>
-            <p className="text-gray-600 mb-6">
-              {response?.message}
-            </p>
-            <p className="text-sm text-gray-500 mb-8">
-              Vérifiez votre boîte email et suivez les instructions pour réinitialiser votre mot de passe.
-            </p>
-            <Link
-              to="/admin"
-              className="inline-flex items-center gap-2 text-red-600 hover:text-red-700 font-medium transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Retour à l'administration
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
@@ -83,7 +55,7 @@ const AdminPasswordReset: React.FC = () => {
             Réinitialisation de mot de passe
           </h1>
           <p className="text-gray-600">
-            Entrez votre email administrateur pour recevoir un lien de réinitialisation
+            Entrez votre email administrateur pour recevoir un code de réinitialisation.
           </p>
         </div>
 

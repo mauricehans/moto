@@ -25,6 +25,8 @@ import CreatePartPage from './pages/CreatePartPage';
 import CreateBlogPostPage from './pages/CreateBlogPostPage';
 import AdminPasswordReset from './pages/AdminPasswordReset';
 import AdminPasswordResetConfirm from './pages/AdminPasswordResetConfirm';
+import AdminOtpVerify from './pages/AdminOtpVerify';
+import AdminPasswordChange from './pages/AdminPasswordChange';
 import LegalNoticesPage from './pages/LegalNoticesPage';
 import TermsOfSalePage from './pages/TermsOfSalePage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
@@ -56,6 +58,8 @@ function AppContent() {
           <Route path="/admin/create-part" element={<CreatePartPage />} />
           <Route path="/admin/create-blog" element={<CreateBlogPostPage />} />
           <Route path="/admin/password-reset" element={<AdminPasswordReset />} />
+          <Route path="/admin/otp" element={<AdminOtpVerify />} />
+          <Route path="/admin/password-change" element={<AdminPasswordChange />} />
             <Route path="/admin/password-reset/confirm/:uidb64/:token" element={<AdminPasswordResetConfirm />} />
             <Route path="/legal/notices" element={<LegalNoticesPage />} />
             <Route path="/legal/terms" element={<TermsOfSalePage />} />

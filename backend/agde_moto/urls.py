@@ -10,6 +10,7 @@ from .password_reset import (
     confirm_password_reset,
     request_admin_otp,
     confirm_admin_otp,
+    verify_admin_otp,
     password_reset_metrics,
 )
 from .email_diagnostic import email_diagnostic_view
@@ -39,6 +40,7 @@ urlpatterns = [
     # Admin OTP endpoints
     path('api/admin/otp/request/', request_admin_otp, name='request_admin_otp'),
     path('api/admin/otp/confirm/', confirm_admin_otp, name='confirm_admin_otp'),
+    path('api/admin/otp/verify/', verify_admin_otp, name='verify_admin_otp'),
     # Email diagnostic endpoint
     path('admin/email-diagnostic/', email_diagnostic_view, name='email_diagnostic'),
     path('admin/diagnostic/', admin_diagnostic_page, name='admin_diagnostic_page'),

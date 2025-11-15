@@ -146,19 +146,17 @@ Token de sécurité : {token[:8]}...'''
         email_logger.info(f"Configuration email - BACKEND: {getattr(settings, 'EMAIL_BACKEND', 'Non défini')}")
         
         try:
-            # Test de connexion SMTP d'abord
+            from_email = getattr(settings, 'SERVER_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None) or getattr(settings, 'DEFAULT_FROM_EMAIL', None)
             logger.info(f"[PASSWORD_RESET] Test de connexion SMTP")
             connection = get_connection()
             connection.open()
             logger.info(f"[PASSWORD_RESET] Connexion SMTP établie avec succès")
             connection.close()
-            
-            # Envoi de l'email
             logger.info(f"[PASSWORD_RESET] Envoi de l'email à {email}")
             send_mail(
-                subject=f'Réinitialisation de mot de passe - Agde Moto',
+                subject='Réinitialisation de mot de passe - Agde Moto',
                 message=text_message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
+                from_email=from_email,
                 recipient_list=[email],
                 html_message=html_message,
                 fail_silently=False,
@@ -168,7 +166,8 @@ Token de sécurité : {token[:8]}...'''
             logger.info(f"[PASSWORD_RESET] Email envoyé avec succès à {email}")
             
             return Response({
-                'message': 'Un email de réinitialisation a été envoyé à votre adresse.'
+                'message': 'Un email de réinitialisation a été envoyé à votre adresse.',
+                **({'reset_url': reset_url} if settings.DEBUG else {})
             }, status=status.HTTP_200_OK)
             
         except SMTPAuthenticationError as e:
@@ -203,6 +202,15 @@ Token de sécurité : {token[:8]}...'''
             logger.error(f"[PASSWORD_RESET] {error_msg}")
             email_logger.error(f"SMTP Generic Error: {str(e)}")
             _metrics_inc('pr_failures')
+            msg_lower = error_msg.lower()
+            if 'ms42207' in msg_lower or 'domain must be verified' in msg_lower:
+                return Response({
+                    'error': "Système email non configuré (domaine non vérifié). Contactez l'administrateur."
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            if 'ms42225' in msg_lower or 'trial accounts can only send emails to the administrator' in msg_lower:
+                return Response({
+                    'error': "Compte d'essai MailerSend: envoi uniquement vers l'email administrateur. Utilisez l'adresse admin du compte ou passez en production."
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             return Response({
                 'error': 'Erreur lors de l\'envoi de l\'email. Veuillez réessayer plus tard.'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -334,9 +342,9 @@ def request_admin_otp(request):
         return ok_response()
 
     # Générer un OTP 6 chiffres
-    code = "123456"  # Code fixe pour le développement
+    code = f"{random.randint(0, 999999):06d}"
     cache_key = f"admin_otp:{email}"
-    cache.set(cache_key, code, timeout=600)  # 10 minutes
+    cache.set(cache_key, code, timeout=60)  # 60 secondes
     
     # Log le code OTP pour le développement
     print(f"[OTP] Code généré pour {email}: {code}")
@@ -349,7 +357,7 @@ def request_admin_otp(request):
 
     # Envoyer email
     subject = 'Votre code de vérification (OTP) - Agde Moto Admin'
-    message = f"Bonjour {user.username},\n\nVotre code de vérification est: {code}\nIl est valide 10 minutes.\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez cet email.\n\n— Agde Moto"
+    message = f"Bonjour {user.username},\n\nVotre code de vérification est: {code}\nIl est valide 60 secondes.\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez cet email.\n\n— Agde Moto"
     try:
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
         _metrics_inc('emails_sent')
@@ -357,7 +365,14 @@ def request_admin_otp(request):
         logger.error(f"[OTP] Erreur lors de l'envoi de l'OTP: {e}")
         # On reste silencieux pour ne pas divulguer d'info
 
-    return ok_response()
+    resp = ok_response()
+    if getattr(settings, 'DEBUG', False):
+        try:
+            data = resp.data
+            data['dev_code'] = code
+        except Exception:
+            pass
+    return resp
 
 
 @ratelimit(key='ip', rate='20/h', method='POST', block=True)
@@ -407,6 +422,31 @@ def confirm_admin_otp(request):
         'access': str(refresh.access_token),
         'refresh': str(refresh),
     }, status=status.HTTP_200_OK)
+
+
+@ratelimit(key='ip', rate='20/h', method='POST', block=True)
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def verify_admin_otp(request):
+    """Vérifie simplement un OTP sans changer le mot de passe."""
+    email = (request.data.get('email') or '').strip().lower()
+    code = (request.data.get('code') or '').strip()
+
+    if not email or not code:
+        return Response({'error': 'Email et code requis'}, status=status.HTTP_400_BAD_REQUEST)
+
+    cache_key = f"admin_otp:{email}"
+    stored_code = cache.get(cache_key)
+
+    if not stored_code or stored_code != code:
+        return Response({'error': 'Code invalide ou expiré'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        User.objects.get(email=email, is_superuser=True, is_active=True)
+    except User.DoesNotExist:
+        return Response({'error': 'Utilisateur non trouvé'}, status=status.HTTP_404_NOT_FOUND)
+
+    return Response({'message': 'Code valide'}, status=status.HTTP_200_OK)
 
 
 # --- Metrics endpoint ---

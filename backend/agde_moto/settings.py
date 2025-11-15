@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     # 'django_ratelimit',  # Activé
+    
+    'agde_moto',
     'blog',
     'motorcycles',
     'parts',
@@ -254,60 +256,28 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 #     }
 # }
 
-# Configuration Email avec logging détaillé
-settings_logger.info("Configuration des paramètres email...")
+# Configuration Email SMTP
+settings_logger.info("Configuration des paramètres email SMTP...")
+# Utilise le backend SMTP de Django. Pour la production, assurez-vous que c'est le bon.
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-# Variables d'environnement email
-email_backend_env = os.environ.get('EMAIL_BACKEND')
-email_host_env = os.environ.get('EMAIL_HOST')
-email_port_env = os.environ.get('EMAIL_PORT')
-email_use_tls_env = os.environ.get('EMAIL_USE_TLS')
-email_host_user_env = os.environ.get('EMAIL_HOST_USER')
-email_host_password_env = os.environ.get('EMAIL_HOST_PASSWORD')
-default_from_email_env = os.environ.get('DEFAULT_FROM_EMAIL')
+# Récupération des paramètres SMTP depuis les variables d'environnement
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 't')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
-# Logging des variables d'environnement
-settings_logger.info(f"EMAIL_BACKEND: {'✓' if email_backend_env else '✗'} ({email_backend_env or 'Non défini'})")
-settings_logger.info(f"EMAIL_HOST: {'✓' if email_host_env else '✗'} ({email_host_env or 'Non défini'})")
-settings_logger.info(f"EMAIL_PORT: {'✓' if email_port_env else '✗'} ({email_port_env or 'Non défini'})")
-settings_logger.info(f"EMAIL_USE_TLS: {'✓' if email_use_tls_env else '✗'} ({email_use_tls_env or 'Non défini'})")
-settings_logger.info(f"EMAIL_HOST_USER: {'✓' if email_host_user_env else '✗'} ({'***masqué***' if email_host_user_env else 'Non défini'})")
-settings_logger.info(f"EMAIL_HOST_PASSWORD: {'✓' if email_host_password_env else '✗'} ({'***masqué***' if email_host_password_env else 'Non défini'})")
-settings_logger.info(f"DEFAULT_FROM_EMAIL: {'✓' if default_from_email_env else '✗'} ({default_from_email_env or 'Non défini'})")
-
-# Configuration conditionnelle
-if email_backend_env == 'console':
+if not EMAIL_HOST:
+    settings_logger.warning(
+        "Paramètre EMAIL_HOST manquant, bascule vers le backend console."
+    )
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    settings_logger.info("Backend email configuré: CONSOLE (développement)")
-else:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = email_host_env or 'smtp.gmail.com'
-    EMAIL_PORT = int(email_port_env or '587')
-    EMAIL_USE_TLS = (email_use_tls_env or 'True').lower() == 'true'
-    EMAIL_HOST_USER = email_host_user_env
-    EMAIL_HOST_PASSWORD = email_host_password_env
-    
-    settings_logger.info(f"Backend email configuré: SMTP")
-    settings_logger.info(f"  - Host: {EMAIL_HOST}")
-    settings_logger.info(f"  - Port: {EMAIL_PORT}")
-    settings_logger.info(f"  - TLS: {EMAIL_USE_TLS}")
-    settings_logger.info(f"  - User: {'***masqué***' if EMAIL_HOST_USER else 'NON DÉFINI'}")
-    settings_logger.info(f"  - Password: {'***masqué***' if EMAIL_HOST_PASSWORD else 'NON DÉFINI'}")
-    
-    # Vérifications de configuration
-    if not EMAIL_HOST_USER:
-        settings_logger.warning("⚠️  EMAIL_HOST_USER non défini - l'authentification SMTP échouera")
-    if not EMAIL_HOST_PASSWORD:
-        settings_logger.warning("⚠️  EMAIL_HOST_PASSWORD non défini - l'authentification SMTP échouera")
-    if EMAIL_HOST == 'smtp.gmail.com' and EMAIL_PORT != 587:
-        settings_logger.warning(f"⚠️  Configuration Gmail avec port {EMAIL_PORT} - recommandé: 587")
-    if EMAIL_HOST == 'smtp.gmail.com' and not EMAIL_USE_TLS:
-        settings_logger.warning("⚠️  Gmail nécessite EMAIL_USE_TLS=True")
 
-DEFAULT_FROM_EMAIL = default_from_email_env or 'noreply@agdemoto.com'
-SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'admin@agdemoto.com')
-
-settings_logger.info(f"Configuration email terminée - FROM: {DEFAULT_FROM_EMAIL}")
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL') or EMAIL_HOST_USER or 'noreply@agdemoto.com'
+SERVER_EMAIL = os.environ.get('SERVER_EMAIL') or DEFAULT_FROM_EMAIL
+settings_logger.info(f"Backend email configuré: {EMAIL_BACKEND}")
+settings_logger.info(f"Email par défaut: {DEFAULT_FROM_EMAIL}")
 
 # Remplacez la configuration DATABASES par :
 # Supprimez ces lignes (238-244) :
