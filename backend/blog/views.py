@@ -23,7 +23,7 @@ class PostViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'content']
     ordering_fields = ['created_at', 'updated_at']
     ordering = ['-created_at']
-    # lookup_field = 'slug'  # Commenté pour utiliser l'ID par défaut
+    lookup_field = 'slug'
     
     def get_permissions(self):
         """Permissions personnalisées selon l'action"""

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.conf import settings
 from .models import Category, Part, PartImage
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -10,10 +11,20 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class PartImageSerializer(serializers.ModelSerializer):
     """Serializer pour les images de pièces"""
-    
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = PartImage
         fields = ['id', 'image', 'is_primary', 'created_at']
+
+    def get_image(self, obj):
+        val = (obj.image or '').strip()
+        if val.startswith('http://') or val.startswith('https://'):
+            idx = val.find('/media/')
+            if idx != -1:
+                return val[idx:]
+            return val
+        return val if val.startswith('/media/') else f"{settings.MEDIA_URL}{val}"
 
 class PartSerializer(serializers.ModelSerializer):
     """Serializer pour les pièces détachées"""

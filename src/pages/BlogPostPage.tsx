@@ -58,7 +58,7 @@ const BlogPostPage = () => {
           </Link>
         </div>
 
-        <article className="max-w-4xl mx-auto">
+        <article className="max-w-4xl mx-auto bg-white text-black rounded-lg shadow-sm p-6">
           {/* En-tête de l'article */}
           <header className="mb-8">
             <div className="flex items-center space-x-4 text-sm text-gray-600 mb-4">
@@ -95,7 +95,7 @@ const BlogPostPage = () => {
           )}
 
           {/* Contenu */}
-          <div className="prose prose-lg max-w-none">
+          <div className="max-w-none text-black">
             <div dangerouslySetInnerHTML={{ __html: post.content }} />
           </div>
         </article>

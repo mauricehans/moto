@@ -35,9 +35,9 @@ const BlogPage = () => {
             {posts?.map((post) => (
               <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                 <img src={post.image} alt={post.title} className="w-full h-48 object-cover" />
-                <div className="p-4">
-                  <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
-                  <p className="text-gray-600 mb-4">{post.excerpt || post.content.substring(0, 100) + '...'}</p>
+                <div className="p-4 bg-white">
+                  <h3 className="text-xl font-semibold mb-2 text-black">{post.title}</h3>
+                  <p className="text-black mb-4">{post.excerpt || post.content.substring(0, 100) + '...'}</p>
                   <Link to={`/blog/${post.slug}`} className="text-blue-500 hover:underline">
                     Lire plus <ArrowRight className="inline-block ml-1" size={16} />
                   </Link>

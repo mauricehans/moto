@@ -9,10 +9,8 @@ import {
   Award, 
   BarChart2, 
   PaintBucket,
-  Heart,
   Share2,
   Printer,
-  Calculator,
   Eye,
   ChevronLeft,
   ChevronRight,
@@ -52,19 +50,10 @@ const MotorcycleDetailPage = () => {
   
   // États locaux
   const [showContactForm, setShowContactForm] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
-  const [showFinanceCalculator, setShowFinanceCalculator] = useState(false);
-// Removed unused state
   const [showShareModal, setShowShareModal] = useState(false);
   const [viewCount, setViewCount] = useState(0);
 // Removed unused state
-
-  // Calculateur de financement
-  const [financeData, setFinanceData] = useState({
-    downPayment: 0,
-    loanTerm: 36,
-    interestRate: 4.5
-  });
+  
 
   // Motos similaires basées sur la marque et la gamme de prix
   const similarMotorcycles = useMemo(() => {
@@ -90,35 +79,7 @@ const MotorcycleDetailPage = () => {
   const previousMoto = currentIndex > 0 ? allMotorcycles[currentIndex - 1] : null;
   const nextMoto = currentIndex < allMotorcycles.length - 1 ? allMotorcycles[currentIndex + 1] : null;
 
-  // Calcul du financement
-  const calculateMonthlyPayment = useCallback(() => {
-    if (!motorcycle) return 0;
-    
-    const principal = parseFloat(motorcycle.price) - financeData.downPayment;
-    const monthlyRate = financeData.interestRate / 100 / 12;
-    const numPayments = financeData.loanTerm;
-    
-    if (monthlyRate === 0) return principal / numPayments;
-    
-    return (principal * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
-           (Math.pow(1 + monthlyRate, numPayments) - 1);
-  }, [motorcycle, financeData]);
-
-  // Gestion de la wishlist
-  const toggleWishlist = useCallback(() => {
-    const wishlist = JSON.parse(localStorage.getItem('moto-wishlist') || '[]');
-    const isCurrentlyWishlisted = wishlist.includes(id);
-    
-    if (isCurrentlyWishlisted) {
-      const newWishlist = wishlist.filter((itemId: string) => itemId !== id);
-      localStorage.setItem('moto-wishlist', JSON.stringify(newWishlist));
-      setIsWishlisted(false);
-    } else {
-      wishlist.push(id);
-      localStorage.setItem('moto-wishlist', JSON.stringify(wishlist));
-      setIsWishlisted(true);
-    }
-  }, [id]);
+  
 
   // Partage
   const handleShare = useCallback(async (platform: string) => {
@@ -165,9 +126,7 @@ const MotorcycleDetailPage = () => {
 // Remove setLastViewed since it's not defined and not needed
 // The history is already saved in localStorage above
     
-    // Vérifier si la moto est dans la wishlist
-    const wishlist = JSON.parse(localStorage.getItem('moto-wishlist') || '[]');
-    setIsWishlisted(wishlist.includes(id));
+    
   }, [id]);
 
   // SEO et Meta tags
@@ -265,7 +224,7 @@ const MotorcycleDetailPage = () => {
     'https://images.pexels.com/photos/2611686/pexels-photo-2611686.jpeg'
   ];
 
-  const monthlyPayment = calculateMonthlyPayment();
+  
 
   return (
     <div className="min-h-screen pt-32 pb-16">
@@ -376,18 +335,6 @@ const MotorcycleDetailPage = () => {
                 {/* Actions rapides */}
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={toggleWishlist}
-                    className={`p-2 rounded-full border transition-colors ${
-                      isWishlisted 
-                        ? 'bg-red-600 text-white border-red-600' 
-                        : 'bg-white text-gray-600 border-gray-300 hover:border-red-600 hover:text-red-600'
-                    }`}
-                    title={isWishlisted ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                  >
-                    <Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
-                  </button>
-                  
-                  <button
                     onClick={() => setShowShareModal(true)}
                     className="p-2 rounded-full border border-gray-300 text-gray-600 hover:border-red-600 hover:text-red-600 transition-colors"
                     title="Partager"
@@ -405,77 +352,13 @@ const MotorcycleDetailPage = () => {
                 </div>
               </div>
               
-              {/* Prix et financement */}
+              {/* Prix */}
               <div className="bg-gray-50 p-6 rounded-lg">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-3xl font-bold text-red-600">
                     {parseFloat(motorcycle.price).toLocaleString('fr-FR')} €
                   </span>
-                  <button
-                    onClick={() => setShowFinanceCalculator(!showFinanceCalculator)}
-                    className="flex items-center px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
-                  >
-                    <Calculator size={16} className="mr-2" />
-                    Financement
-                  </button>
                 </div>
-                
-                {showFinanceCalculator && (
-                  <div className="border-t pt-4 space-y-4">
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">Apport (€)</label>
-                        <input
-                          type="number"
-                          value={financeData.downPayment}
-                          onChange={(e) => setFinanceData(prev => ({ 
-                            ...prev, 
-                            downPayment: parseInt(e.target.value) || 0 
-                          }))}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">Durée (mois)</label>
-                        <select
-                          value={financeData.loanTerm}
-                          onChange={(e) => setFinanceData(prev => ({ 
-                            ...prev, 
-                            loanTerm: parseInt(e.target.value) 
-                          }))}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value={12}>12 mois</option>
-                          <option value={24}>24 mois</option>
-                          <option value={36}>36 mois</option>
-                          <option value={48}>48 mois</option>
-                          <option value={60}>60 mois</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">Taux (%)</label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={financeData.interestRate}
-                          onChange={(e) => setFinanceData(prev => ({ 
-                            ...prev, 
-                            interestRate: parseFloat(e.target.value) || 0 
-                          }))}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-                    <div className="bg-blue-50 p-4 rounded-md">
-                      <p className="text-center">
-                        <span className="text-sm text-gray-600">Mensualité estimée : </span>
-                        <span className="text-xl font-bold text-blue-600">
-                          {monthlyPayment.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €/mois
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                )}
               </div>
               
               {/* Caractéristiques principales */}

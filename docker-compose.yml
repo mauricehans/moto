@@ -30,21 +30,8 @@ services:
       - ./backend:/app
     ports:
       - "8000:8000"
-    environment:
-      - DB_HOST=db
-      - DB_NAME=agde_moto
-      - DB_USER=agde_user
-      - DB_PASSWORD=agde_password123
-      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,backend
-      - CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://frontend:5173
-      # Configuration SMTP MailerSend (production)
-      - EMAIL_HOST=smtp.mailersend.net
-      - EMAIL_PORT=587
-      - EMAIL_USE_TLS=True
-      - EMAIL_HOST_USER=MS_f0Ry7u@test-2p0347zmd87lzdrn.mlsender.net
-      - EMAIL_HOST_PASSWORD=mssp.Ps2vq0d.jpzkmgq36124059v.PrBMPBh
-      - DEFAULT_FROM_EMAIL=MS_f0Ry7u@test-2p0347zmd87lzdrn.mlsender.net
-      - SERVER_EMAIL=MS_f0Ry7u@test-2p0347zmd87lzdrn.mlsender.net
+    env_file:
+      - .env
     depends_on:
       - db
     restart: unless-stopped
