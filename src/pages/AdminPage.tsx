@@ -925,6 +925,7 @@ const AdminPage: React.FC = () => {
                                       <span className="text-sm text-gray-600">de</span>
                                       <input
                                         type="time"
+                                        lang="fr"
                                         value={interval.open}
                                         onChange={(e) => handleIntervalChange(day, index, 'open', e.target.value)}
                                         step="60"
@@ -933,6 +934,7 @@ const AdminPage: React.FC = () => {
                                       <span className="text-sm text-gray-600">à</span>
                                       <input
                                         type="time"
+                                        lang="fr"
                                         value={interval.close}
                                         onChange={(e) => handleIntervalChange(day, index, 'close', e.target.value)}
                                         step="60"

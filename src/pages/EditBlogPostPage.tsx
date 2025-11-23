@@ -12,7 +12,7 @@ function EditBlogPostPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState<Partial<Post>>({});
-  const [image, setImage] = useState<File | null>(null);
+  
 // Add this new state for categories if needed, but for now assume hardcoded
 
   useEffect(() => {
@@ -44,11 +44,7 @@ function EditBlogPostPage() {
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
-    }
-  };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,13 +58,7 @@ function EditBlogPostPage() {
       delete dataToSend.category;
       
       // Update post data
-      const updatedPost = await blogService.update(id!, dataToSend);
-      if (image) {
-        const imageFormData = new FormData();
-        imageFormData.append('image', image);
-        // Assume endpoint for image upload
-        await blogService.uploadImage(id!, imageFormData);
-      }
+      await blogService.update(id!, dataToSend);
       navigate('/admin');
     } catch (err) {
       setError('Erreur lors de la mise à jour');
@@ -199,36 +189,21 @@ function EditBlogPostPage() {
                 <span className="ml-2 text-sm font-medium text-gray-700">Publier l'article</span>
               </label>
             </div>
-            {/* Image */}
+            {/* Image (lecture seule, gestion sur page dédiée) */}
             <div>
-              <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
-                Image de l'article
-              </label>
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-400 transition-colors">
-                <div className="space-y-1 text-center">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <div className="flex text-sm text-gray-600">
-                    <label htmlFor="image" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                      <span>Télécharger une image</span>
-                      <input
-                        id="image"
-                        name="image"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="sr-only"
-                      />
-                    </label>
-                    <p className="pl-1">ou glisser-déposer</p>
-                  </div>
-                  <p className="text-xs text-gray-500">PNG, JPG, GIF jusqu'à 10MB</p>
-                </div>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-gray-700">La gestion de l'image se fait dans la page dédiée.</p>
+                <Link
+                  to={`/admin/images/blog/${id}`}
+                  className="inline-flex items-center px-3 py-2 bg-white text-blue-600 border border-blue-600 rounded hover:bg-blue-50"
+                >
+                  <Images size={16} className="mr-2" /> Ouvrir la page image
+                </Link>
               </div>
-              {image && (
-                <div className="mt-2">
-                  <p className="text-sm text-gray-600">Image sélectionnée: {image.name}</p>
+              {post?.image && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Image actuelle</p>
+                  <img src={post.image} alt="Image de l'article" className="w-full h-40 object-cover rounded border" />
                 </div>
               )}
             </div>

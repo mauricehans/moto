@@ -1,4 +1,5 @@
 from rest_framework import viewsets, filters, status
+from rest_framework.exceptions import NotFound
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -43,9 +44,23 @@ class PostViewSet(viewsets.ModelViewSet):
         else:
             # Utilisateurs authentifiés : tous les articles
             return Post.objects.all()
+
+    def get_object(self):
+        lookup = self.kwargs.get(self.lookup_field)
+        qs = self.get_queryset()
+        obj = None
+        if lookup is not None:
+            if str(lookup).isdigit():
+                obj = qs.filter(pk=int(lookup)).first()
+            else:
+                obj = qs.filter(slug=lookup).first()
+        if not obj:
+            raise NotFound()
+        self.check_object_permissions(self.request, obj)
+        return obj
     
     @action(detail=True, methods=['post'], parser_classes=[MultiPartParser, FormParser])
-    def upload_image(self, request, pk=None):
+    def upload_image(self, request, slug=None):
         """Upload d'image pour un article de blog"""
         import os
         import uuid
@@ -79,7 +94,7 @@ class PostViewSet(viewsets.ModelViewSet):
         return Response({'image': image_url}, status=status.HTTP_200_OK)
     
     @action(detail=True, methods=['delete'])
-    def delete_image(self, request, pk=None):
+    def delete_image(self, request, slug=None):
         """Supprimer l'image d'un article de blog"""
         post = self.get_object()
         

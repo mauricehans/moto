@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Images } from 'lucide-react';
-import { motorcycleService } from '../services/api';
+import { Images, Trash2, Star } from 'lucide-react';
+import { motorcycleService, imageService } from '../services/api';
 import { Motorcycle } from '../types/Motorcycle';
 
 function EditMotorcyclePage() {
@@ -12,7 +12,7 @@ function EditMotorcyclePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState<Partial<Motorcycle>>({});
-  const [images, setImages] = useState<File[]>([]);
+  const [imageActionError, setImageActionError] = useState('');
 
   useEffect(() => {
     const fetchMotorcycle = async () => {
@@ -39,9 +39,15 @@ function EditMotorcyclePage() {
     setFormData(prev => ({ ...prev, [name]: checked }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setImages(Array.from(e.target.files));
+  
+
+  const refreshMotorcycle = async () => {
+    try {
+      const response = await motorcycleService.getById(id!);
+      setMotorcycle(response.data);
+      setFormData(response.data);
+    } catch {
+      // ignore
     }
   };
 
@@ -49,15 +55,27 @@ function EditMotorcyclePage() {
     e.preventDefault();
     try {
       await motorcycleService.update(id!, formData);
-      if (images.length > 0) {
-        const imageFormData = new FormData();
-        images.forEach(img => imageFormData.append('images', img));
-        // Assume endpoint for multiple images upload
-        await motorcycleService.uploadImages(id!, imageFormData);
-      }
       navigate('/admin');
     } catch (err) {
       setError('Erreur lors de la mise à jour');
+    }
+  };
+
+  const setPrimary = async (imageId: number) => {
+    try {
+      await imageService.setMotorcyclePrimaryImage(id!, imageId);
+      await refreshMotorcycle();
+    } catch (err) {
+      setImageActionError('Impossible de définir l\'image principale');
+    }
+  };
+
+  const deleteImage = async (imageId: number) => {
+    try {
+      await imageService.deleteMotorcycleImage(id!, imageId);
+      await refreshMotorcycle();
+    } catch (err) {
+      setImageActionError('Suppression d\'image échouée');
     }
   };
 
@@ -268,35 +286,40 @@ function EditMotorcyclePage() {
 
             {/* Images */}
             <div>
-              <label htmlFor="images" className="block text-sm font-medium text-gray-700 mb-2">
-                Images de la moto
-              </label>
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-400 transition-colors">
-                <div className="space-y-1 text-center">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <div className="flex text-sm text-gray-600">
-                    <label htmlFor="images" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                      <span>Télécharger des fichiers</span>
-                      <input
-                        id="images"
-                        name="images"
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="sr-only"
-                      />
-                    </label>
-                    <p className="pl-1">ou glisser-déposer</p>
-                  </div>
-                  <p className="text-xs text-gray-500">PNG, JPG, GIF jusqu'à 10MB</p>
-                </div>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-gray-700">La gestion des images se fait dans la page dédiée.</p>
+                <Link
+                  to={`/admin/images/motorcycle/${id}`}
+                  className="inline-flex items-center px-3 py-2 bg-white text-blue-600 border border-blue-600 rounded hover:bg-blue-50"
+                >
+                  <Images size={16} className="mr-2" /> Ouvrir la page images
+                </Link>
               </div>
-              {images.length > 0 && (
-                <div className="mt-2">
-                  <p className="text-sm text-gray-600">{images.length} fichier(s) sélectionné(s)</p>
+              {imageActionError && (
+                <p className="text-sm text-red-600 mt-2">{imageActionError}</p>
+              )}
+              {motorcycle?.images && motorcycle.images.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Images existantes</p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {motorcycle.images.map(img => (
+                      <div key={img.id} className="relative border rounded-md overflow-hidden">
+                        <img src={img.image} alt="" className="w-full h-32 object-cover" />
+                        <div className="absolute top-2 left-2">
+                          {img.is_primary ? (
+                            <span className="inline-flex items-center px-2 py-1 text-xs bg-green-600 text-white rounded">
+                              <Star size={12} className="mr-1" /> Principale
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded">Secondaire</span>
+                          )}
+                        </div>
+                        <div className="absolute top-2 right-2">
+                          <span className="p-1 bg-white text-gray-600 border border-gray-300 rounded">ID {img.id}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
