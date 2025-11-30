@@ -37,7 +37,7 @@ const AdminOtpVerify: React.FC = () => {
     try {
       const res = await adminService.requestAdminOTP(email);
       setSuccess(res.data?.message || 'Code envoyé');
-      setExpiresIn(60);
+      setExpiresIn(300);
       const interval = setInterval(() => {
         setExpiresIn((prev) => {
           if (prev === null) return null;
@@ -68,7 +68,7 @@ const AdminOtpVerify: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">Vérification du code</h1>
-        <p className="text-gray-600 mb-6">Un code a été envoyé à <span className="font-medium text-gray-900">{email}</span>. Entrez le code reçu (valide 60s).</p>
+        <p className="text-gray-600 mb-6">Un code a été envoyé à <span className="font-medium text-gray-900">{email}</span>. Entrez le code reçu (valide 5 min).</p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-2">Code</label>

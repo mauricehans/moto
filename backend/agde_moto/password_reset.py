@@ -344,7 +344,7 @@ def request_admin_otp(request):
     # Générer un OTP 6 chiffres
     code = f"{random.randint(0, 999999):06d}"
     cache_key = f"admin_otp:{email}"
-    cache.set(cache_key, code, timeout=60)  # 60 secondes
+    cache.set(cache_key, code, timeout=300)
     
     # Log le code OTP pour le développement
     print(f"[OTP] Code généré pour {email}: {code}")

@@ -1,16 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
-interface ImportMetaWithEnv extends ImportMeta {
-  env: ImportMetaEnv & {
-    VITE_API_URL?: string;
-  };
-}
-  
-interface ImportMetaEnv {
-  VITE_API_URL?: string;
-}
-
-const API_BASE_URL = (import.meta as ImportMetaWithEnv).env?.VITE_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = '/api';
 
 // Configuration d'axios pour l'administration
 const adminApi = axios.create({

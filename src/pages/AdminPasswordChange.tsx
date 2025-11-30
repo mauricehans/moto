@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { adminService } from '../services/adminService';
 
@@ -56,7 +56,19 @@ const AdminPasswordChange: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="new_password" className="block text-sm font-medium text-gray-700 mb-2">Nouveau mot de passe</label>
-            <input id="new_password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required />
+            <div className="relative">
+              <input id="new_password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 pr-10" required />
+              <button type="button" aria-label="Afficher le mot de passe" onClick={() => {
+                const el = document.getElementById('new_password') as HTMLInputElement | null;
+                if (el) el.type = el.type === 'password' ? 'text' : 'password';
+              }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600">
+                {(() => {
+                  const el = document.getElementById('new_password') as HTMLInputElement | null;
+                  const isText = el?.type === 'text';
+                  return isText ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />;
+                })()}
+              </button>
+            </div>
           </div>
           <div className="space-y-2">
             <div className="w-full h-2 rounded bg-gray-100 overflow-hidden">
@@ -72,7 +84,19 @@ const AdminPasswordChange: React.FC = () => {
           </div>
           <div>
             <label htmlFor="confirm_password" className="block text-sm font-medium text-gray-700 mb-2">Confirmer le mot de passe</label>
-            <input id="confirm_password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required />
+            <div className="relative">
+              <input id="confirm_password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 pr-10" required />
+              <button type="button" aria-label="Afficher le mot de passe" onClick={() => {
+                const el = document.getElementById('confirm_password') as HTMLInputElement | null;
+                if (el) el.type = el.type === 'password' ? 'text' : 'password';
+              }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600">
+                {(() => {
+                  const el = document.getElementById('confirm_password') as HTMLInputElement | null;
+                  const isText = el?.type === 'text';
+                  return isText ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />;
+                })()}
+              </button>
+            </div>
           </div>
           {!matchOk && confirmPassword.length > 0 && (
             <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded">
