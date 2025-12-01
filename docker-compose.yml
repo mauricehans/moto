@@ -48,6 +48,7 @@ services:
       - "5173:5173"
     environment:
       - VITE_API_URL=http://72.61.111.182:8000/api
+      - VITE_API_URL_DOMAIN=https://agdemoto.fr/api
       - DOCKER_ENV=true
     depends_on:
       - backend

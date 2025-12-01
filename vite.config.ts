@@ -15,6 +15,7 @@ export default defineConfig({
     port: 5173,
     host: '0.0.0.0',
     strictPort: true,
+    allowedHosts: ['agdemoto.fr', 'www.agdemoto.fr'],
     proxy: {
       '/api': {
         target: backendTarget,
