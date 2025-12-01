@@ -107,6 +107,10 @@ api.interceptors.request.use(
     const isPublicEndpoint = publicEndpoints.some(endpoint => 
       config.url?.includes(endpoint) && config.method?.toLowerCase() === 'get'
     );
+
+    if (config.url && config.url.includes('/login/')) {
+      return config;
+    }
     
     // Ajouter le token seulement si ce n'est pas un endpoint public
     if (!isPublicEndpoint) {
@@ -130,7 +134,9 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem('refresh_token');
-        if (!refreshToken) throw new Error('No refresh token');
+        if (!refreshToken || (originalRequest.url && originalRequest.url.includes('/login/'))) {
+          throw new Error('No refresh token');
+        }
         const response = await axios.post(`${API_BASE_URL}/token/refresh/`, { refresh: refreshToken });
         localStorage.setItem('access_token', response.data.access);
         originalRequest.headers.Authorization = `Bearer ${response.data.access}`;
@@ -139,9 +145,8 @@ api.interceptors.response.use(
         console.error('Token refresh failed:', refreshError);
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        // Rediriger vers la page d'administration pour forcer la reconnexion
-        if (window.location.pathname !== '/admin') {
-          window.location.href = '/admin';
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
         }
       }
     }

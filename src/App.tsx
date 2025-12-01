@@ -27,6 +27,8 @@ import AdminPasswordReset from './pages/AdminPasswordReset';
 import AdminPasswordResetConfirm from './pages/AdminPasswordResetConfirm';
 import AdminOtpVerify from './pages/AdminOtpVerify';
 import AdminPasswordChange from './pages/AdminPasswordChange';
+import SuperAdminPage from './pages/SuperAdminPage';
+import LoginAdminPage from './pages/LoginAdminPage';
 import LegalNoticesPage from './pages/LegalNoticesPage';
 import TermsOfSalePage from './pages/TermsOfSalePage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
@@ -51,6 +53,10 @@ function AppContent() {
           <Route path="/blog/admin" element={<AdminPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/login" element={<LoginAdminPage />} />
+          <Route path="/blog/admin/login" element={<LoginAdminPage />} />
+          <Route path="/admin/login" element={<LoginAdminPage />} />
+          <Route path="/admin/super-admin" element={<SuperAdminPage />} />
           <Route path="/admin/edit-motorcycle/:id" element={<EditMotorcyclePage />} />
           <Route path="/admin/edit-part/:id" element={<EditPartPage />} />
           <Route path="/admin/edit-blog/:id" element={<EditBlogPostPage />} />

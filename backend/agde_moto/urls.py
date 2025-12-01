@@ -15,6 +15,7 @@ from .password_reset import (
 )
 from .email_diagnostic import email_diagnostic_view
 from .admin_diagnostic_view import admin_diagnostic_page
+from .superadmin_views import list_admins, create_admin, delete_admin
 
 def api_health(request):
     """Endpoint de santé de l'API"""
@@ -53,6 +54,10 @@ urlpatterns = [
     path('api/parts/', include('parts.urls')),
     path('api/blog/', include('blog.urls')),
     path('api/garage/', include('garage.urls')),
+    # Super admin endpoints
+    path('api/superadmin/admins/', list_admins),
+    path('api/superadmin/admins/create/', create_admin),
+    path('api/superadmin/admins/<int:user_id>/', delete_admin),
 ]
 
 # Serve media files in development
