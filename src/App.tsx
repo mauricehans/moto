@@ -48,6 +48,7 @@ function AppContent() {
           <Route path="/parts/:id" element={<PartDetailPage />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:id" element={<BlogPostPage />} />
+          <Route path="/blog/admin" element={<AdminPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/admin/edit-motorcycle/:id" element={<EditMotorcyclePage />} />

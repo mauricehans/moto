@@ -145,8 +145,13 @@ api.interceptors.response.use(
         }
       }
     }
+    const url = error.config?.url || '';
+    // Ignorer les requêtes GET de pages frontend comme /blog/admin/
+    if (error.response?.status === 404 && typeof url === 'string' && url.endsWith('/blog/admin/')) {
+      return Promise.reject(error);
+    }
     console.error('API Error Details:', {
-      url: error.config?.url,
+      url,
       status: error.response?.status,
       data: error.response?.data,
       headers: error.config?.headers

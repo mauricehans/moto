@@ -30,7 +30,7 @@ SECURE_BROWSER_XSS_FILTER = os.getenv('SECURE_BROWSER_XSS_FILTER', 'True').lower
 X_FRAME_OPTIONS = os.getenv('X_FRAME_OPTIONS', 'DENY')
 
 # Force HTTP uniquement - Aucune redirection HTTPS possible
-FORCE_HTTP_ONLY = os.getenv('FORCE_HTTP_ONLY', 'True').lower() == 'true'
+FORCE_HTTP_ONLY = False
 
 # Apps simples
 INSTALLED_APPS = [
@@ -91,7 +91,8 @@ RATELIMIT_USE_CACHE = 'default'
 # Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+# STATICFILES_DIRS vide en production pour éviter les conflits
+STATICFILES_DIRS = []
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -183,7 +184,6 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = int(os.getenv('MAX_UPLOAD_SIZE', '10485760'))  # 1
 DATA_UPLOAD_MAX_MEMORY_SIZE = int(os.getenv('MAX_UPLOAD_SIZE', '10485760'))
 
 # Configuration JWT sécurisée
-# from rest_framework_simplejwt.settings import api_settings  # ← Supprimez cette ligne
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(os.getenv('JWT_ACCESS_TOKEN_LIFETIME', '15'))),
@@ -258,27 +258,14 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 
 # Configuration Email SMTP
 settings_logger.info("Configuration des paramètres email SMTP...")
-# Utilise le backend SMTP de Django. Pour la production, assurez-vous que c'est le bon.
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
-# Récupération des paramètres SMTP depuis les variables d'environnement
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 't')
-EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False').lower() in ('true', '1', 't')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-
-if not EMAIL_HOST:
-    settings_logger.warning(
-        "Paramètre EMAIL_HOST manquant, bascule vers le backend console."
-    )
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL') or EMAIL_HOST_USER or 'noreply@agdemoto.com'
 SERVER_EMAIL = os.environ.get('SERVER_EMAIL') or DEFAULT_FROM_EMAIL
-settings_logger.info(f"Backend email configuré: {EMAIL_BACKEND}")
-settings_logger.info(f"Email par défaut: {DEFAULT_FROM_EMAIL}")
 
 # Remplacez la configuration DATABASES par :
 # Supprimez ces lignes (238-244) :
