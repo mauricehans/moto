@@ -28,6 +28,7 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./backend:/app
+      - /var/www/media:/app/media
     ports:
       - "8000:8000"
     env_file:
@@ -39,16 +40,11 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     container_name: agde_moto_frontend
-    volumes:
-      - .:/app
-      - /app/node_modules
     ports:
-      - "5173:5173"
+      - "4173:4173"
     environment:
-      - VITE_API_URL=http://72.61.111.182:8000/api
-      - VITE_API_URL_DOMAIN=https://agdemoto.fr/api
       - DOCKER_ENV=true
     depends_on:
       - backend

@@ -48,8 +48,11 @@ def garage_settings_view(request):
             cleaned_data = {}
             for key, value in request.data.items():
                 if isinstance(value, str):
-                    # Échapper les caractères HTML pour prévenir XSS
-                    cleaned_data[key] = escape(value.strip())
+                    # Échapper les caractères HTML pour prévenir XSS sauf pour description où on garde texte brut
+                    if key == 'description':
+                        cleaned_data[key] = value.strip()
+                    else:
+                        cleaned_data[key] = escape(value.strip())
                 else:
                     cleaned_data[key] = value
             

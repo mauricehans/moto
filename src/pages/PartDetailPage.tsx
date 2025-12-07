@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Package, Star, CheckCircle, AlertCircle, Settings, Images } from 'lucide-react';
+import { ArrowLeft, Package, Star, CheckCircle, AlertCircle, Settings, Images, Phone } from 'lucide-react';
 import ImageGallery from '../components/ImageGallery';
 import ContactForm from '../components/ContactForm';
 import { usePart } from '../hooks/useParts';
@@ -9,6 +9,7 @@ const PartDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { data: part, isLoading, error } = usePart(id!);
   const [showContactForm, setShowContactForm] = useState(false);
+  const { settings } = useGarageSettings();
 
   // ✅ Fonctions mémorisées pour éviter les re-renders
   const getConditionLabel = useMemo(() => {
@@ -218,6 +219,16 @@ const PartDetailPage = () => {
               >
                 {part.is_available && part.stock > 0 ? 'Contacter pour cette pièce' : 'Pièce indisponible'}
               </button>
+
+              {part.is_available && part.stock > 0 && (
+                <a
+                  href={`tel:${(settings?.phone || '+33467123456').replace(/\s+/g,'')}`}
+                  className="w-full mt-3 py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 transition-colors duration-300 flex items-center justify-center"
+                >
+                  <Phone size={20} className="mr-2" />
+                  Appeler maintenant
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -287,3 +298,4 @@ const PartDetailPage = () => {
 };
 
 export default PartDetailPage;
+import useGarageSettings from '../hooks/useGarageSettings';

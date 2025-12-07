@@ -98,6 +98,7 @@ api.interceptors.request.use(
       '/health/',
       '/motorcycles/',
       '/parts/',
+      '/blog/',
       '/blog/posts/',
       '/blog/categories/',
       '/parts/categories/'
@@ -145,9 +146,7 @@ api.interceptors.response.use(
         console.error('Token refresh failed:', refreshError);
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
-        }
+        return Promise.reject(error);
       }
     }
     const url = error.config?.url || '';
@@ -263,7 +262,19 @@ export const blogService = {
   },
   
   update: async (id: string, data: Partial<Post>): Promise<AxiosResponse<Post>> => {
-    return api.put(`/blog/${id}/`, data);
+    const payload: any = {
+      title: data.title?.trim(),
+      content: data.content?.trim(),
+      is_published: data.is_published,
+    };
+    if ((data as any).category !== undefined) {
+      const cat = (data as any).category;
+      const cid = typeof cat === 'number' ? cat : cat?.id;
+      if (cid !== undefined && cid !== null && cid !== '') {
+        payload.category_id = cid;
+      }
+    }
+    return api.put(`/blog/${id}/`, payload);
   },
   
   delete: async (id: string): Promise<AxiosResponse<void>> => {

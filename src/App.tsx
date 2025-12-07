@@ -15,6 +15,7 @@ import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
 import ContactPage from './pages/ContactPage';
 import AdminPage from './pages/AdminPage';
+import RequireAdmin from './components/RequireAdmin';
 import ScrollToTop from './utils/ScrollToTop';
 import EditMotorcyclePage from './pages/EditMotorcyclePage';
 import EditPartPage from './pages/EditPartPage';
@@ -28,7 +29,6 @@ import AdminPasswordResetConfirm from './pages/AdminPasswordResetConfirm';
 import AdminOtpVerify from './pages/AdminOtpVerify';
 import AdminPasswordChange from './pages/AdminPasswordChange';
 import SuperAdminPage from './pages/SuperAdminPage';
-import LoginAdminPage from './pages/LoginAdminPage';
 import LegalNoticesPage from './pages/LegalNoticesPage';
 import TermsOfSalePage from './pages/TermsOfSalePage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
@@ -52,18 +52,16 @@ function AppContent() {
           <Route path="/blog/:id" element={<BlogPostPage />} />
           <Route path="/blog/admin" element={<AdminPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/login" element={<LoginAdminPage />} />
-          <Route path="/blog/admin/login" element={<LoginAdminPage />} />
-          <Route path="/admin/login" element={<LoginAdminPage />} />
-          <Route path="/admin/super-admin" element={<SuperAdminPage />} />
-          <Route path="/admin/edit-motorcycle/:id" element={<EditMotorcyclePage />} />
-          <Route path="/admin/edit-part/:id" element={<EditPartPage />} />
-          <Route path="/admin/edit-blog/:id" element={<EditBlogPostPage />} />
-          <Route path="/admin/images/:type/:id" element={<AdminImageGalleryPage />} />
-          <Route path="/admin/create-motorcycle" element={<CreateMotorcyclePage />} />
-          <Route path="/admin/create-part" element={<CreatePartPage />} />
-          <Route path="/admin/create-blog" element={<CreateBlogPostPage />} />
+          <Route path="/admin" element={<RequireAdmin><AdminPage /></RequireAdmin>} />
+          
+          <Route path="/admin/super-admin" element={<RequireAdmin><SuperAdminPage /></RequireAdmin>} />
+          <Route path="/admin/edit-motorcycle/:id" element={<RequireAdmin><EditMotorcyclePage /></RequireAdmin>} />
+          <Route path="/admin/edit-part/:id" element={<RequireAdmin><EditPartPage /></RequireAdmin>} />
+          <Route path="/admin/edit-blog/:id" element={<RequireAdmin><EditBlogPostPage /></RequireAdmin>} />
+          <Route path="/admin/images/:type/:id" element={<RequireAdmin><AdminImageGalleryPage /></RequireAdmin>} />
+          <Route path="/admin/create-motorcycle" element={<RequireAdmin><CreateMotorcyclePage /></RequireAdmin>} />
+          <Route path="/admin/create-part" element={<RequireAdmin><CreatePartPage /></RequireAdmin>} />
+          <Route path="/admin/create-blog" element={<RequireAdmin><CreateBlogPostPage /></RequireAdmin>} />
           <Route path="/admin/password-reset" element={<AdminPasswordReset />} />
           <Route path="/admin/otp" element={<AdminOtpVerify />} />
           <Route path="/admin/password-change" element={<AdminPasswordChange />} />

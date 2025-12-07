@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Upload, Trash2, Star, StarOff, Eye, Download, Plus } from 'lucide-react';
 import { motorcycleService, partsService, blogService, imageService } from '../services/api';
+import api from '../services/api';
 import { Motorcycle } from '../types/Motorcycle';
 import { Part } from '../types/Part';
 import { Post } from '../types/Blog';
@@ -20,6 +21,7 @@ const AdminImageGalleryPage: React.FC = () => {
   const navigate = useNavigate();
   const [item, setItem] = useState<Motorcycle | Part | Post | null>(null);
   const [images, setImages] = useState<ImageItem[]>([]);
+  const [fsImages, setFsImages] = useState<{ filename: string; url: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [uploading, setUploading] = useState(false);
@@ -66,6 +68,17 @@ const AdminImageGalleryPage: React.FC = () => {
       } else {
         setImages((itemData.data as Motorcycle | Part).images || []);
       }
+
+      if (type === 'motorcycle') {
+        try {
+          const res = await api.get(`/motorcycles/${id}/list_images/`);
+          setFsImages(res.data?.filesystem || []);
+        } catch (e) {
+          setFsImages([]);
+        }
+      } else {
+        setFsImages([]);
+      }
     } catch (err) {
       setError('Erreur lors du chargement des données');
       console.error(err);
@@ -83,26 +96,39 @@ const AdminImageGalleryPage: React.FC = () => {
     
     setUploading(true);
     try {
-      let response;
-      
+      const MAX_PER_FILE = 1024 * 1024 * 1024;
+      for (let i = 0; i < selectedFiles.length; i++) {
+        if (selectedFiles[i].size > MAX_PER_FILE) {
+          throw new Error('Fichier trop volumineux (>25MB). Réduisez la taille avant upload.');
+        }
+      }
       switch (type) {
-        case 'motorcycle':
-          response = await imageService.uploadMotorcycleImages(id!, selectedFiles);
+        case 'motorcycle': {
+          for (let i = 0; i < selectedFiles.length; i++) {
+            const fd = new FormData();
+            fd.append('images', selectedFiles[i]);
+            await api.post(`/motorcycles/${id}/upload_images/`, fd, { headers: { 'Content-Type': 'multipart/form-data' }, timeout: 0 });
+          }
           break;
-        case 'part':
-          response = await imageService.uploadPartImages(id!, selectedFiles);
+        }
+        case 'part': {
+          for (let i = 0; i < selectedFiles.length; i++) {
+            const fd = new FormData();
+            fd.append('images', selectedFiles[i]);
+            await api.post(`/parts/${id}/upload_images/`, fd, { headers: { 'Content-Type': 'multipart/form-data' }, timeout: 0 });
+          }
           break;
-        case 'blog':
+        }
+        case 'blog': {
           if (selectedFiles.length > 1) {
             throw new Error('Un seul fichier autorisé pour les articles de blog');
           }
-          response = await imageService.uploadBlogImage(id!, selectedFiles[0]);
+          await imageService.uploadBlogImage(id!, selectedFiles[0]);
           break;
+        }
         default:
           throw new Error('Type d\'item non supporté');
       }
-      
-      console.log('Upload réussi:', response.data);
       
       // Recharger les images après upload
       await fetchItemAndImages();
@@ -115,6 +141,8 @@ const AdminImageGalleryPage: React.FC = () => {
       console.error('Erreur upload:', err);
       if (err.response?.status === 404) {
         setError('Endpoint d\'upload non trouvé. Vérifiez que le backend est configuré correctement.');
+      } else if (err.response?.status === 413) {
+        setError('Fichier trop volumineux (413). Réduisez la taille ou uploadez par fichier.');
       } else if (err.message) {
         setError(err.message);
       } else {
@@ -404,6 +432,56 @@ const AdminImageGalleryPage: React.FC = () => {
             </div>
           )}
         </div>
+
+        {type === 'motorcycle' && (
+          <div className="bg-white rounded-lg shadow-md p-6 mt-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Fichiers du dossier ({fsImages.length})
+            </h2>
+            {fsImages.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Eye size={32} className="text-gray-400" />
+                </div>
+                <p className="text-gray-500 mb-4">Aucun fichier détecté dans le dossier</p>
+                <p className="text-sm text-gray-400">Vérifiez l'upload ou la synchronisation</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {fsImages.map((fi) => (
+                  <div key={fi.url} className="relative group">
+                    <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                      <img
+                        src={fi.url}
+                        alt="Fichier du dossier"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => window.open(fi.url, '_blank')}
+                          className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+                          title="Voir en grand"
+                        >
+                          <Eye size={16} />
+                        </button>
+                        <a
+                          href={fi.url}
+                          download
+                          className="p-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors"
+                          title="Télécharger"
+                        >
+                          <Download size={16} />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

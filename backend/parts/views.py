@@ -13,6 +13,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CategorySerializer
     lookup_field = 'slug'
     permission_classes = [AllowAny]  # Lecture publique pour les catégories
+    pagination_class = None
 
 class PartViewSet(viewsets.ModelViewSet):
     """ViewSet pour les pièces détachées"""

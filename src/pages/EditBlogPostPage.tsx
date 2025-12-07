@@ -1,43 +1,69 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, Navigate } from 'react-router-dom';
 import { Images } from 'lucide-react';
 import { blogService } from '../services/api';
-import { Post } from '../types/Blog';
+import { Post, BlogCategory } from '../types/Blog';
+import { getAccessToken } from '../services/adminService';
 
 function EditBlogPostPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const token = getAccessToken();
+  if (!token) {
+    return <Navigate to="/admin/password-reset" replace />;
+  }
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]> | null>(null);
+  const [categories, setCategories] = useState<BlogCategory[]>([]);
   const [formData, setFormData] = useState<Partial<Post>>({});
   
 // Add this new state for categories if needed, but for now assume hardcoded
 
   useEffect(() => {
-    const fetchPost = async () => {
+    const token = getAccessToken();
+    if (!token) {
+      navigate('/admin/password-reset');
+      return;
+    }
+    const fetchData = async () => {
       try {
-        const response = await blogService.getPostById(id!);
-        setPost(response.data);
-        setFormData(response.data);
+        const [postRes, catRes] = await Promise.all([
+          blogService.getPostById(id!),
+          blogService.getCategories()
+        ]);
+        setPost(postRes.data);
+        setFormData(postRes.data);
+        setCategories(Array.isArray(catRes.data) ? catRes.data : (catRes.data?.results || []));
       } catch (err) {
-        setError('Erreur lors du chargement de l\'article');
+        setError('Erreur lors du chargement des données');
       } finally {
         setLoading(false);
       }
     };
-    fetchPost();
+    fetchData();
   }, [id]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await blogService.getCategories();
+        setCategories(res.data || []);
+      } catch {
+        setCategories([]);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
     if (name === 'category') {
-      // Handle category selection specially
       setFormData(prev => ({
         ...prev,
-        category: value ? { id: parseInt(value), name: '', slug: '' } : null
+        category: value ? { id: Number(value), name: '', slug: '' } : null
       }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -49,19 +75,24 @@ function EditBlogPostPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Prepare data with category_id instead of category object
-      const dataToSend = {
-        ...formData,
-        category_id: formData.category?.id || null
-      };
-      // Remove the category object to avoid conflicts
-      delete dataToSend.category;
-      
-      // Update post data
-      await blogService.update(id!, dataToSend);
+      setFieldErrors(null);
+      const selectedId = formData.category?.id;
+      const isValidCategory = selectedId !== undefined && selectedId !== null &&
+        categories.some(c => c.id === selectedId);
+
+      await blogService.update(id!, {
+        title: formData.title,
+        content: formData.content,
+        is_published: formData.is_published,
+        category: isValidCategory ? selectedId as any : undefined
+      });
       navigate('/admin');
-    } catch (err) {
+    } catch (err: any) {
       setError('Erreur lors de la mise à jour');
+      const apiData = err?.response?.data;
+      if (apiData && typeof apiData === 'object') {
+        setFieldErrors(apiData);
+      }
     }
   };
 
@@ -73,13 +104,10 @@ function EditBlogPostPage() {
     );
   }
 
-  if (error) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded max-w-md">
-          <strong className="font-bold">Erreur!</strong>
-          <span className="block sm:inline"> {error}</span>
-        </div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -108,6 +136,21 @@ function EditBlogPostPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <strong className="font-bold">Erreur!</strong>
+                <span className="block sm:inline"> {error}</span>
+                {fieldErrors && (
+                  <div className="mt-2 text-sm">
+                    {Object.entries(fieldErrors).map(([key, messages]) => (
+                      <div key={key}>
+                        <span className="font-semibold">{key}:</span> {Array.isArray(messages) ? messages.join(', ') : String(messages)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             {/* Titre */}
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
@@ -137,6 +180,8 @@ function EditBlogPostPage() {
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 placeholder="Slug unique (généré automatiquement si vide)"
+                readOnly
+                disabled
               />
             </div>
             {/* Contenu */}
@@ -168,11 +213,9 @@ function EditBlogPostPage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               >
                 <option value="">Sélectionnez une catégorie</option>
-                {/* Assume categories are fetched and mapped here; for now hardcoded */}
-                <option value="1">Actualités</option>
-                <option value="2">Conseils</option>
-                <option value="3">Maintenance</option>
-                <option value="4">Nouveautés</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
               </select>
             </div>
             {/* Statut de publication */}

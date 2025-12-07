@@ -32,13 +32,20 @@ const BlogPage = () => {
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts?.map((post) => (
+            {posts?.filter(p => p.is_published).map((post) => (
               <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                 <img src={post.image} alt={post.title} className="w-full h-48 object-cover" />
                 <div className="p-4 bg-white">
                   <h3 className="text-xl font-semibold mb-2 text-black">{post.title}</h3>
                   <p className="text-black mb-4">{post.excerpt || post.content.substring(0, 100) + '...'}</p>
-                  <Link to={`/blog/${post.slug}`} className="text-blue-500 hover:underline">
+                  <Link
+                    to={`/blog/${post.slug || post.id}`}
+                    onClick={() => console.log('[debug] Lire plus click', {
+                      id: post.id,
+                      slug: post.slug,
+                      href: `/blog/${post.slug || post.id}`
+                    })}
+                    className="text-blue-500 hover:underline">
                     Lire plus <ArrowRight className="inline-block ml-1" size={16} />
                   </Link>
                 </div>

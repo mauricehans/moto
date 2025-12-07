@@ -32,6 +32,7 @@ import MotorcycleCard from '../components/MotorcycleCard';
 import SectionTitle from '../components/SectionTitle';
 import { useMotorcycle, useMotorcycles } from '../hooks/useMotorcycles';
 import { Motorcycle } from '../types/Motorcycle';
+import useGarageSettings from '../hooks/useGarageSettings';
 
 interface SimilarMotorcycle {
   id: string;
@@ -47,6 +48,7 @@ const MotorcycleDetailPage = () => {
   const navigate = useNavigate();
   const { data: motorcycle, isLoading, error } = useMotorcycle(id!);
   const { data: allMotorcycles = [] } = useMotorcycles();
+  const { settings } = useGarageSettings();
   
   // États locaux
   const [showContactForm, setShowContactForm] = useState(false);
@@ -454,7 +456,7 @@ const MotorcycleDetailPage = () => {
                 </button>
                 
                 <a
-                  href="tel:+33467123456"
+                  href={`tel:${(((motorcycle as any)?.contact_phone) || settings?.phone || '+33467123456').replace(/\s+/g,'')}`}
                   className="w-full py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 transition-colors duration-300 flex items-center justify-center"
                 >
                   <Phone size={20} className="mr-2" />

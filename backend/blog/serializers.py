@@ -11,7 +11,10 @@ class CategorySerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     """Serializer pour les articles de blog"""
     category = CategorySerializer(read_only=True)
-    category_id = serializers.IntegerField(write_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), write_only=True, source='category', required=False)
+    title = serializers.CharField(required=True, allow_blank=False)
+    content = serializers.CharField(required=True, allow_blank=False)
+    slug = serializers.CharField(required=False, allow_blank=True)
     
     class Meta:
         model = Post
@@ -20,4 +23,4 @@ class PostSerializer(serializers.ModelSerializer):
             'content', 'image', 'is_published', 
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['slug', 'created_at', 'updated_at']
+        read_only_fields = ['image', 'created_at', 'updated_at']

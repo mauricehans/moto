@@ -1,16 +1,26 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, Navigate } from 'react-router-dom';
 import { Images } from 'lucide-react';
 import { partsService } from '../services/api';
 import { Part } from '../types/Part';
 import { PartCategory } from '../types/Part';
+import { getAccessToken } from '../services/adminService';
+import { getAccessToken } from '../services/adminService';
 
 const EditPartPage = () => {
+  const token = getAccessToken();
+  if (!token) {
+    return <Navigate to="/admin/password-reset" replace />;
+  }
   // Initialiser categories avec un tableau vide
   const [categories, setCategories] = useState<PartCategory[]>([]);
   
   useEffect(() => {
+    const token = getAccessToken();
+    if (!token) {
+      navigate('/admin/password-reset');
+    }
     const loadCategories = async () => {
       try {
         const response = await partsService.getCategories();

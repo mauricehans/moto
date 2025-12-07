@@ -14,6 +14,7 @@ import type { Post } from '../types/Blog';
 import { useNavigate } from 'react-router-dom';
 import { garageService } from '../services/api';
 import { GarageSettings } from '../types/Admin';
+type AdminUser = { id: number; username: string; email: string; is_superuser: boolean; is_active: boolean };
 
 type TabType = 'dashboard' | 'motorcycles' | 'parts' | 'blog' | 'settings';
 
@@ -37,6 +38,12 @@ const AdminPage: React.FC = () => {
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [settingsError, setSettingsError] = useState('');
 
+  const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [canSuperAdmin, setCanSuperAdmin] = useState(false);
+  const [saLoading, setSaLoading] = useState(false);
+  const [saError, setSaError] = useState('');
+  const [saForm, setSaForm] = useState({ email: '', username: '', password: '', is_superuser: false });
+
   // Hooks pour récupérer les données depuis l'API
   const { data: motorcycles = [], isLoading: motorcyclesLoading } = useMotorcycles();
   const { data: parts = [], isLoading: partsLoading } = useParts();
@@ -57,6 +64,12 @@ const AdminPage: React.FC = () => {
       loadGarageSettings();
     }
   }, [isAuthenticated, activeTab]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchAdmins();
+    }
+  }, [isAuthenticated]);
 
   const loadGarageSettings = async () => {
     setSettingsLoading(true);
@@ -244,6 +257,49 @@ const AdminPage: React.FC = () => {
     }
   };
 
+  const fetchAdmins = async () => {
+    setSaLoading(true);
+    setSaError('');
+    try {
+      const res = await api.get('/superadmin/admins/');
+      setAdmins(res.data.admins || []);
+      setCanSuperAdmin(true);
+    } catch (e: any) {
+      setCanSuperAdmin(false);
+    } finally {
+      setSaLoading(false);
+    }
+  };
+
+  const handleCreateAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaLoading(true);
+    setSaError('');
+    try {
+      await api.post('/superadmin/admins/create/', saForm);
+      setSaForm({ email: '', username: '', password: '', is_superuser: false });
+      fetchAdmins();
+    } catch (e: any) {
+      setSaError(e.response?.data?.error || 'Erreur lors de la création');
+    } finally {
+      setSaLoading(false);
+    }
+  };
+
+  const handleDeleteAdmin = async (id: number) => {
+    if (!window.confirm('Supprimer cet admin ?')) return;
+    setSaLoading(true);
+    setSaError('');
+    try {
+      await api.delete(`/superadmin/admins/${id}/`);
+      setAdmins(prev => prev.filter(a => a.id !== id));
+    } catch (e: any) {
+      setSaError(e.response?.data?.error || 'Erreur lors de la suppression');
+    } finally {
+      setSaLoading(false);
+    }
+  };
+
   // Fonctions de suppression
   const handleDeleteMotorcycle = async (motorcycle: Motorcycle) => {
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer la moto ${motorcycle.brand} ${motorcycle.model} ?`)) {
@@ -426,6 +482,71 @@ const AdminPage: React.FC = () => {
       )
     }
   ];
+
+  const renderSuperAdminSection = () => {
+    if (!isAuthenticated || !canSuperAdmin) return null;
+    return (
+      <div className="bg-white rounded-xl shadow p-6 mt-6">
+        <h2 className="text-xl font-bold mb-4">Gestion des administrateurs</h2>
+        {saError && <div className="mb-3 p-3 bg-red-50 border border-red-200 text-red-700 rounded">{saError}</div>}
+        <form onSubmit={handleCreateAdmin} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-sm font-medium mb-1">Email</label>
+            <input className="w-full border rounded px-3 py-2" type="email" value={saForm.email} onChange={e=>setSaForm({...saForm,email:e.target.value})} required />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Nom d’utilisateur (optionnel)</label>
+            <input className="w-full border rounded px-3 py-2" type="text" value={saForm.username} onChange={e=>setSaForm({...saForm,username:e.target.value})} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Mot de passe</label>
+            <input className="w-full border rounded px-3 py-2" type="password" value={saForm.password} onChange={e=>setSaForm({...saForm,password:e.target.value})} required />
+          </div>
+          <div className="flex items-center gap-2">
+            <input id="sa_is_super" type="checkbox" checked={saForm.is_superuser} onChange={e=>setSaForm({...saForm,is_superuser:e.target.checked})} />
+            <label htmlFor="sa_is_super" className="text-sm">Donner les droits superuser</label>
+          </div>
+          <div className="md:col-span-2">
+            <button type="submit" disabled={saLoading} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Créer un admin</button>
+          </div>
+        </form>
+        <h3 className="text-lg font-semibold mb-2">Liste des admins</h3>
+        {saLoading ? (
+          <div>Chargement...</div>
+        ) : (
+          <table className="w-full text-left border">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="p-2 border">ID</th>
+                <th className="p-2 border">Username</th>
+                <th className="p-2 border">Email</th>
+                <th className="p-2 border">Superuser</th>
+                <th className="p-2 border">Actif</th>
+                <th className="p-2 border">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {admins.map(a=> (
+                <tr key={a.id}>
+                  <td className="p-2 border">{a.id}</td>
+                  <td className="p-2 border">{a.username}</td>
+                  <td className="p-2 border">{a.email}</td>
+                  <td className="p-2 border">{a.is_superuser ? 'Oui' : 'Non'}</td>
+                  <td className="p-2 border">{a.is_active ? 'Oui' : 'Non'}</td>
+                  <td className="p-2 border">
+                    <button onClick={()=>handleDeleteAdmin(a.id)} className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Supprimer</button>
+                  </td>
+                </tr>
+              ))}
+              {admins.length===0 && (
+                <tr><td className="p-2 border" colSpan={6}>Aucun admin pour le moment.</td></tr>
+              )}
+            </tbody>
+          </table>
+        )}
+      </div>
+    );
+  };
 
   const blogColumns = [
     {

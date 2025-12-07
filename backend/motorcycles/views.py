@@ -6,6 +6,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Motorcycle, MotorcycleImage
 from .serializers import MotorcycleSerializer, MotorcycleImageSerializer
+from django.conf import settings
+import os
+from urllib.parse import quote
 
 class MotorcycleViewSet(viewsets.ModelViewSet):
     """ViewSet pour les motos avec CRUD complet"""
@@ -19,7 +22,7 @@ class MotorcycleViewSet(viewsets.ModelViewSet):
     
     def get_permissions(self):
         """Permissions personnalisées selon l'action"""
-        if self.action in ['list', 'retrieve', 'featured']:
+        if self.action in ['list', 'retrieve', 'featured', 'list_images']:
             # Lecture publique autorisée
             permission_classes = [AllowAny]
         else:
@@ -58,12 +61,8 @@ class MotorcycleViewSet(viewsets.ModelViewSet):
             file_path = default_storage.save(unique_filename, file)
             
             # Créer l'URL complète
-            if settings.DEBUG:
-                # En développement, utiliser l'URL locale
-                image_url = f"http://localhost:8000/media/{file_path}"
-            else:
-                # En production, utiliser l'URL du domaine
-                image_url = f"{settings.MEDIA_URL}{file_path}"
+            # Utiliser une URL relative pour être servie via Nginx/HTTPS
+            image_url = f"{settings.MEDIA_URL}{file_path}"
             
             image = MotorcycleImage.objects.create(
                 motorcycle=motorcycle,
@@ -72,6 +71,25 @@ class MotorcycleViewSet(viewsets.ModelViewSet):
             created_images.append(MotorcycleImageSerializer(image).data)
         
         return Response(created_images, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['get'])
+    def list_images(self, request, pk=None):
+        """Lister toutes les images présentes dans le dossier media de la moto, qu'elles soient en DB ou non"""
+        moto = self.get_object()
+        folder = os.path.join(settings.MEDIA_ROOT, 'motorcycles', str(moto.id))
+        results = []
+        if os.path.isdir(folder):
+            for name in sorted(os.listdir(folder)):
+                # Ignorer fichiers cachés et non images basiques
+                if name.startswith('.'):
+                    continue
+                rel = f"motorcycles/{moto.id}/{name}"
+                url = f"{settings.MEDIA_URL}{quote(rel)}"
+                results.append({'filename': name, 'url': url})
+        # Inclure aussi les enregistrements DB existants
+        db_images = MotorcycleImage.objects.filter(motorcycle=moto).order_by('-created_at')
+        db_payload = MotorcycleImageSerializer(db_images, many=True).data
+        return Response({'filesystem': results, 'database': db_payload})
     
     @action(detail=True, methods=['post'])
     def set_primary_image(self, request, pk=None):

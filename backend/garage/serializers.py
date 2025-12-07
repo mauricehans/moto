@@ -1,12 +1,14 @@
 from rest_framework import serializers
 from .models import GarageSettings
 import json
+import html as html_module
 
 
 class GarageSettingsSerializer(serializers.ModelSerializer):
     social_media = serializers.SerializerMethodField()
     business_hours = serializers.SerializerMethodField()
     seo_settings = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
     
     class Meta:
         model = GarageSettings
@@ -25,6 +27,13 @@ class GarageSettingsSerializer(serializers.ModelSerializer):
     
     def get_seo_settings(self, obj):
         return obj.seo_settings
+
+    def get_description(self, obj):
+        # Décode les entités HTML stockées par précaution côté entrée
+        try:
+            return html_module.unescape(obj.description or '')
+        except Exception:
+            return obj.description or ''
     
     def update(self, instance, validated_data):
         # Gérer les champs JSON séparément
@@ -44,6 +53,6 @@ class GarageSettingsSerializer(serializers.ModelSerializer):
         # Mettre à jour les autres champs
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        
+
         instance.save()
         return instance

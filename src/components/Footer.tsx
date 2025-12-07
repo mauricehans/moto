@@ -105,9 +105,10 @@ const Footer = () => {
                       
                       const formatIntervals = (intervals: { open: string; close: string }[]) => {
                         return intervals.map(interval => {
-                          // S'assurer que l'affichage est en format 24h
-                          const openTime = interval.open.length === 5 ? interval.open : interval.open + ':00';
-                          const closeTime = interval.close.length === 5 ? interval.close : interval.close + ':00';
+                          const [oh, om = '00'] = interval.open.split(':');
+                          const [ch, cm = '00'] = interval.close.split(':');
+                          const openTime = `${oh.padStart(2,'0')}:${om.padStart(2,'0')}`;
+                          const closeTime = `${ch.padStart(2,'0')}:${cm.padStart(2,'0')}`;
                           return `${openTime}-${closeTime}`;
                         }).join(', ');
                       };

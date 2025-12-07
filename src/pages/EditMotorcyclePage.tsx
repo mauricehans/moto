@@ -1,13 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, Navigate } from 'react-router-dom';
 import { Images, Trash2, Star } from 'lucide-react';
 import { motorcycleService, imageService } from '../services/api';
+import { getAccessToken } from '../services/adminService';
 import { Motorcycle } from '../types/Motorcycle';
 
 function EditMotorcyclePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const token = getAccessToken();
+  if (!token) {
+    return <Navigate to="/admin/password-reset" replace />;
+  }
   const [motorcycle, setMotorcycle] = useState<Motorcycle | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -383,3 +388,9 @@ function EditMotorcyclePage() {
 }
 
 export default EditMotorcyclePage;
+  useEffect(() => {
+    const token = getAccessToken();
+    if (!token) {
+      navigate('/admin/password-reset');
+    }
+  }, [navigate]);

@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Category, Post
 from .serializers import CategorySerializer, PostSerializer
+from django.utils.text import slugify
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet pour les catégories de blog"""
@@ -17,7 +18,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 class PostViewSet(viewsets.ModelViewSet):
     """ViewSet pour les articles de blog"""
-    queryset = Post.objects.filter(is_published=True)  # Seuls les articles publiés en lecture publique
+    queryset = Post.objects.filter(is_published=True)
     serializer_class = PostSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category']
@@ -39,11 +40,8 @@ class PostViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Queryset personnalisé selon l'action"""
         if self.action in ['list', 'retrieve'] and not self.request.user.is_authenticated:
-            # Utilisateurs non authentifiés : seulement les articles publiés
             return Post.objects.filter(is_published=True)
-        else:
-            # Utilisateurs authentifiés : tous les articles
-            return Post.objects.all()
+        return Post.objects.all()
 
     def get_object(self):
         lookup = self.kwargs.get(self.lookup_field)
@@ -58,6 +56,63 @@ class PostViewSet(viewsets.ModelViewSet):
             raise NotFound()
         self.check_object_permissions(self.request, obj)
         return obj
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated], url_path='admin')
+    def admin_list(self, request):
+        qs = Post.objects.all().order_by('-created_at')
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        from django.utils.text import slugify
+        if (('slug' not in data) or (str(data.get('slug', '')).strip() == '')) and ('title' in data and str(data['title']).strip()):
+            data['slug'] = slugify(str(data['title']).strip())
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        data = request.data.copy()
+        if 'category' in data and 'category_id' not in data:
+            cat = data.get('category')
+            try:
+                # Accept number or dict
+                if isinstance(cat, str) and cat.isdigit():
+                    data['category_id'] = int(cat)
+                elif isinstance(cat, (int, float)):
+                    data['category_id'] = int(cat)
+                elif isinstance(cat, dict) and 'id' in cat:
+                    data['category_id'] = int(cat.get('id'))
+            except Exception:
+                pass
+            data.pop('category', None)
+        # Ignore empty category_id to preserve existing category
+        if 'category_id' in data and (data['category_id'] in [None, '', 'null']):
+            data.pop('category_id')
+        # Auto-generate slug if missing or blank and title provided
+        if (('slug' not in data) or (str(data.get('slug', '')).strip() == '')) and ('title' in data and str(data['title']).strip()):
+            data['slug'] = slugify(str(data['title']).strip())
+        partial = True
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        import logging
+        if not serializer.is_valid():
+            logging.getLogger('blog.update').error({
+                'method': request.method,
+                'data': data,
+                'errors': serializer.errors
+            })
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        self.perform_update(serializer)
+        return Response(serializer.data)
     
     @action(detail=True, methods=['post'], parser_classes=[MultiPartParser, FormParser])
     def upload_image(self, request, slug=None):

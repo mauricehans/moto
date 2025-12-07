@@ -30,3 +30,11 @@ export const adminService = {
 };
 
 export default adminService;
+
+export const getAccessToken = (): string | null => {
+  try {
+    return localStorage.getItem('admin_access_token');
+  } catch {
+    return null;
+  }
+};
