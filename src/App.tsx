@@ -15,6 +15,7 @@ import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
 import ContactPage from './pages/ContactPage';
 import AdminPage from './pages/AdminPage';
+import LoginPage from './pages/LoginPage';
 import RequireAdmin from './components/RequireAdmin';
 import ScrollToTop from './utils/ScrollToTop';
 import EditMotorcyclePage from './pages/EditMotorcyclePage';
@@ -28,7 +29,6 @@ import AdminPasswordReset from './pages/AdminPasswordReset';
 import AdminPasswordResetConfirm from './pages/AdminPasswordResetConfirm';
 import AdminOtpVerify from './pages/AdminOtpVerify';
 import AdminPasswordChange from './pages/AdminPasswordChange';
-import SuperAdminPage from './pages/SuperAdminPage';
 import LegalNoticesPage from './pages/LegalNoticesPage';
 import TermsOfSalePage from './pages/TermsOfSalePage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
@@ -52,9 +52,9 @@ function AppContent() {
           <Route path="/blog/:id" element={<BlogPostPage />} />
           <Route path="/blog/admin" element={<AdminPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/admin/login" element={<LoginPage />} />
           <Route path="/admin" element={<RequireAdmin><AdminPage /></RequireAdmin>} />
           
-          <Route path="/admin/super-admin" element={<RequireAdmin><SuperAdminPage /></RequireAdmin>} />
           <Route path="/admin/edit-motorcycle/:id" element={<RequireAdmin><EditMotorcyclePage /></RequireAdmin>} />
           <Route path="/admin/edit-part/:id" element={<RequireAdmin><EditPartPage /></RequireAdmin>} />
           <Route path="/admin/edit-blog/:id" element={<RequireAdmin><EditBlogPostPage /></RequireAdmin>} />

@@ -29,7 +29,7 @@ def api_health(request):
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('django-admin/', admin.site.urls),
     path('api/health/', api_health, name='api_health'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/login/', custom_login, name='custom_login'),

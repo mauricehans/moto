@@ -8,7 +8,7 @@ export default function RequireAdmin({ children }: Props) {
   const token = getAccessToken()
   const location = useLocation()
   if (!token) {
-    return <Navigate to="/admin/password-reset" state={{ from: location }} replace />
+    return <Navigate to="/admin/login" state={{ from: location }} replace />
   }
   return <>{children}</>
 }

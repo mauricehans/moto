@@ -388,9 +388,3 @@ function EditMotorcyclePage() {
 }
 
 export default EditMotorcyclePage;
-  useEffect(() => {
-    const token = getAccessToken();
-    if (!token) {
-      navigate('/admin/password-reset');
-    }
-  }, [navigate]);

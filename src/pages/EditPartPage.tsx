@@ -9,6 +9,7 @@ import { getAccessToken } from '../services/adminService';
 import { getAccessToken } from '../services/adminService';
 
 const EditPartPage = () => {
+  const navigate = useNavigate();
   const token = getAccessToken();
   if (!token) {
     return <Navigate to="/admin/password-reset" replace />;
@@ -32,7 +33,6 @@ const EditPartPage = () => {
     loadCategories();
   }, []);
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [part, setPart] = useState<Part | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import {
-  Lock, LogOut, Bike, Package, FileText, LayoutDashboard, Plus, Settings
+  Lock, LogOut, Bike, Package, FileText, LayoutDashboard, Plus, Settings, ShieldAlert
 } from 'lucide-react';
 import DataTable, { type Column } from '../components/DataTable';
 import { useMotorcycles } from '../hooks/useMotorcycles';
@@ -13,10 +13,11 @@ import { Part } from '../types/Part';
 import type { Post } from '../types/Blog';
 import { useNavigate } from 'react-router-dom';
 import { garageService } from '../services/api';
+import { getAccessToken } from '../services/adminService';
 import { GarageSettings } from '../types/Admin';
 type AdminUser = { id: number; username: string; email: string; is_superuser: boolean; is_active: boolean };
 
-type TabType = 'dashboard' | 'motorcycles' | 'parts' | 'blog' | 'settings';
+type TabType = 'dashboard' | 'motorcycles' | 'parts' | 'blog' | 'settings' | 'superadmin';
 
 interface LoginCredentials {
   username: string;
@@ -26,8 +27,6 @@ interface LoginCredentials {
 const AdminPage: React.FC = () => {
   // États d'authentification
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [loginForm, setLoginForm] = useState<LoginCredentials>({ username: '', password: '' });
-  const [loginError, setLoginError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
   // États de navigation
@@ -52,7 +51,7 @@ const AdminPage: React.FC = () => {
 
   // Vérifier l'authentification au chargement de la page
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
+    const token = getAccessToken();
     if (token) {
       setIsAuthenticated(true);
     }
@@ -345,41 +344,14 @@ const AdminPage: React.FC = () => {
   const outOfStockParts = parts.filter(p => p.stock === 0).length;
   const publishedPosts = blogPosts.filter(p => p.is_published).length;
 
-  // Gestion de l'authentification
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setLoginError('');
-
-    try {
-      const response = await api.post('/login/', {
-        username: loginForm.username,
-        password: loginForm.password
-      });
-      localStorage.setItem('access_token', response.data.access);
-      localStorage.setItem('refresh_token', response.data.refresh);
-      setIsAuthenticated(true);
-    } catch (error) {
-      setLoginError('Email/nom d\'utilisateur ou mot de passe incorrect');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleLogout = () => {
+    localStorage.removeItem('admin_access_token');
+    localStorage.removeItem('admin_refresh_token');
+    // Nettoyer aussi les anciens tokens au cas où
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     setIsAuthenticated(false);
-    setLoginForm({ username: '', password: '' });
-    setActiveTab('dashboard');
-  };
-
-  const handleLoginInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setLoginForm(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    navigate('/admin/login');
   };
 
   // Définition des colonnes pour les tables
@@ -486,64 +458,118 @@ const AdminPage: React.FC = () => {
   const renderSuperAdminSection = () => {
     if (!isAuthenticated || !canSuperAdmin) return null;
     return (
-      <div className="bg-white rounded-xl shadow p-6 mt-6">
-        <h2 className="text-xl font-bold mb-4">Gestion des administrateurs</h2>
-        {saError && <div className="mb-3 p-3 bg-red-50 border border-red-200 text-red-700 rounded">{saError}</div>}
-        <form onSubmit={handleCreateAdmin} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
-            <input className="w-full border rounded px-3 py-2" type="email" value={saForm.email} onChange={e=>setSaForm({...saForm,email:e.target.value})} required />
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Gestion des administrateurs</h2>
+          <p className="text-gray-600">Gérez les accès et les permissions</p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Ajouter un administrateur</h3>
+          {saError && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md">{saError}</div>}
+          <form onSubmit={handleCreateAdmin} className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <input 
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" 
+                type="email" 
+                value={saForm.email} 
+                onChange={e=>setSaForm({...saForm,email:e.target.value})} 
+                required 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Nom d’utilisateur (optionnel)</label>
+              <input 
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" 
+                type="text" 
+                value={saForm.username} 
+                onChange={e=>setSaForm({...saForm,username:e.target.value})} 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
+              <input 
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" 
+                type="password" 
+                value={saForm.password} 
+                onChange={e=>setSaForm({...saForm,password:e.target.value})} 
+                required 
+              />
+            </div>
+            <div className="flex items-center gap-2 md:pt-8">
+              <input 
+                id="sa_is_super" 
+                type="checkbox" 
+                checked={saForm.is_superuser} 
+                onChange={e=>setSaForm({...saForm,is_superuser:e.target.checked})} 
+                className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+              />
+              <label htmlFor="sa_is_super" className="text-sm text-gray-700">Donner les droits superuser</label>
+            </div>
+            <div className="md:col-span-2 flex justify-end">
+              <button 
+                type="submit" 
+                disabled={saLoading} 
+                className="px-4 py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {saLoading ? 'Création...' : 'Créer un admin'}
+              </button>
+            </div>
+          </form>
+
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Liste des administrateurs</h3>
+            {saLoading && admins.length === 0 ? (
+              <div className="text-center py-4">Chargement...</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Superuser</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actif</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {admins.map(a=> (
+                      <tr key={a.id}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{a.id}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{a.username}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{a.email}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${a.is_superuser ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                            {a.is_superuser ? 'Oui' : 'Non'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${a.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {a.is_active ? 'Oui' : 'Non'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button 
+                            onClick={()=>handleDeleteAdmin(a.id)} 
+                            className="text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-md transition-colors"
+                          >
+                            Supprimer
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {admins.length===0 && (
+                      <tr><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center" colSpan={6}>Aucun admin trouvé.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Nom d’utilisateur (optionnel)</label>
-            <input className="w-full border rounded px-3 py-2" type="text" value={saForm.username} onChange={e=>setSaForm({...saForm,username:e.target.value})} />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Mot de passe</label>
-            <input className="w-full border rounded px-3 py-2" type="password" value={saForm.password} onChange={e=>setSaForm({...saForm,password:e.target.value})} required />
-          </div>
-          <div className="flex items-center gap-2">
-            <input id="sa_is_super" type="checkbox" checked={saForm.is_superuser} onChange={e=>setSaForm({...saForm,is_superuser:e.target.checked})} />
-            <label htmlFor="sa_is_super" className="text-sm">Donner les droits superuser</label>
-          </div>
-          <div className="md:col-span-2">
-            <button type="submit" disabled={saLoading} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Créer un admin</button>
-          </div>
-        </form>
-        <h3 className="text-lg font-semibold mb-2">Liste des admins</h3>
-        {saLoading ? (
-          <div>Chargement...</div>
-        ) : (
-          <table className="w-full text-left border">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="p-2 border">ID</th>
-                <th className="p-2 border">Username</th>
-                <th className="p-2 border">Email</th>
-                <th className="p-2 border">Superuser</th>
-                <th className="p-2 border">Actif</th>
-                <th className="p-2 border">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {admins.map(a=> (
-                <tr key={a.id}>
-                  <td className="p-2 border">{a.id}</td>
-                  <td className="p-2 border">{a.username}</td>
-                  <td className="p-2 border">{a.email}</td>
-                  <td className="p-2 border">{a.is_superuser ? 'Oui' : 'Non'}</td>
-                  <td className="p-2 border">{a.is_active ? 'Oui' : 'Non'}</td>
-                  <td className="p-2 border">
-                    <button onClick={()=>handleDeleteAdmin(a.id)} className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Supprimer</button>
-                  </td>
-                </tr>
-              ))}
-              {admins.length===0 && (
-                <tr><td className="p-2 border" colSpan={6}>Aucun admin pour le moment.</td></tr>
-              )}
-            </tbody>
-          </table>
-        )}
+        </div>
       </div>
     );
   };
@@ -588,86 +614,6 @@ const AdminPage: React.FC = () => {
   ];
 
   // Les données sont automatiquement chargées via les hooks useMotorcycles, useParts, useBlog
-
-  // Affichage du formulaire de connexion
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
-          <div className="text-center mb-8">
-            <Lock size={48} className="mx-auto text-red-600 mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900">Administration</h1>
-            <p className="text-gray-600 mt-2">Connectez-vous pour accéder au panneau d'administration</p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                Email ou nom d'utilisateur
-              </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={loginForm.username}
-                onChange={handleLoginInputChange}
-                placeholder="Entrez votre email ou nom d'utilisateur"
-                required
-                disabled={loading}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-100"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Mot de passe
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={loginForm.password}
-                onChange={handleLoginInputChange}
-                required
-                disabled={loading}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-100"
-              />
-            </div>
-
-            {loginError && (
-              <div className="text-red-600 text-sm text-center bg-red-50 p-2 rounded">
-                {loginError}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-white mr-2"></div>
-                  Connexion...
-                </div>
-              ) : (
-                'Se connecter'
-              )}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <a
-              href="/admin/password-reset"
-              className="text-sm text-red-600 hover:text-red-700 transition-colors"
-            >
-              Mot de passe oublié ?
-            </a>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Interface d'administration
   return (
@@ -715,7 +661,9 @@ const AdminPage: React.FC = () => {
                 { id: 'motorcycles', label: 'Motos', icon: Bike },
                 { id: 'parts', label: 'Pièces détachées', icon: Package },
                 { id: 'blog', label: 'Blog', icon: FileText },
-                { id: 'settings', label: 'Paramètres du site', icon: Settings }
+                { id: 'settings', label: 'Paramètres du site', icon: Settings },
+                // Ajouter l'onglet Super Admin si autorisé
+                ...(canSuperAdmin ? [{ id: 'superadmin', label: 'Super Admin', icon: ShieldAlert }] : [])
               ].map((tab) => {
                 const Icon = tab.icon;
                 return (
@@ -1160,6 +1108,8 @@ const AdminPage: React.FC = () => {
               )}
             </div>
           )}
+          
+          {activeTab === 'superadmin' && renderSuperAdminSection()}
           
 
         </main>

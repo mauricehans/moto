@@ -13,6 +13,9 @@ const adminApi = axios.create({
 
 // Services pour l'administration
 export const adminService = {
+  login: (username: string, password: string): Promise<AxiosResponse<{ access: string; refresh: string }>> => 
+    adminApi.post('/login/', { username, password }),
+
   requestPasswordReset: (email: string): Promise<AxiosResponse<{ message: string }>> => 
     adminApi.post('/admin/password-reset/', { email }),
 
@@ -33,7 +36,7 @@ export default adminService;
 
 export const getAccessToken = (): string | null => {
   try {
-    return localStorage.getItem('admin_access_token');
+    return localStorage.getItem('access_token');
   } catch {
     return null;
   }

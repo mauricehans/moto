@@ -154,6 +154,10 @@ api.interceptors.response.use(
     if (error.response?.status === 404 && typeof url === 'string' && url.endsWith('/blog/admin/')) {
       return Promise.reject(error);
     }
+    // Ignorer l'erreur 403 sur /superadmin/admins/ car c'est une vérification de droits normale
+    if (error.response?.status === 403 && typeof url === 'string' && url.includes('/superadmin/admins/')) {
+      return Promise.reject(error);
+    }
     console.error('API Error Details:', {
       url,
       status: error.response?.status,

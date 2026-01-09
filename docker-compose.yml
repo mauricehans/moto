@@ -1,6 +1,25 @@
-version: '3.8'
-
 services:
+  nginx:
+    build:
+      context: ./nginx
+    container_name: agde_moto_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+
   db:
     image: postgres:15
     container_name: agde_moto_db

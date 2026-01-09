@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Configuration de sécurité
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-agde-moto-secret-key-change-in-production')
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = ['backend', 'agdemoto.fr', 'www.agdemoto.fr'] + os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,72.62.180.174').split(',')
 
 # Configuration de sécurité - HTTP UNIQUEMENT
 # Tous les paramètres HTTPS/HSTS sont supprimés pour éviter le cache HTTPS
@@ -98,7 +98,12 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = Path(os.environ.get('MEDIA_ROOT', str(BASE_DIR / 'media')))
 
 # CORS Configuration - IMPORTANT pour la communication frontend/backend
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',')
+CORS_ALLOWED_ORIGINS = [
+    "http://agdemoto.fr",
+    "https://agdemoto.fr",
+    "http://www.agdemoto.fr",
+    "https://www.agdemoto.fr",
+] + os.environ.get('CORS_ALLOWED_ORIGINS', 'http://72.62.180.174,http://localhost:5173,http://127.0.0.1:5173,http://72.62.180.174:4173,http://72.62.180.174:5173').split(',')
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -118,7 +123,12 @@ CORS_ALLOWED_HEADERS = [
 
 # HTTPS reverse proxy support
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://agdemoto.fr,https://www.agdemoto.fr').split(',')
+CSRF_TRUSTED_ORIGINS = [
+    "http://agdemoto.fr",
+    "https://agdemoto.fr",
+    "http://www.agdemoto.fr",
+    "https://www.agdemoto.fr",
+] + os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://72.62.180.174,http://localhost:5173,http://127.0.0.1:5173,http://72.62.180.174:4173,http://72.62.180.174:5173').split(',')
 
 # REST Framework simple
 REST_FRAMEWORK = {
@@ -183,9 +193,11 @@ CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', 'False').lower() == 'true'
 CSRF_COOKIE_HTTPONLY = os.getenv('CSRF_COOKIE_HTTPONLY', 'True').lower() == 'true'
 CSRF_COOKIE_SAMESITE = os.getenv('CSRF_COOKIE_SAMESITE', 'Lax')
 
-# Configuration des uploads
-FILE_UPLOAD_MAX_MEMORY_SIZE = int(os.getenv('MAX_UPLOAD_SIZE', '10485760'))
-DATA_UPLOAD_MAX_MEMORY_SIZE = int(os.getenv('MAX_UPLOAD_SIZE', '10485760'))
+# Configuration des uploads (Optimisé pour gros fichiers jusqu'à 1Go)
+# Les fichiers > 10 Mo seront streamés sur le disque au lieu de la RAM
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 Mo
+# DATA_UPLOAD_MAX_MEMORY_SIZE concerne les champs texte POST, on laisse par défaut (2.5Mo) pour la sécurité
+# DATA_UPLOAD_MAX_MEMORY_SIZE = ...
 
 # Configuration JWT sécurisée
 
@@ -266,6 +278,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 't')
+EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False').lower() in ('true', '1', 't')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL') or EMAIL_HOST_USER or 'noreply@agdemoto.com'
