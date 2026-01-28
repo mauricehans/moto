@@ -27,12 +27,12 @@ services:
       POSTGRES_DB: agde_moto
       POSTGRES_USER: agde_user
       POSTGRES_PASSWORD: agde_password123
-      POSTGRES_HOST_AUTH_METHOD: trust
-    ports:
-      - "5432:5432"
+      # POSTGRES_HOST_AUTH_METHOD: trust  <-- SUPPRIMÉ POUR SÉCURITÉ
+    # Ports supprimés pour ne pas exposer la DB sur internet
+    # ports:
+    #   - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U agde_user -d agde_moto"]
@@ -44,12 +44,14 @@ services:
     build:
       context: ./backend
     container_name: agde_moto_backend
-    command: python manage.py runserver 0.0.0.0:8000
+    # Utilisation de Gunicorn pour la production au lieu de runserver
+    command: gunicorn agde_moto.wsgi:application --bind 0.0.0.0:8000 --workers 3
     volumes:
       - ./backend:/app
       - /var/www/media:/app/media
-    ports:
-      - "8000:8000"
+    # Ports supprimés, seul Nginx peut lui parler
+    # ports:
+    #   - "8000:8000"
     env_file:
       - .env
     depends_on:
@@ -61,21 +63,17 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     container_name: agde_moto_frontend
-    ports:
-      - "4173:4173"
+    # Ports supprimés, seul Nginx peut lui parler
+    # ports:
+    #   - "4173:4173"
     environment:
       - DOCKER_ENV=true
     depends_on:
       - backend
     restart: unless-stopped
 
-  mailpit:
-    image: axllent/mailpit:latest
-    container_name: mailpit
-    ports:
-      - "1025:1025"
-      - "8025:8025"
-    restart: unless-stopped
+  # Mailpit supprimé en production car on utilise le SMTP Hostinger
+  # mailpit: ...
 
 volumes:
   postgres_data:

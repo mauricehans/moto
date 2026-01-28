@@ -99,7 +99,7 @@ const AdminImageGalleryPage: React.FC = () => {
       const MAX_PER_FILE = 1024 * 1024 * 1024;
       for (let i = 0; i < selectedFiles.length; i++) {
         if (selectedFiles[i].size > MAX_PER_FILE) {
-          throw new Error('Fichier trop volumineux (>25MB). Réduisez la taille avant upload.');
+          throw new Error('Fichier trop volumineux (>1Go). Réduisez la taille avant upload.');
         }
       }
       switch (type) {
