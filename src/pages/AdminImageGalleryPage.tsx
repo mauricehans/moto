@@ -6,6 +6,7 @@ import api from '../services/api';
 import { Motorcycle } from '../types/Motorcycle';
 import { Part } from '../types/Part';
 import { Post } from '../types/Blog';
+import { getImageUrl } from '../utils/imageUrl';
 
 type ItemType = 'motorcycle' | 'part' | 'blog';
 
@@ -66,13 +67,14 @@ const AdminImageGalleryPage: React.FC = () => {
           setImages([]);
         }
       } else {
-        setImages((itemData.data as Motorcycle | Part).images || []);
+        const itemImages = (itemData.data as Motorcycle | Part).images;
+        setImages(Array.isArray(itemImages) ? itemImages : []);
       }
 
       if (type === 'motorcycle') {
         try {
           const res = await api.get(`/motorcycles/${id}/list_images/`);
-          setFsImages(res.data?.filesystem || []);
+          setFsImages(Array.isArray(res.data?.filesystem) ? res.data.filesystem : []);
         } catch (e) {
           setFsImages([]);
         }
@@ -367,7 +369,7 @@ const AdminImageGalleryPage: React.FC = () => {
                 <div key={image.id} className="relative group">
                   <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                     <img
-                      src={image.image}
+                      src={getImageUrl(image.image)}
                       alt="Image de l'item"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
@@ -395,7 +397,7 @@ const AdminImageGalleryPage: React.FC = () => {
                       )}
                       
                       <button
-                        onClick={() => window.open(image.image, '_blank')}
+                        onClick={() => window.open(getImageUrl(image.image), '_blank')}
                         className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
                         title="Voir en grand"
                       >
@@ -403,7 +405,7 @@ const AdminImageGalleryPage: React.FC = () => {
                       </button>
                       
                       <a
-                        href={image.image}
+                        href={getImageUrl(image.image)}
                         download
                         className="p-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors"
                         title="Télécharger"

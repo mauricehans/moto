@@ -5,6 +5,7 @@ import { Images } from 'lucide-react';
 import { blogService } from '../services/api';
 import { Post, BlogCategory } from '../types/Blog';
 import { getAccessToken } from '../services/adminService';
+import { getImageUrl } from '../utils/imageUrl';
 
 function EditBlogPostPage() {
   const { id } = useParams<{ id: string }>();
@@ -213,7 +214,7 @@ function EditBlogPostPage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               >
                 <option value="">Sélectionnez une catégorie</option>
-                {categories.map((c) => (
+                {Array.isArray(categories) && categories.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
@@ -246,7 +247,7 @@ function EditBlogPostPage() {
               {post?.image && (
                 <div className="mt-4">
                   <p className="text-sm font-medium text-gray-700 mb-2">Image actuelle</p>
-                  <img src={post.image} alt="Image de l'article" className="w-full h-40 object-cover rounded border" />
+                  <img src={getImageUrl(post.image)} alt="Image de l'article" className="w-full h-40 object-cover rounded border" />
                 </div>
               )}
             </div>

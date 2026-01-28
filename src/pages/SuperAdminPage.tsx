@@ -17,7 +17,7 @@ const SuperAdminPage = () => {
     setLoading(true); setError('');
     try {
       const res = await api.get('/superadmin/admins/');
-      setAdmins(res.data.admins || []);
+      setAdmins(Array.isArray(res.data.admins) ? res.data.admins : []);
     } catch (e: any) {
       setError('Accès refusé ou erreur serveur');
       setShowLogin(true);
@@ -145,7 +145,7 @@ const SuperAdminPage = () => {
               </tr>
             </thead>
             <tbody>
-              {admins.map(a=> (
+              {Array.isArray(admins) && admins.map(a=> (
                 <tr key={a.id}>
                   <td className="p-2 border">{a.id}</td>
                   <td className="p-2 border">{a.username}</td>

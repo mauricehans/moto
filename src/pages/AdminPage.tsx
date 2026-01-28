@@ -261,7 +261,7 @@ const AdminPage: React.FC = () => {
     setSaError('');
     try {
       const res = await api.get('/superadmin/admins/');
-      setAdmins(res.data.admins || []);
+      setAdmins(Array.isArray(res.data.admins) ? res.data.admins : []);
       setCanSuperAdmin(true);
     } catch (e: any) {
       setCanSuperAdmin(false);
@@ -944,7 +944,8 @@ const AdminPage: React.FC = () => {
                   <div className="bg-white rounded-lg shadow-md p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Horaires d'ouverture</h3>
                     <div className="space-y-6">
-                      {Object.entries(garageSettings.business_hours).map(([day, hours]) => {
+                      {garageSettings.business_hours && typeof garageSettings.business_hours === 'object' ? (
+                        Object.entries(garageSettings.business_hours).map(([day, hours]) => {
                         const dayLabels: { [key: string]: string } = {
                           monday: 'Lundi',
                           tuesday: 'Mardi',
@@ -955,6 +956,9 @@ const AdminPage: React.FC = () => {
                           sunday: 'Dimanche'
                         };
                         
+                        // Sécurisation de l'objet hours
+                        if (!hours || typeof hours !== 'object') return null;
+
                         return (
                           <div key={day} className="border border-gray-200 rounded-lg p-4">
                             <div className="flex items-center justify-between mb-3">
@@ -987,7 +991,7 @@ const AdminPage: React.FC = () => {
                               <span className="text-sm text-gray-500 italic">Fermé</span>
                             ) : (
                               <div className="space-y-2">
-                                {hours.intervals.map((interval: { open: string; close: string }, index: number) => (
+                                {Array.isArray(hours.intervals) ? hours.intervals.map((interval: { open: string; close: string }, index: number) => (
                                   <div key={index} className="flex items-center space-x-3">
                                     <span className="text-sm text-gray-600 w-8">#{index + 1}</span>
                                     <div className="flex items-center space-x-2">
@@ -1010,7 +1014,7 @@ const AdminPage: React.FC = () => {
                                         className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                                       />
                                     </div>
-                                    {hours.intervals.length > 1 && (
+                                    {Array.isArray(hours.intervals) && hours.intervals.length > 1 && (
                                       <button
                                         type="button"
                                         onClick={() => removeInterval(day, index)}
@@ -1020,15 +1024,20 @@ const AdminPage: React.FC = () => {
                                       </button>
                                     )}
                                   </div>
-                                ))}
-                                {hours.intervals.length === 0 && (
+                                )) : <p className="text-sm text-red-500">Erreur format horaires</p>}
+                                {Array.isArray(hours.intervals) && hours.intervals.length === 0 && (
                                   <p className="text-sm text-gray-500 italic">Aucun créneau défini</p>
                                 )}
                               </div>
                             )}
                           </div>
                         );
-                      })}
+                      })
+                      ) : (
+                        <div className="text-center py-4 text-red-600">
+                          Erreur de chargement des horaires. Veuillez contacter le support.
+                        </div>
+                      )}
                     </div>
                   </div>
 

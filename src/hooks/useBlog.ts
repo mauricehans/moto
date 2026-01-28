@@ -15,7 +15,8 @@ export const useBlogPosts = (): UseQueryResult<Post[], Error> => {
     queryFn: async () => {
       try {
         const response = await blogService.getPosts();
-        return response.data?.results || [];
+        const results = response.data?.results;
+        return Array.isArray(results) ? results : [];
       } catch (error) {
         console.error('Failed to fetch blog posts:', error);
         return [];

@@ -307,7 +307,7 @@ function EditMotorcyclePage() {
                 <div className="mt-4">
                   <p className="text-sm font-medium text-gray-700 mb-2">Images existantes</p>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {motorcycle.images.map(img => (
+                    {Array.isArray(motorcycle.images) && motorcycle.images.map(img => (
                       <div key={img.id} className="relative border rounded-md overflow-hidden">
                         <img src={img.image} alt="" className="w-full h-32 object-cover" />
                         <div className="absolute top-2 left-2">

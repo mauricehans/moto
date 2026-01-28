@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar, User, Settings, Images } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import { useBlogPost } from '../hooks/useBlog';
+import { getImageUrl } from '../utils/imageUrl';
 
 const BlogPostPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -43,7 +44,7 @@ const BlogPostPage = () => {
       <HeroSection
         title={post.title}
         subtitle="Article du blog"
-        backgroundImage={post.image || "https://images.pexels.com/photos/2519374/pexels-photo-2519374.jpeg"}
+        backgroundImage={getImageUrl(post.image) || "https://images.pexels.com/photos/2519374/pexels-photo-2519374.jpeg"}
       />
 
       <div className="container mx-auto px-4 py-16">
@@ -87,7 +88,7 @@ const BlogPostPage = () => {
           {post.image && (
             <div className="mb-8">
               <img
-                src={post.image}
+                src={getImageUrl(post.image)}
                 alt={post.title}
                 className="w-full h-96 object-cover rounded-lg shadow-lg"
               />
@@ -126,7 +127,7 @@ const BlogPostPage = () => {
                   <p className="text-blue-100 mb-3">Image actuelle:</p>
                   <div className="flex items-center space-x-4">
                     <img
-                      src={post.image}
+                      src={getImageUrl(post.image)}
                       alt="Image de l'article"
                       className="w-24 h-16 object-cover rounded border-2 border-white/20"
                     />

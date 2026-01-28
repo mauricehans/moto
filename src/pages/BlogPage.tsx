@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import SectionTitle from '../components/SectionTitle';
 import { useBlogPosts } from '../hooks/useBlog';
+import { getImageUrl } from '../utils/imageUrl';
 
 const BlogPage = () => {
   useEffect(() => {
@@ -34,7 +35,7 @@ const BlogPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts?.filter(p => p.is_published).map((post) => (
               <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                <img src={post.image} alt={post.title} className="w-full h-48 object-cover" />
+                <img src={getImageUrl(post.image)} alt={post.title} className="w-full h-48 object-cover" />
                 <div className="p-4 bg-white">
                   <h3 className="text-xl font-semibold mb-2 text-black">{post.title}</h3>
                   <p className="text-black mb-4">{post.excerpt || post.content.substring(0, 100) + '...'}</p>

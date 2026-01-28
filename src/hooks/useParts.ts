@@ -16,7 +16,8 @@ export const useParts = (): UseQueryResult<Part[], Error> => {
     queryFn: async () => {
       try {
         const response = await partsService.getAll();
-        return response.data?.results || [];
+        const results = response.data?.results;
+        return Array.isArray(results) ? results : [];
       } catch (error) {
         console.error('Failed to fetch parts:', error);
         return [];

@@ -8,7 +8,8 @@ export const useMotorcycles = (): UseQueryResult<Motorcycle[], Error> => {
     queryFn: async () => {
       try {
         const response = await motorcycleService.getAll();
-        return response.data?.results || [];
+        const results = response.data?.results;
+        return Array.isArray(results) ? results : [];
       } catch (error) {
         console.error('Failed to fetch motorcycles:', error);
         return [];

@@ -38,7 +38,7 @@ function DataTable<T extends { id: string | number }>({
     );
   }
 
-  if (data.length === 0) {
+  if (!Array.isArray(data) || data.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-500">{emptyMessage}</p>
@@ -46,12 +46,14 @@ function DataTable<T extends { id: string | number }>({
     );
   }
 
+  const safeColumns = Array.isArray(columns) ? columns : [];
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            {columns.map((column) => (
+            {safeColumns.map((column) => (
               <th
                 key={String(column.key)}
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -69,7 +71,7 @@ function DataTable<T extends { id: string | number }>({
         <tbody className="bg-white divide-y divide-gray-200">
           {data.map((item) => (
             <tr key={item.id} className="hover:bg-gray-50">
-              {columns.map((column) => (
+              {safeColumns.map((column) => (
                 <td key={String(column.key)} className="px-6 py-4 whitespace-nowrap">
                   {column.render 
                     ? column.render(item[column.key], item)

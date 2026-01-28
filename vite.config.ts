@@ -23,7 +23,7 @@ export default defineConfig({
         rewrite: (path) => path
       },
       '/media': {
-        target: 'http://72.62.180.174:8000',
+        target: backendTarget,
         changeOrigin: true,
         secure: false
       },
@@ -45,7 +45,7 @@ export default defineConfig({
         rewrite: (path) => path
       },
       '/media': {
-        target: 'http://72.62.180.174:8000',
+        target: backendTarget,
         changeOrigin: true,
         secure: false
       },
