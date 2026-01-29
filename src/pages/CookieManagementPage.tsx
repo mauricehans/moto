@@ -113,7 +113,7 @@ const CookieManagementPage: React.FC = () => {
 
           {/* Cookie Preferences */}
           <section>
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Gérer vos préférences</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Utilisation des cookies</h2>
             
             <div className="space-y-6">
               {/* Necessary Cookies */}
@@ -131,118 +131,48 @@ const CookieManagementPage: React.FC = () => {
                 </div>
                 <p className="text-gray-600 text-sm mb-3">
                   Ces cookies sont indispensables au fonctionnement du site. Ils permettent d'utiliser les principales 
-                  fonctionnalités comme la navigation, l'accès aux zones sécurisées et la gestion de votre panier.
+                  fonctionnalités comme l'authentification des administrateurs et la navigation sécurisée.
                 </p>
                 <p className="text-xs text-gray-500">
                   Durée : Session • Finalité : Fonctionnement du site
                 </p>
               </div>
 
-              {/* Analytics Cookies */}
-              <div className="border border-gray-200 rounded-lg p-6">
+              {/* Analytics Cookies - Disabled */}
+              <div className="border border-gray-200 rounded-lg p-6 opacity-75">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-medium text-gray-900">Cookies d'analyse</h3>
-                  <button
-                    onClick={() => handlePreferenceChange('analytics')}
-                    className={`w-12 h-6 rounded-full flex items-center transition-colors ${
-                      preferences.analytics ? 'bg-green-500 justify-end' : 'bg-gray-300 justify-start'
-                    } px-1`}
-                  >
+                  <div className="w-12 h-6 bg-gray-200 rounded-full flex items-center justify-start px-1">
                     <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center">
-                      {preferences.analytics ? (
-                        <Check className="w-3 h-3 text-green-500" />
-                      ) : (
-                        <X className="w-3 h-3 text-gray-400" />
-                      )}
+                      <X className="w-3 h-3 text-gray-400" />
                     </div>
-                  </button>
+                  </div>
                 </div>
                 <p className="text-gray-600 text-sm mb-3">
-                  Ces cookies nous permettent de mesurer l'audience de notre site, d'analyser la navigation 
-                  et d'améliorer nos services. Les données collectées sont anonymisées.
+                  Nous n'utilisons pas de cookies d'analyse ou de mesure d'audience.
                 </p>
                 <p className="text-xs text-gray-500">
-                  Durée : 13 mois • Finalité : Statistiques et amélioration
+                  État : Non utilisé
                 </p>
               </div>
 
-              {/* Marketing Cookies */}
-              <div className="border border-gray-200 rounded-lg p-6">
+              {/* Marketing Cookies - Disabled */}
+              <div className="border border-gray-200 rounded-lg p-6 opacity-75">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-medium text-gray-900">Cookies marketing</h3>
-                  <button
-                    onClick={() => handlePreferenceChange('marketing')}
-                    className={`w-12 h-6 rounded-full flex items-center transition-colors ${
-                      preferences.marketing ? 'bg-green-500 justify-end' : 'bg-gray-300 justify-start'
-                    } px-1`}
-                  >
+                  <div className="w-12 h-6 bg-gray-200 rounded-full flex items-center justify-start px-1">
                     <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center">
-                      {preferences.marketing ? (
-                        <Check className="w-3 h-3 text-green-500" />
-                      ) : (
-                        <X className="w-3 h-3 text-gray-400" />
-                      )}
+                      <X className="w-3 h-3 text-gray-400" />
                     </div>
-                  </button>
+                  </div>
                 </div>
                 <p className="text-gray-600 text-sm mb-3">
-                  Ces cookies permettent de vous proposer des publicités personnalisées sur notre site 
-                  et sur d'autres sites web, en fonction de vos centres d'intérêt.
+                  Nous n'utilisons aucun cookie publicitaire ou de traçage commercial.
                 </p>
                 <p className="text-xs text-gray-500">
-                  Durée : 13 mois • Finalité : Publicité ciblée
+                  État : Non utilisé
                 </p>
               </div>
-
-              {/* Functional Cookies */}
-              <div className="border border-gray-200 rounded-lg p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-gray-900">Cookies fonctionnels</h3>
-                  <button
-                    onClick={() => handlePreferenceChange('functional')}
-                    className={`w-12 h-6 rounded-full flex items-center transition-colors ${
-                      preferences.functional ? 'bg-green-500 justify-end' : 'bg-gray-300 justify-start'
-                    } px-1`}
-                  >
-                    <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center">
-                      {preferences.functional ? (
-                        <Check className="w-3 h-3 text-green-500" />
-                      ) : (
-                        <X className="w-3 h-3 text-gray-400" />
-                      )}
-                    </div>
-                  </button>
-                </div>
-                <p className="text-gray-600 text-sm mb-3">
-                  Ces cookies permettent d'améliorer les fonctionnalités du site et de personnaliser votre expérience 
-                  (langue, région, préférences d'affichage).
-                </p>
-                <p className="text-xs text-gray-500">
-                  Durée : 12 mois • Finalité : Personnalisation
-                </p>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-4 mt-8 pt-6 border-t border-gray-200">
-              <button
-                onClick={acceptAll}
-                className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-medium"
-              >
-                Tout accepter
-              </button>
-              <button
-                onClick={rejectAll}
-                className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium"
-              >
-                Tout refuser
-              </button>
-              <button
-                onClick={savePreferences}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-              >
-                Sauvegarder mes choix
-              </button>
             </div>
           </section>
 
@@ -268,13 +198,8 @@ const CookieManagementPage: React.FC = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Cookies tiers</h2>
             <div className="text-gray-700 space-y-3">
               <p>
-                Notre site peut contenir des cookies provenant de services tiers :
+                Notre site peut contenir des liens vers des réseaux sociaux (Facebook, Instagram) qui peuvent déposer des cookies si vous interagissez avec leurs plateformes.
               </p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li><strong>Google Analytics :</strong> pour l'analyse d'audience</li>
-                <li><strong>Google Maps :</strong> pour l'affichage de cartes</li>
-                <li><strong>Réseaux sociaux :</strong> pour les boutons de partage</li>
-              </ul>
               <p>
                 Ces services ont leurs propres politiques de cookies que nous vous invitons à consulter.
               </p>
@@ -286,7 +211,7 @@ const CookieManagementPage: React.FC = () => {
             <div className="text-gray-700 space-y-3">
               <p>
                 Pour toute question concernant notre utilisation des cookies, 
-                vous pouvez nous contacter à [email de contact].
+                vous pouvez nous contacter à agdemoto343@gmail.com.
               </p>
             </div>
           </section>

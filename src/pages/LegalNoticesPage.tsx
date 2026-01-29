@@ -29,29 +29,29 @@ const LegalNoticesPage: React.FC = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">1. Informations légales</h2>
             <div className="text-gray-700 space-y-3">
               <p><strong>Dénomination sociale :</strong> Agde Moto Gattuso</p>
-              <p><strong>Forme juridique :</strong> [À compléter]</p>
-              <p><strong>Capital social :</strong> [À compléter]</p>
-              <p><strong>Siège social :</strong> [Adresse à compléter], Agde, France</p>
-              <p><strong>Numéro SIRET :</strong> [À compléter]</p>
-              <p><strong>Code APE :</strong> [À compléter]</p>
-              <p><strong>Numéro de TVA intracommunautaire :</strong> [À compléter]</p>
+              <p><strong>Forme juridique :</strong> Entreprise Individuelle</p>
+              <p><strong>Capital social :</strong> 5000€</p>
+              <p><strong>Siège social :</strong> 7 avenue de Vias, Agde, France</p>
+              <p><strong>Numéro SIRET :</strong> 939 439 584 00011</p>
+              <p><strong>Code APE :</strong> 4520A</p>
+              <p><strong>Numéro de TVA intracommunautaire :</strong> FR60939439584</p>
             </div>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 mb-4">2. Directeur de la publication</h2>
             <div className="text-gray-700">
-              <p><strong>Directeur de la publication :</strong> [Nom du dirigeant]</p>
-              <p><strong>Contact :</strong> [Email de contact]</p>
+              <p><strong>Directeur de la publication :</strong> Leo GATTUSO</p>
+              <p><strong>Contact :</strong> agdemoto343@gmail.com</p>
             </div>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 mb-4">3. Hébergement du site</h2>
             <div className="text-gray-700 space-y-3">
-              <p><strong>Hébergeur :</strong> [Nom de l'hébergeur]</p>
-              <p><strong>Adresse :</strong> [Adresse de l'hébergeur]</p>
-              <p><strong>Téléphone :</strong> [Numéro de téléphone]</p>
+              <p><strong>Hébergeur :</strong> Hostinger International Ltd.</p>
+              <p><strong>Adresse :</strong> 61 Lordou Vironos Street, 6023 Larnaca, Chypre</p>
+              <p><strong>Contact :</strong> https://www.hostinger.fr/contact</p>
             </div>
           </section>
 
@@ -77,7 +77,7 @@ const LegalNoticesPage: React.FC = () => {
               </p>
               <p>
                 Si vous constatez une lacune, erreur ou ce qui parait être un dysfonctionnement, merci de bien vouloir le signaler par email, 
-                à l'adresse [email de contact], en décrivant le problème de la façon la plus précise possible.
+                à l'adresse agdemoto343@gmail.com, en décrivant le problème de la façon la plus précise possible.
               </p>
             </div>
           </section>
@@ -100,7 +100,7 @@ const LegalNoticesPage: React.FC = () => {
                 de modification et de suppression des données qui vous concernent.
               </p>
               <p>
-                Pour exercer ce droit, adressez-vous à : [email de contact]
+                Pour exercer ce droit, adressez-vous à : agdemoto343@gmail.com
               </p>
             </div>
           </section>

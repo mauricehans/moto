@@ -169,13 +169,6 @@ const TermsOfSalePage: React.FC = () => {
               </p>
             </div>
           </section>
-
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-8">
-            <p className="text-blue-800 text-sm">
-              <strong>Contact :</strong> Pour toute question concernant ces conditions générales de vente, 
-              vous pouvez nous contacter à [email de contact] ou au [numéro de téléphone].
-            </p>
-          </div>
         </div>
 
         {/* Footer navigation */}

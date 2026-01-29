@@ -16,6 +16,10 @@ const Footer = () => {
     );
   }
   
+  const scrollToTop = () => {
+    window.scrollTo(0, 0);
+  };
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-12">
@@ -54,19 +58,19 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Liens rapides</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-gray-400 hover:text-white transition-colors">Accueil</Link>
+                <Link to="/" className="text-gray-400 hover:text-white transition-colors" onClick={scrollToTop}>Accueil</Link>
               </li>
               <li>
-                <Link to="/motorcycles" className="text-gray-400 hover:text-white transition-colors">Motos</Link>
+                <Link to="/motorcycles" className="text-gray-400 hover:text-white transition-colors" onClick={scrollToTop}>Motos</Link>
               </li>
               <li>
-                <Link to="/parts" className="text-gray-400 hover:text-white transition-colors">Pièces Détachées</Link>
+                <Link to="/parts" className="text-gray-400 hover:text-white transition-colors" onClick={scrollToTop}>Pièces Détachées</Link>
               </li>
               <li>
-                <Link to="/blog" className="text-gray-400 hover:text-white transition-colors">Blog</Link>
+                <Link to="/blog" className="text-gray-400 hover:text-white transition-colors" onClick={scrollToTop}>Blog</Link>
               </li>
               <li>
-                <Link to="/contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link>
+                <Link to="/contact" className="text-gray-400 hover:text-white transition-colors" onClick={scrollToTop}>Contact</Link>
               </li>
             </ul>
           </div>
@@ -129,16 +133,16 @@ const Footer = () => {
         {/* Legal Links */}
         <div className="border-t border-gray-800 mt-8 pt-8">
           <div className="flex flex-wrap justify-center gap-6 mb-4">
-            <Link to="/legal/notices" className="text-gray-400 hover:text-white transition-colors text-sm">
+            <Link to="/legal/notices" className="text-gray-400 hover:text-white transition-colors text-sm" onClick={scrollToTop}>
               Mentions légales
             </Link>
-            <Link to="/legal/terms" className="text-gray-400 hover:text-white transition-colors text-sm">
+            <Link to="/legal/terms" className="text-gray-400 hover:text-white transition-colors text-sm" onClick={scrollToTop}>
               Conditions générales de vente
             </Link>
-            <Link to="/legal/privacy" className="text-gray-400 hover:text-white transition-colors text-sm">
+            <Link to="/legal/privacy" className="text-gray-400 hover:text-white transition-colors text-sm" onClick={scrollToTop}>
               Politique de confidentialité
             </Link>
-            <Link to="/legal/cookies" className="text-gray-400 hover:text-white transition-colors text-sm">
+            <Link to="/legal/cookies" className="text-gray-400 hover:text-white transition-colors text-sm" onClick={scrollToTop}>
               Gestion des cookies
             </Link>
           </div>

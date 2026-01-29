@@ -40,6 +40,7 @@ function AppContent() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <ScrollToTop />
       {!isAdminPage && <Navbar />}
       <main className="flex-grow">
         <Routes>
