@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Wrench, Award, Shield, Clock } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 import HeroSection from '../components/HeroSection';
 import SectionTitle from '../components/SectionTitle';
 import MotorcycleCard from '../components/MotorcycleCard';
@@ -36,6 +37,10 @@ const HomePage = () => {
 
   return (
     <div>
+      <Helmet>
+        <title>{settings?.name || "Agde Moto Gattuso - Vente de motos et pièces détachées"}</title>
+        <meta name="description" content={settings?.description || "Votre spécialiste moto à Agde depuis 2005. Vente de motos d'occasion et pièces détachées sélectionnées avec soin."} />
+      </Helmet>
       <HeroSection
         title={settings?.name || "Agde Moto Gattuso"}
         subtitle={settings?.description || "Votre spécialiste moto à Agde depuis 2005. Vente de motos d'occasion et pièces détachées sélectionnées avec soin."}

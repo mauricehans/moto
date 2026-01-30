@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { HelmetProvider, Helmet } from 'react-helmet-async';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -40,6 +41,11 @@ function AppContent() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <Helmet>
+        <title>Agde Moto Gattuso - Vente de motos et pièces détachées</title>
+        <meta name="description" content="Votre spécialiste moto à Agde depuis 2005. Vente de motos d'occasion, pièces détachées et accessoires. Entretien et réparation toutes marques." />
+        <link rel="canonical" href={`https://agdemoto.fr${location.pathname}`} />
+      </Helmet>
       <ScrollToTop />
       {!isAdminPage && <Navbar />}
       <main className="flex-grow">
@@ -82,11 +88,13 @@ function AppContent() {
 function App() {
   return (
     <ErrorBoundary>
-      <DataProvider>
-        <Router>
-          <AppContent />
-        </Router>
-      </DataProvider>
+      <HelmetProvider>
+        <DataProvider>
+          <Router future={{ v7_startTransition: true }}>
+            <AppContent />
+          </Router>
+        </DataProvider>
+      </HelmetProvider>
     </ErrorBoundary>
   );
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Search } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import SectionTitle from '../components/SectionTitle';
@@ -122,6 +123,10 @@ const PartsPage = () => {
 
   return (
     <div>
+      <Helmet>
+        <title>Pièces détachées moto - Agde Moto Gattuso</title>
+        <meta name="description" content="Large choix de pièces détachées neuves et d'occasion pour motos toutes marques. Livraison rapide." />
+      </Helmet>
       <HeroSection
         title="Pièces Détachées"
         subtitle="Découvrez notre large sélection de pièces détachées de qualité pour votre moto"

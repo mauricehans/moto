@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
@@ -19,6 +20,10 @@ const BlogPage = () => {
 
   return (
     <div>
+      <Helmet>
+        <title>Blog Moto - Conseils et Actualités - Agde Moto Gattuso</title>
+        <meta name="description" content="Retrouvez nos derniers articles, essais motos, conseils d'entretien et actualités du monde de la moto." />
+      </Helmet>
       <HeroSection
         title="Blog Moto"
         subtitle="Actualités, conseils et passion moto"

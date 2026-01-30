@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Search } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import SectionTitle from '../components/SectionTitle';
@@ -124,6 +125,10 @@ const MotorcyclesPage = () => {
 
   return (
     <div>
+      <Helmet>
+        <title>Motos d'occasion - Agde Moto Gattuso</title>
+        <meta name="description" content="Découvrez notre large sélection de motos d'occasion à Agde. Yamaha, Honda, Suzuki, BMW... Toutes nos motos sont révisées et garanties." />
+      </Helmet>
       <HeroSection
         title="Nos Motos à Vendre"
         subtitle="Découvrez notre sélection de motos d'occasion premium, toutes soigneusement entretenues et garanties."
