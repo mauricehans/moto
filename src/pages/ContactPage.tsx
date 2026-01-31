@@ -26,11 +26,7 @@ const ContactPage = () => {
       <HeroSection
         title="Contactez-Nous"
         subtitle="Nous sommes à votre disposition pour répondre à toutes vos questions"
-<<<<<<< HEAD
-        backgroundImage="https://images.pexels.com/photos/2116475/pexels-photo-2116475.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-=======
-        backgroundImage="/contact-hero.jpg"
->>>>>>> c120eb934a3350367021df6cbd2fd35b8d1e7f71
+        backgroundImage="/agde-moto-devanture.jpg"
       />
 
       <section className="py-16 bg-white">
