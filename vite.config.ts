@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 const isDocker = process.env.DOCKER_ENV === 'true';
-const backendTarget = isDocker ? 'http://backend:8000' : (process.env.BACKEND_URL || 'http://72.62.180.174:8000');
+const backendTarget = isDocker ? 'http://backend:8000' : (process.env.BACKEND_URL || 'http://178.16.130.95:8000');
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -14,7 +14,7 @@ export default defineConfig({
     port: 5173,
     host: '0.0.0.0',
     strictPort: true,
-    allowedHosts: ['agdemoto.fr', 'www.agdemoto.fr', '72.62.180.174'],
+    allowedHosts: ['agdemoto.fr', 'www.agdemoto.fr', '178.16.130.95'],
     proxy: {
       '/api': {
         target: backendTarget,

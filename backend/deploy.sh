@@ -31,6 +31,6 @@ else:
 "
 
 echo "✅ Déploiement terminé !"
-echo "🌐 API disponible sur: http://72.62.180.174:8000/api/v1/"
-echo "📚 Documentation: http://72.62.180.174:8000/api/docs/"
-echo "🔧 Admin: http://72.62.180.174:8000/admin/"
+echo "🌐 API disponible sur: http://178.16.130.95:8000/api/v1/"
+echo "📚 Documentation: http://178.16.130.95:8000/api/docs/"
+echo "🔧 Admin: http://178.16.130.95:8000/admin/"

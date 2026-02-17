@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Configuration de sécurité
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-agde-moto-secret-key-change-in-production')
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-ALLOWED_HOSTS = ['backend', 'agdemoto.fr', 'www.agdemoto.fr'] + os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,72.62.180.174').split(',')
+ALLOWED_HOSTS = ['backend', 'agdemoto.fr', 'www.agdemoto.fr'] + os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,178.16.130.95').split(',')
 
 # Configuration de sécurité - HTTP UNIQUEMENT
 # Tous les paramètres HTTPS/HSTS sont supprimés pour éviter le cache HTTPS
@@ -103,7 +103,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://agdemoto.fr",
     "http://www.agdemoto.fr",
     "https://www.agdemoto.fr",
-] + os.environ.get('CORS_ALLOWED_ORIGINS', 'http://72.62.180.174,http://localhost:5173,http://127.0.0.1:5173,http://72.62.180.174:4173,http://72.62.180.174:5173').split(',')
+] + os.environ.get('CORS_ALLOWED_ORIGINS', 'http://178.16.130.95,http://localhost:5173,http://127.0.0.1:5173,http://178.16.130.95:4173,http://178.16.130.95:5173').split(',')
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -128,7 +128,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://agdemoto.fr",
     "http://www.agdemoto.fr",
     "https://www.agdemoto.fr",
-] + os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://72.62.180.174,http://localhost:5173,http://127.0.0.1:5173,http://72.62.180.174:4173,http://72.62.180.174:5173').split(',')
+] + os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://178.16.130.95,http://localhost:5173,http://127.0.0.1:5173,http://178.16.130.95:4173,http://178.16.130.95:5173').split(',')
 
 # REST Framework simple
 REST_FRAMEWORK = {

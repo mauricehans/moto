@@ -12,7 +12,7 @@ SECRET_KEY = 'django-insecure-test-key-for-development-only'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['backend', 'agdemoto.fr', 'www.agdemoto.fr', 'localhost', '127.0.0.1', '72.62.180.174']
+ALLOWED_HOSTS = ['backend', 'agdemoto.fr', 'www.agdemoto.fr', 'localhost', '127.0.0.1', '178.16.130.95']
 
 # Application definition
 INSTALLED_APPS = [
@@ -72,11 +72,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # CORS
 CORS_ALLOWED_ORIGINS = [
-    "http://72.62.180.174",
+    "http://178.16.130.95",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://72.62.180.174:4173",
-    "http://72.62.180.174:5173",
+    "http://178.16.130.95:4173",
+    "http://178.16.130.95:5173",
 ]
 
 CORS_ALLOW_CREDENTIALS = True

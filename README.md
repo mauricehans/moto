@@ -249,9 +249,9 @@ timeout /t 15
 echo Exécution des migrations...
 docker-compose exec backend python manage.py migrate
 echo Projet prêt !
-echo Frontend: http://72.62.180.174:5173
-echo Backend: http://72.62.180.174:8000
-echo Admin: http://72.62.180.174:8000/admin
+echo Frontend: http://178.16.130.95:5173
+echo Backend: http://178.16.130.95:8000
+echo Admin: http://178.16.130.95:8000/admin
 ```
 
 ### Option 2 : Installation manuelle (Développement)
@@ -312,10 +312,10 @@ npm run dev
 
 ### URLs disponibles
 
-- **Site web** : `http://72.62.180.174:5173`
-- **API Backend** : `http://72.62.180.174:8000/api/`
-- **Admin Django** : `http://72.62.180.174:8000/admin/`
-- **Documentation API** : `http://72.62.180.174:8000/api/schema/swagger-ui/`
+- **Site web** : `http://178.16.130.95:5173`
+- **API Backend** : `http://178.16.130.95:8000/api/`
+- **Admin Django** : `http://178.16.130.95:8000/admin/`
+- **Documentation API** : `http://178.16.130.95:8000/api/schema/swagger-ui/`
 
 ### Commandes Docker utiles
 
@@ -484,14 +484,14 @@ server {
     
     # Backend API
     location /api/ {
-        proxy_pass http://72.62.180.174:8000;
+        proxy_pass http://178.16.130.95:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
     
     # Admin
     location /admin/ {
-        proxy_pass http://72.62.180.174:8000;
+        proxy_pass http://178.16.130.95:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }

@@ -59,11 +59,9 @@ class PartViewSet(viewsets.ModelViewSet):
             file_path = default_storage.save(unique_filename, file)
             
             # Créer l'URL complète
-            if settings.DEBUG:
-                # En développement, utiliser l'URL locale
-                image_url = f"http://72.62.180.174:8000/media/{file_path}"
+        if settings.DEBUG:
+            image_url = f"http://178.16.130.95:8000/media/{file_path}"
             else:
-                # En production, utiliser l'URL du domaine
                 image_url = f"{settings.MEDIA_URL}{file_path}"
             
             image = PartImage.objects.create(

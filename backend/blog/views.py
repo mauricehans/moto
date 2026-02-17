@@ -137,10 +137,8 @@ class PostViewSet(viewsets.ModelViewSet):
         
         # Créer l'URL complète
         if settings.DEBUG:
-            # En développement, utiliser l'URL locale
-            image_url = f"http://72.62.180.174:8000/media/{file_path}"
+            image_url = f"http://178.16.130.95:8000/media/{file_path}"
         else:
-            # En production, utiliser l'URL du domaine
             image_url = f"{settings.MEDIA_URL}{file_path}"
         
         post.image = image_url
